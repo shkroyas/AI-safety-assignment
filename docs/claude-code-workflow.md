@@ -37,3 +37,4 @@ and a log of how it was actually used. Entries are added as the work happens, no
 | 2026-11-19 | — | Plan mode: read the assignment PDF and implementation-plan PDF, asked about LLM backend, scope, merge policy and deadline, then wrote and got approval for a plan |
 | 2026-11-19 | `main` | SPEC.md v2 approved (adds Claude API + MockLLM, Claude Code layer, git workflow). First commit |
 | 2026-11-19 | `chore/claude-code-setup` | Wrote `tests/hooks/test_guard_bash.py` first. The run exposed false passes (a missing script also exits 2), so the block tests only count once the hook exists. Then wrote the hook: 22/22 pass |
+| 2026-11-19 | `main`, `chore/claude-code-setup` | Royas asked to be sole author. With explicit one-time approval, `git filter-branch --msg-filter` removed the co-author trailer from the 7 pushed commits (author/committer dates unchanged), force-pushed once, then branch protection was turned on for `main` |

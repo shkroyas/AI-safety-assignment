@@ -30,6 +30,7 @@ before changing behaviour.
 
 ## Git
 - One branch per feature (`feat/`, `fix/`, `chore/`, `docs/`); conventional commits; real timestamps.
+- Royas is the sole author: no `Co-Authored-By` trailers in commits and no "Generated with" footers in PRs.
 - Never push to `main`, never force-push, never rewrite pushed history (enforced by `.claude/hooks/guard_bash.py`).
 - `gh` calls use `GH_TOKEN=$(gh auth token -u shkroyas)`; check `gh api user -q .login` is `shkroyas` before a push or PR.
 - Open the PR with a summary, spec link and test plan, wait for green CI, then stop. Royas merges.
