@@ -49,3 +49,4 @@ Context size at PR time, from `/context` (filled in from `feat/input-normalizer`
 
 | Branch | Context at PR | Notes |
 |---|---|---|
+| `feat/input-pii` (#6) | 101.5k / 1m (10%) | Messages 66.7k, system tools 14.8k, skills 9.9k (148, mostly unrelated plugins), memory 1.5k. 454 MCP tools stay deferred (~299k if all loaded, Higgsfield alone ~150k), so they cost nothing until searched. Biggest message costs: `uv add` output and the spec rewrite to fit 40 lines |
