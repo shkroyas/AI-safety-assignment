@@ -89,6 +89,8 @@ Built and used during development; documented in `docs/claude-code-workflow.md` 
 
 ## 10. Git workflow
 - One branch per feature (`chore/`, `feat/`, `fix/`, `docs/`), conventional commits, real timestamps, no force-push.
+- Royas is the sole author; no co-author trailers.
+- `main` is protected: PR required, no force-push, no deletion; CI required once it exists.
 - PR per branch with summary, spec link, test plan; CI (ruff + pytest, py3.11/3.12, mock LLM, stub models) must be green.
 - Royas merges every PR; the next branch starts from updated `main`.
 
