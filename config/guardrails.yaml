@@ -8,6 +8,7 @@ llm:
   max_tokens: 2048
   timeout_s: 60
   max_retries: 2
+  structured_output: true             # output_config.format with the SupportReply JSON schema
 
 retriever:
   top_k: 4

@@ -20,6 +20,7 @@ class LLMSettings(BaseModel):
     max_tokens: int = 2048
     timeout_s: float = 60
     max_retries: int = 2
+    structured_output: bool = True
 
 
 class RetrieverSettings(BaseModel):
