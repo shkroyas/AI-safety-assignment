@@ -34,7 +34,7 @@ markers = [
     "slow: needs real ML models (downloads weights)",
     "live: calls the hosted LLM (Bedrock); needs credentials in .env",
 ]
-addopts = "-ra"
+addopts = "-q --tb=short --no-header -ra"
 
 [tool.ruff]
 line-length = 100

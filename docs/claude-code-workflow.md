@@ -10,7 +10,7 @@ and a log of how it was actually used. Entries are added as the work happens, no
 | CLAUDE.md | `CLAUDE.md` | Commands, layout, rules and git policy loaded into every session |
 | Spec-driven development | `SPEC.md`, `docs/specs/` | Spec approved before code; each branch adds a spec delta, then failing tests, then code |
 | Hooks | `.claude/settings.json`, `.claude/hooks/` | `guard_bash.py` (PreToolUse) blocks push to main, force-push, commit-date overrides and staging `.env`. `format_python.py` (PostToolUse) runs ruff on edited `.py` files. `stop_tests.py` (Stop) runs the fast tests before a turn ends |
-| Skills | `.claude/skills/` | `add-test-case`, `run-eval`, `nepal-recognizer` |
+| Skills | `.claude/skills/` | `start-feature`, `add-test-case`, `run-eval`, `nepal-recognizer` |
 | Subagents | `.claude/agents/` | `red-teamer`, `guardrail-reviewer` (read-only), `eval-analyst` |
 | MCP | `.mcp.json`, `src/guardbank/mcp_server.py` | Exposes the guardrails as tools (`check_input`, `check_output`, `run_case`). Added in `feat/api-mcp` |
 | Plugin | `plugins/guardbank-dev/`, `.claude-plugin/marketplace.json` | Packages the skills, agents and hooks for reuse. Added in `chore/plugin` |
@@ -41,4 +41,11 @@ and a log of how it was actually used. Entries are added as the work happens, no
 | 2026-11-19 | `chore/claude-code-setup` | Side effect of the rewrite: replacing `main`'s root left PR #1 with no shared history, so GitHub auto-closed it and refused to reopen. Opened PR #2 from the same branch. Lesson: rewrite the head branch before the base, or avoid rewriting a PR's base at all |
 | 2026-11-19 | `feat/skeleton` | Loaded the `claude-api` skill and read the current Bedrock docs before writing the client. Found that Opus 4.6 is only on Bedrock's `bedrock-runtime` path and that SDK 2.x sends an API version it rejects, so the spec delta pinned `anthropic[bedrock]<2`. Spec delta approved, then failing tests committed before code |
 | 2026-11-19 | `feat/skeleton` | Live run on Bedrock: valid `SupportReply` JSON in 3.5 s. Found a retrieval miss to carry into the eval: for "ATM limit and annual card fee", top-4 (hashing embedder) missed `atm-cards#3`; the model correctly declined the fee part instead of inventing it |
+| 2026-11-19 | `chore/token-optimisation` | Measured context costs: CLAUDE.md ~650 tok/turn; the session's big costs were one-off reads (2 PDFs as images, the claude-api skill, 2 full Bedrock doc pages ≈30k tok). Added one-feature-per-branch roadmap, `start-feature` skill, `spec_section.sh`, ≤40-line spec template, quieter pytest/Stop-hook output and a Bash output cap |
 
+## Context per branch
+
+Context size at PR time, from `/context` (filled in from `feat/input-normalizer` on).
+
+| Branch | Context at PR | Notes |
+|---|---|---|
