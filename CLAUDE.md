@@ -35,7 +35,9 @@ before changing behaviour.
 - `gh` calls use `GH_TOKEN=$(gh auth token -u shkroyas)`; check `gh api user -q .login` is `shkroyas` before a push or PR.
 - Open the PR with a summary, spec link and test plan, wait for green CI, then stop. Royas merges.
 
-## Context
-- `/clear` between feature branches; the branch's spec delta + this file are enough to restart.
-- Use an Explore subagent for wide searches; don't read `data/eval/` or model caches into context.
-- How each Claude Code feature is used here: `docs/claude-code-workflow.md`.
+## Context and tokens
+- One feature per branch (`docs/roadmap.md`); start each with `/clear` then `/start-feature`.
+- Read the SPEC section, not the file: `scripts/spec_section.sh "<heading>"`.
+- Grep first, then read line ranges. Never read `data/corpus/`, `data/eval/` or model caches whole.
+- Web pages and long docs: `web-fetch` / Explore subagent with one focused question.
+- `/compact <focus>` at milestones; check `/context` before a PR and log it in `docs/claude-code-workflow.md`.
