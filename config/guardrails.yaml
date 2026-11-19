@@ -1,0 +1,26 @@
+# Every threshold, model name and routing rule lives here (CLAUDE.md rule).
+# Env vars override llm.provider / llm.model / llm.region: HOSTED_PROVIDER, HOSTED_MODEL, BEDROCK_REGION.
+
+llm:
+  provider: mock                         # mock | bedrock
+  model: us.anthropic.claude-opus-4-6-v1
+  region: us-east-1
+  max_tokens: 2048
+  timeout_s: 60
+  max_retries: 2
+
+retriever:
+  top_k: 4
+  embedder: hashing                      # hashing (fast, CI) | sentence-transformers
+  embedding_model: BAAI/bge-small-en-v1.5
+  hashing_dim: 4096
+
+corpus:
+  path: data/corpus
+
+audit:
+  path: logs/audit.jsonl
+
+# Guardrail sections are filled in by the feature branches that implement them.
+input: {}
+output: {}
