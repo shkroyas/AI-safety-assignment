@@ -24,7 +24,13 @@ def test_guard_result_round_trips_to_json():
 
 def test_all_spec_actions_exist():
     assert {a.value for a in Action} == {
-        "allow", "redact", "block", "route", "drop_chunk", "regenerate", "fallback",
+        "allow",
+        "redact",
+        "block",
+        "route",
+        "drop_chunk",
+        "regenerate",
+        "fallback",
     }
 
 

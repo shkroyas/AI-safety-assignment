@@ -45,7 +45,9 @@ class AuditLog:
         self._lock = threading.Lock()
         self._prev = _last_hash(self.path)
 
-    def append(self, request_id: str, result: GuardResult, *, input_text: str | None = None) -> dict:
+    def append(
+        self, request_id: str, result: GuardResult, *, input_text: str | None = None
+    ) -> dict:
         entry = {
             "ts": datetime.now(UTC).isoformat(),
             "request_id": request_id,
