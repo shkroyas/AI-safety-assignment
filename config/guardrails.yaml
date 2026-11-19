@@ -73,4 +73,18 @@ input:
       "Ρ": "P"
       "Τ": "T"
       "Χ": "X"
+  pii:
+    backend: stub              # stub | presidio (needs the `pii` extra)
+    spacy_model: en_core_web_sm
+    # Order = priority when two equal-length spans overlap.
+    labels: [CARD, NP_CITIZENSHIP, NP_PAN, ACCOUNT_NO, NP_PHONE, OTP, PASSWORD, EMAIL, PERSON, LOCATION]
+    never_share: [CARD, OTP, PASSWORD]
+    warning: "Never share card numbers, OTPs or passwords, even with bank staff."
+    context_window: 30         # chars before a number searched for its context words
+    context_words:
+      NP_PAN: [pan]
+      ACCOUNT_NO: [account, a/c, acct]
+      OTP: [otp, code, pin]
+      PASSWORD: [password, passcode, pw]
+
 output: {}
