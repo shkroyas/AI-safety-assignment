@@ -17,6 +17,10 @@ dependencies = [
 
 [project.optional-dependencies]
 ml = ["sentence-transformers>=3"]
+pii = [
+    "en-core-web-sm",
+    "presidio-analyzer>=2.2",
+]
 
 [dependency-groups]
 dev = ["pytest>=8", "ruff>=0.6"]
@@ -42,3 +46,6 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP", "PLW1510"]
+
+[tool.uv.sources]
+en-core-web-sm = { url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl" }
