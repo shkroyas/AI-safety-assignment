@@ -13,7 +13,7 @@ Actions: `allow | redact | block | route | drop_chunk | regenerate | fallback`.
 3. Input injection: block if regex high-confidence OR classifier score >= tau.
 4. Topic router (crisis keyword fast-path first, then classifier), before retrieval.
 5. Retriever (top-4); injection scan on every chunk; poisoned chunk dropped.
-6. LLM (Claude API, model name in config; `MockLLM` for tests/CI) returns JSON; canary token in system prompt.
+6. LLM (Claude Opus 4.6 on Amazon Bedrock, model in config/env; `MockLLM` for tests/CI) returns JSON; canary token in system prompt.
 7. Output: schema, groundedness, sensitive-info checks, then `remediation.py` decides the final reply.
 8. Audit log: each stage appends verdict, score, latency; entries are SHA-256 hash-chained JSONL.
 
@@ -95,5 +95,5 @@ Built and used during development; documented in `docs/claude-code-workflow.md` 
 - Royas merges every PR; the next branch starts from updated `main`.
 
 ## Inputs needed during the build
-- `ANTHROPIC_API_KEY` in local `.env` (gitignored).
+- Bedrock credentials (`HOSTED_MODEL`, `BEDROCK_REGION`, `BEDROCK_API_KEYS`) in local `.env` (gitignored).
 - Hugging Face token, with the Prompt Guard 2 licence accepted.
