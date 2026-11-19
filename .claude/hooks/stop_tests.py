@@ -11,6 +11,16 @@ import sys
 from pathlib import Path
 
 
+def failure_lines(output: str, limit: int = 15) -> list[str]:
+    """Keep only FAILED/ERROR lines and the final summary, to save context tokens."""
+    lines = [ln for ln in output.splitlines() if ln.startswith(("FAILED ", "ERROR "))]
+    extra = len(lines) - limit
+    if extra > 0:
+        lines = [*lines[:limit], f"... {extra} more"]
+    summary = [ln for ln in output.splitlines() if " passed" in ln or " failed" in ln]
+    return lines + summary[-1:]
+
+
 def main() -> int:
     try:
         payload = json.load(sys.stdin)
@@ -23,7 +33,7 @@ def main() -> int:
         return 0
     try:
         result = subprocess.run(
-            ["uv", "run", "pytest", "-q", "-x", "-m", "not slow and not live"],
+            ["uv", "run", "pytest", "--tb=no", "-rfE", "-m", "not slow and not live"],
             cwd=root,
             check=False,
             capture_output=True,
@@ -38,7 +48,7 @@ def main() -> int:
         return 2
     # pytest exit 5 = no tests collected; not a failure.
     if result.returncode not in (0, 5):
-        tail = "\n".join(result.stdout.splitlines()[-25:])
+        tail = "\n".join(failure_lines(result.stdout))
         print(
             f"Fast tests failed. Fix the cause before stopping:\n{tail}",
             file=sys.stderr,
