@@ -23,5 +23,54 @@ audit:
   path: logs/audit.jsonl
 
 # Guardrail sections are filled in by the feature branches that implement them.
-input: {}
+input:
+  normalizer:
+    decode:
+      min_len: 16          # shortest base64/hex token considered for decoding
+      min_printable: 0.9   # fraction of decoded chars that must be printable
+    homoglyphs:            # look-alike -> Latin (Cyrillic, Greek)
+      "а": "a"
+      "в": "b"
+      "е": "e"
+      "к": "k"
+      "м": "m"
+      "н": "h"
+      "о": "o"
+      "р": "p"
+      "с": "c"
+      "т": "t"
+      "у": "y"
+      "х": "x"
+      "і": "i"
+      "ј": "j"
+      "ѕ": "s"
+      "А": "A"
+      "В": "B"
+      "Е": "E"
+      "К": "K"
+      "М": "M"
+      "Н": "H"
+      "О": "O"
+      "Р": "P"
+      "С": "C"
+      "Т": "T"
+      "Х": "X"
+      "І": "I"
+      "α": "a"
+      "ε": "e"
+      "ι": "i"
+      "ο": "o"
+      "ρ": "p"
+      "υ": "u"
+      "Α": "A"
+      "Β": "B"
+      "Ε": "E"
+      "Ι": "I"
+      "Κ": "K"
+      "Μ": "M"
+      "Ν": "N"
+      "Ο": "O"
+      "Ρ": "P"
+      "Τ": "T"
+      "Χ": "X"
 output: {}
