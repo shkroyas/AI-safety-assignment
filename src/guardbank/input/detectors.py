@@ -59,3 +59,16 @@ class StubScorer:
 
     def score(self, text: str) -> float:
         return 0.0
+
+
+class TopicClassifier(Protocol):
+    def predict(self, text: str) -> tuple[str, float]:
+        """Return (category label, probability 0..1) for `text`."""
+        ...
+
+
+class StubTopicClassifier:
+    """CPU stub for fast tests and CI: everything is NORMAL with probability 0.0."""
+
+    def predict(self, text: str) -> tuple[str, float]:
+        return "NORMAL", 0.0

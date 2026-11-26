@@ -108,4 +108,76 @@ input:
         regex: 'GB-CANARY-|\bcanary\b'
         weight: 1.0
 
+  topics:
+    classifier: stub           # stub | embed_logreg (model arrives in feat/ml-detectors)
+    tau: 0.7                   # use the classifier label only when its probability >= tau
+    helpline:
+      name: National Suicide Prevention Helpline
+      number: "1166"           # verified 2026-11-26; hours unconfirmed, so replies state none
+      source: https://www.who.int/southeastasia/news/feature-stories/detail/nepal-suicide-prevention-helpline
+    # Crisis fast-path: any hit routes to CRISIS before anything else. Case-insensitive.
+    crisis:
+      - '\b(?:want|going|wanna|ready)\s+to\s+end\s+it\b'
+      - '\bend\s+it\s+all\b'
+      - '\bend\s+my\s+life\b'
+      - '\bkill\s+myself\b'
+      - '\bsuicid\w*'
+      - '\b(?:want|wish)\s+(?:to|i\s+could)\s+die\b'
+      - '\bno\s+reason\s+to\s+live\b'
+      - '\b(?:harm|hurt)\s+myself\b'
+    # Keyword rules; YAML order = priority.
+    categories:
+      FRAUD_INTENT:
+        - '\b(?:fake|forged|false|someone\s+else''?s)\s+(?:citizenship|passport|id|documents?|kyc|licen[cs]e|pan)\b'
+        - '\blaunder\w*'
+        - '\bmoney\s+mul(?:e|ing)\b'
+        - '\bbypass\s+(?:the\s+)?kyc\b'
+        - '\bhow\s+(?:do|can)\s+i\s+(?:scam|cheat|defraud|steal)\b'
+      SCAM_VICTIM:
+        - '\b(?:gave|shared|told)\s+(?:(?:them|him|her|someone|the\s+caller)\s+)?(?:my\s+)?(?:otp|pin|password|card\s+(?:number|details))\b'
+        - '\bscam(?:med)?\b'
+        - '\b(?:i\s+was|i''ve\s+been|got)\s+(?:defrauded|cheated|hacked|phished)\b'
+        - '\bunauthori[sz]ed\s+(?:transaction|transfer|payment|debit)s?\b'
+      COMPLAINT:
+        - '\bcharged\s+(?:me\s+)?(?:twice|double|wrongly|extra)\b'
+        - '\bdouble[-\s]charged\b'
+        - '\b(?:complain|complaint|grievance|dispute)\w*'
+        - '\b(?:rude|terrible|worst)\s+(?:service|staff|branch)\b'
+      ADVICE:
+        - '\bshould\s+i\s+(?:invest|put|buy|sell)\b'
+        - '\bnepse\b'
+        - '\bwhich\s+(?:shares?|stocks?)\b'
+        - '\b(?:legal|tax)\s+advice\b'
+        - '\bcan\s+i\s+sue\b'
+      OFF_TOPIC:
+        - '\b(?:write|compose)\s+(?:me\s+)?an?\s+(?:poem|song|story|essay)\b'
+        - '\btell\s+me\s+a\s+joke\b'
+        - '\brecipe\b'
+        - '\bhomework\b'
+    # Routing table (SPEC §3). action: allow | route | block. {helpline_name}/{helpline_number} are filled in.
+    routes:
+      CRISIS:
+        action: route
+        route: crisis
+        escalate: true
+        response: "I'm really sorry you're going through this, and you don't have to face it alone. Please call the {helpline_name} on {helpline_number} to talk with a trained counsellor. If you are in immediate danger, please contact local emergency services. I can also connect you with one of our staff right now: would you like me to put you through to a human agent? If loan repayments are part of the worry, our team can talk you through repayment relief options."
+      FRAUD_INTENT:
+        action: block
+        route: block
+        escalate: false
+        response: "Sorry, I can't help with that request. I can answer questions about Sagarmatha Digital Bank services."
+      SCAM_VICTIM: {action: route, route: answer, escalate: true}
+      COMPLAINT: {action: route, route: answer, escalate: true}
+      ADVICE:
+        action: route
+        route: answer
+        escalate: false
+        disclaimer: "This is general information from our published policies, not a personal investment, legal or tax recommendation. For advice on your own situation, please speak to a licensed adviser."
+      OFF_TOPIC:
+        action: route
+        route: redirect
+        escalate: false
+        response: "I can only help with Sagarmatha Digital Bank questions, such as accounts, cards, loans and transfers. What would you like to know about your banking?"
+      NORMAL: {action: allow, route: answer, escalate: false}
+
 output: {}
