@@ -24,5 +24,6 @@ code → PR with green CI → Royas merges → `/clear`. "Spec" = the SPEC.md se
 | 12b | `feat/eval-ablations` | ablations, tau / tau_g sweeps, latency, charts | 6. Evaluation | this PR |
 | 13 | `feat/api-mcp` | FastAPI `/chat` + MCP server | 9. Claude Code development layer | this PR |
 | 14 | `docs/report` | architecture diagram, README, report | — | |
+| — | `fix/gliner-generic-nouns` | drop generic-noun spans that hid a crisis message | 3. Input guardrails | merged #19 |
 | — | `fix/*` | one per real failure found by the eval | 6. Evaluation | |
-| — | `chore/plugin` | package skills/agents/hooks as a plugin | 9. Claude Code development layer | this PR |
+| — | `chore/plugin` | package skills/agents/hooks as a plugin | 9. Claude Code development layer | |
