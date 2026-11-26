@@ -1,4 +1,4 @@
-.PHONY: install install-ml test test-all lint format eval
+.PHONY: install install-ml test test-all lint format eval eval-full
 
 install:
 	uv sync
@@ -21,4 +21,7 @@ format:
 	uv run ruff check --fix .
 
 eval:
-	@echo "eval arrives in feat/eval"
+	uv run python eval/run_eval.py --mode fast
+
+eval-full:
+	uv run --extra ml python eval/run_eval.py --mode full
