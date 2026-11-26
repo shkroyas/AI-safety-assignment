@@ -194,4 +194,6 @@ input:
         response: "I can only help with Sagarmatha Digital Bank questions, such as accounts, cards, loans and transfers. What would you like to know about your banking?"
       NORMAL: {action: allow, route: answer, escalate: false}
 
-output: {}
+output:
+  schema:
+    strip_code_fence: true   # accept one ```json ... ``` wrapper around the object
