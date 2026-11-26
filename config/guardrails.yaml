@@ -217,14 +217,28 @@ output:
   schema:
     strip_code_fence: true   # accept one ```json ... ``` wrapper around the object
   groundedness:
-    scorer: keyword            # keyword | hhem (model arrives in feat/ml-output)
+    scorer: keyword            # keyword | hhem (`ml` extra)
     tau_g: 0.6                 # claim supported when score >= tau_g (and no number missing); tune on dev
     number_check: true         # every number, %, amount and date in a claim must be in the cited chunks
     fallback_below: 0.5        # SPEC §4: support < 0.5 -> safe fallback; else regenerate
+    hhem:                      # HHEM-2.1-open, loaded without trust_remote_code (output/hhem.py)
+      name: vectara/hallucination_evaluation_model
+      revision: de9a5e6ba9ba49531a022dba17e35ffeb2a6fad8   # pinned: the vendored wrapper matches this commit
+      foundation: google/flan-t5-base
+      prompt: "<pad> Determine if the hypothesis is true given the premise?\n\nPremise: {text1}\n\nHypothesis: {text2}"
+      max_length: 512          # longer premise+claim prompts are truncated
+      tau_g: 0.5               # overrides tau_g above when scorer is hhem; tune on dev in feat/eval
+      device: auto
   leakage:
     canary_prefix: "GB-CANARY-"  # any value with this prefix in an answer is a leak, not just this session's
-    tau_prompt: 0.75           # block when an answer sentence is this similar to a system-prompt sentence
-                               # (hashing embedder: clean corpus max 0.63, verbatim prompt lines 0.87-1.0)
+    embedder: hashing          # hashing | sentence-transformers (`ml` extra)
+    embedding_model: BAAI/bge-small-en-v1.5
+    # Block when an answer sentence is this similar to a system-prompt sentence. Measured with the
+    # public lines below dropped (clean corpus max | verbatim, summary, paraphrase, JSON leaks):
+    # hashing 0.23 | 1.0, 0.43, 0.13, 0.73;  bge-small 0.72 | 1.0, 0.78, 0.69, 0.91.
+    tau_prompt: {hashing: 0.40, sentence-transformers: 0.75}
+    # Prompt sentences that only restate published policy; clean corpus text legitimately matches them.
+    public_prompt_lines: ["PINs, passwords", "investment, tax or legal advice", "a fictional bank in Nepal"]
     keep_last: 4               # user's own PII echoed back keeps only its last 4 characters
     full_hide: [CARD, OTP, PASSWORD]   # own PII of these labels is never shown, even partially
 

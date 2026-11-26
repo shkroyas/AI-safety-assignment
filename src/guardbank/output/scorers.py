@@ -1,13 +1,15 @@
-"""Claim scorers for the groundedness check (docs/specs/output-groundedness.md).
+"""Claim scorers for the groundedness check (docs/specs/output-groundedness.md, ml-output.md).
 
-`KeywordScorer` is the baseline. The HHEM NLI scorer arrives in feat/ml-output behind
-the same `ClaimScorer` protocol, so the eval can ablate keyword vs NLI.
+`score(claim, evidences)` gets the full claim text and one string per cited chunk.
+`KeywordScorer` is the baseline; `HHEMScorer` (output/hhem.py) is the NLI model.
 """
 
 from __future__ import annotations
 
 import re
-from typing import Protocol
+from typing import Any, Protocol
+
+from guardbank.output.facts import extract_facts
 
 _WORD = re.compile(r"[a-z]+")
 # Function words and unit words; numbers themselves are handled by the number check.
@@ -20,8 +22,8 @@ _STOPWORDS = frozenset(
 
 
 class ClaimScorer(Protocol):
-    def score(self, claim: str, evidence: str) -> float:
-        """Return how well `evidence` supports `claim`, 0..1."""
+    def score(self, claim: str, evidences: list[str]) -> float:
+        """Return how well the cited chunks support `claim`, 0..1."""
         ...
 
 
@@ -35,10 +37,25 @@ def content_words(text: str) -> set[str]:
 
 
 class KeywordScorer:
-    """Share of the claim's content words that occur in the evidence."""
+    """Share of the claim's content words (numbers and dates blanked) found in the evidence."""
 
-    def score(self, claim: str, evidence: str) -> float:
-        words = content_words(claim)
+    def score(self, claim: str, evidences: list[str]) -> float:
+        words = content_words(extract_facts(claim)[1])
         if not words:
             return 1.0
-        return len(words & content_words(evidence)) / len(words)
+        evidence = content_words(extract_facts("\n".join(evidences))[1])
+        return len(words & evidence) / len(words)
+
+
+def build_claim_scorer(config: dict[str, Any]) -> ClaimScorer:
+    kind = config.get("scorer", "keyword")
+    if kind == "keyword":
+        return KeywordScorer()
+    if kind == "hhem":
+        from guardbank.output.hhem import HHEMScorer
+
+        h = config["hhem"]
+        return HHEMScorer(
+            h["name"], h["revision"], h["foundation"], h["prompt"], h["max_length"], h["device"]
+        )
+    raise ValueError(f"unknown groundedness scorer {kind!r}; allowed: keyword, hhem")
