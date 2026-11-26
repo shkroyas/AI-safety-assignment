@@ -15,7 +15,7 @@ import numpy as np
 from guardbank.input.normalizer import Normalizer
 from guardbank.input.pii import PiiRedactor, PiiVault
 from guardbank.output.groundedness import split_claims
-from guardbank.rag.embed import Embedder
+from guardbank.rag.embed import Embedder, HashingEmbedder, SentenceTransformerEmbedder
 from guardbank.rag.prompts import SYSTEM_TEMPLATE
 from guardbank.types import Action, GuardResult, Span
 
@@ -24,12 +24,17 @@ _TOKEN = re.compile(r"<([A-Z_]+)_\d+>")
 _MIN_WORDS = 4
 
 
-def instruction_sentences(template: str = SYSTEM_TEMPLATE) -> list[str]:
-    """Sentences of the system prompt's instruction part (before CONTEXT:), canary removed."""
+def instruction_sentences(
+    template: str = SYSTEM_TEMPLATE, exclude: list[str] | tuple[str, ...] = ()
+) -> list[str]:
+    """Sentences of the system prompt's instruction part (before CONTEXT:), canary removed.
+    Sentences containing an `exclude` substring (public policy restated) are left out."""
     head = template.split("CONTEXT:")[0].replace("{canary}", "")
     blocks = re.split(r"\n(?=- )|\n\n", head)
     sentences = [s for b in blocks for s in split_claims(" ".join(b.strip(" -").split()))]
-    return [s for s in sentences if len(s.split()) >= _MIN_WORDS]
+    return [
+        s for s in sentences if len(s.split()) >= _MIN_WORDS and not any(x in s for x in exclude)
+    ]
 
 
 class LeakageChecker:
@@ -41,22 +46,30 @@ class LeakageChecker:
         normalizer: Normalizer,
     ) -> None:
         self.prefix: str = config["canary_prefix"].lower()
-        self.tau_prompt: float = config["tau_prompt"]
+        self.tau_prompt: float = config["tau_prompt"][config["embedder"]]
         self.keep_last: int = config["keep_last"]
         self.full_hide: set[str] = set(config["full_hide"])
         self.redactor = redactor
         self.embedder = embedder
         self.normalizer = normalizer
-        self._prompt = embedder.embed(instruction_sentences())
+        self._prompt = embedder.embed(instruction_sentences(exclude=config["public_prompt_lines"]))
 
     @classmethod
     def from_settings(cls, settings: Any) -> LeakageChecker:
-        from guardbank.assistant import build_embedder
-
+        config = settings.output["leakage"]
+        if config["embedder"] == "sentence-transformers":
+            embedder: Embedder = SentenceTransformerEmbedder(config["embedding_model"])
+        elif config["embedder"] == "hashing":
+            embedder = HashingEmbedder(settings.retriever.hashing_dim)
+        else:
+            kind = config["embedder"]
+            raise ValueError(
+                f"unknown leakage embedder {kind!r}; allowed: hashing, sentence-transformers"
+            )
         return cls(
-            settings.output["leakage"],
+            config,
             PiiRedactor.from_settings(settings),
-            build_embedder(settings),
+            embedder,
             Normalizer.from_settings(settings),
         )
 
