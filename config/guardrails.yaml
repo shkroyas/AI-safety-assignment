@@ -197,3 +197,8 @@ input:
 output:
   schema:
     strip_code_fence: true   # accept one ```json ... ``` wrapper around the object
+  groundedness:
+    scorer: keyword            # keyword | hhem (model arrives in feat/ml-detectors)
+    tau_g: 0.6                 # claim supported when score >= tau_g (and no number missing); tune on dev
+    number_check: true         # every number, %, amount and date in a claim must be in the cited chunks
+    fallback_below: 0.5        # SPEC §4: support < 0.5 -> safe fallback; else regenerate
