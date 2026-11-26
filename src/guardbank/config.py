@@ -47,6 +47,7 @@ class Settings(BaseModel):
     audit: AuditSettings = AuditSettings()
     input: dict[str, Any] = {}
     rag: dict[str, Any] = {}
+    remediation: dict[str, Any] = {}
     output: dict[str, Any] = {}
 
     def resolve(self, relative: str) -> Path:
