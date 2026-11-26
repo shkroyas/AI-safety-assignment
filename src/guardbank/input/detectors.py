@@ -46,3 +46,16 @@ class PresidioDetector:
             Span(start=h.start, end=h.end, label=h.entity_type, text=text[h.start : h.end])
             for h in hits
         ]
+
+
+class ScoreDetector(Protocol):
+    def score(self, text: str) -> float:
+        """Return the probability (0..1) that `text` is a prompt-injection attack."""
+        ...
+
+
+class StubScorer:
+    """CPU stub for fast tests and CI: scores everything 0.0."""
+
+    def score(self, text: str) -> float:
+        return 0.0
