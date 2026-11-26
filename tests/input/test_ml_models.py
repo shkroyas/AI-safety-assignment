@@ -79,3 +79,42 @@ def test_gliner_skips_pronoun(settings):
     pytest.importorskip("gliner")
     det = build_pii_detector(_cfg(settings, "pii", backend="gliner"))
     assert det.detect("I don't see the point of going on anymore") == []
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Someone called and I gave my OTP",
+        "Lately I think my family would be better off if I was not around",
+        "We will escalate your complaint to a staff member.",
+        "Your request has been noted, and a team member will follow up.",
+        "My card was swallowed by the ATM, what should I do?",
+        "My manager asked me to open an account",
+        "The customer service agent was rude",
+    ],
+)
+def test_gliner_skips_generic_nouns(settings, text):
+    pytest.importorskip("gliner")
+    det = build_pii_detector(_cfg(settings, "pii", backend="gliner"))
+    assert det.detect(text) == []
+
+
+@pytest.mark.parametrize(
+    ("text", "want"),
+    [
+        (
+            "Transfer to Anita Shrestha in Dharan.",
+            {("PERSON", "Anita Shrestha"), ("LOCATION", "Dharan")},
+        ),
+        ("my name is sita sharma", {("PERSON", "sita sharma")}),
+        ("Can Hari open an account?", {("PERSON", "Hari")}),
+        (
+            "Ramesh Karki from Butwal wants an account.",
+            {("PERSON", "Ramesh Karki"), ("LOCATION", "Butwal")},
+        ),
+    ],
+)
+def test_gliner_keeps_names(settings, text, want):
+    pytest.importorskip("gliner")
+    det = build_pii_detector(_cfg(settings, "pii", backend="gliner"))
+    assert want <= {(s.label, s.text) for s in det.detect(text)}
