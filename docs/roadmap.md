@@ -14,8 +14,8 @@ code → PR with green CI → Royas merges → `/clear`. "Spec" = the SPEC.md se
 | 4 | `feat/input-topics` | crisis fast-path + routing table (verified helpline) | 3. Input guardrails | merged #8 |
 | 5 | `feat/chunk-scan` | injection scan on retrieved chunks, drop poisoned | 2. Pipeline order | merged #9 |
 | 6 | `feat/output-schema` | SupportReply + citation-exists + fault injection | 4. Output guardrails | merged #10 |
-| 7 | `feat/output-groundedness` | claim split, number/date match, keyword baseline | 4. Output guardrails | this PR |
-| 8 | `feat/output-leakage` | output PII diff, canary, prompt similarity | 4. Output guardrails | |
+| 7 | `feat/output-groundedness` | claim split, number/date match, keyword baseline | 4. Output guardrails | merged #11 |
+| 8 | `feat/output-leakage` | output PII diff, canary, prompt similarity | 4. Output guardrails | this PR |
 | 9 | `feat/remediation-pipeline` | remediation policy + full pipeline + audit per stage | 4. Output guardrails | |
 | 10 | `feat/ml-detectors` | Prompt Guard 2 / DeBERTa, GLiNER, HHEM, topic classifier | 3. Input guardrails | |
 | 11 | `feat/e2e-cases` | 40+ cases in `tests/cases.yaml` | 5. Test case format | |
