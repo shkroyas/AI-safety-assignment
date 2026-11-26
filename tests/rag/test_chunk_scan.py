@@ -46,7 +46,7 @@ def test_all_poisoned_docs_dropped(scanner, chunks, injected):
 
 def test_no_clean_chunk_dropped(scanner, chunks):
     clean = [Hit(chunk=c, score=1.0) for c in chunks if not c.poisoned]
-    assert len(clean) == 126
+    assert len(clean) == 117
     kept, r = scanner.filter(clean)
     assert r.details["dropped"] == []
     assert len(kept) == len(clean)

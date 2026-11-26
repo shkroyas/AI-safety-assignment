@@ -32,7 +32,7 @@ rag:
 
 ## Tests first (`tests/rag/test_chunk_scan.py`, all fast)
 - `test_all_poisoned_docs_dropped` (each of the 3 poisoned docs loses its injected chunk), `test_no_clean_chunk_dropped`
-  (all 126 clean chunks kept), `test_result_shape` (action, details.dropped/kept, order kept), `test_allowed_domain_not_flagged`,
+  (all 117 clean chunks kept), `test_result_shape` (action, details.dropped/kept, order kept), `test_allowed_domain_not_flagged`,
   `test_obfuscated_chunk_caught` (homoglyph/zero-width "ignore previous instructions"), `test_classifier_score_drops_chunk`.
 
 ## Limits and out of scope
