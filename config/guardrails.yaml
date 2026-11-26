@@ -256,3 +256,9 @@ remediation:
   strip_note: "I couldn't verify the rest, please confirm with a branch."
   fallback_text: "I'm sorry, I couldn't find a reliable answer to that. A member of our team will follow up, or you can visit any branch."
   block_text: "Sorry, I can't help with that request. I can answer questions about Sagarmatha Digital Bank services."
+
+# HTTP API (api.py). GUARDBANK_MODE=full overrides mode (all ML models, `ml` extra).
+api:
+  mode: fast
+  max_message_chars: 4000
+  max_sessions: 1000           # in-memory sessions (PII vaults); the oldest is dropped beyond this
