@@ -85,3 +85,13 @@ def test_topic_training_set(settings, root):
     assert len(texts) == len(set(t.lower() for t in texts))
     for label, items in data.items():
         assert len(items) >= 10, label
+
+
+def test_chunk_scan_classifier_is_its_own_setting(settings):
+    from guardbank.rag.chunk_scan import ChunkScanner
+
+    s = copy.deepcopy(settings)
+    s.input["injection"]["classifier"] = "deberta"
+    assert isinstance(ChunkScanner.from_settings(s).detector.classifier, StubScorer)
+    s.rag["chunk_scan"]["classifier"] = "deberta"
+    assert isinstance(ChunkScanner.from_settings(s).detector.classifier, HFInjectionScorer)
