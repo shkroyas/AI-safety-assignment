@@ -1,0 +1,50 @@
+// guardbank architecture. Build: make docs  (dot -Tpng / -Tsvg)
+digraph guardbank {
+  graph [rankdir=TB, fontname="Helvetica", fontsize=11, nodesep=0.35, ranksep=0.4, pad=0.3,
+         label="guardbank: guardrail pipeline (SPEC §2). Every stage appends verdict, score and latency to the audit log.",
+         labelloc=b];
+  node  [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=10, fillcolor="#ffffff", color="#555555"];
+  edge  [fontname="Helvetica", fontsize=9, color="#555555"];
+
+  user [label="User message\n(POST /chat or MCP check_input)", shape=oval, fillcolor="#eeeeee"];
+
+  subgraph cluster_input {
+    label="Input guardrails"; style="rounded,filled"; fillcolor="#e8f0fb"; color="#7a9cc6"; fontsize=11;
+    normalizer [label="1. Normalizer\nNFKC, zero-width strip, homoglyphs,\nbase64/hex decode (decoded text scanned too)"];
+    pii        [label="2. Input PII\nregex + Nepal recognizers + GLiNER\n→ typed tokens <CARD_1>, session vault"];
+    injection  [label="3. Prompt injection\nregex bank + DeBERTa, block if score ≥ τ"];
+    topics     [label="4. Topic router\ncrisis fast-path, then embed + logreg"];
+  }
+
+  subgraph cluster_rag {
+    label="Retrieval and generation"; style="rounded,filled"; fillcolor="#eef7ee"; color="#86b386"; fontsize=11;
+    retriever  [label="5a. Retriever\nbge-small, top-4 chunks"];
+    chunkscan  [label="5b. Chunk scan\ninjection scan per chunk, drop poisoned"];
+    llm        [label="6. LLM\nClaude Opus 4.6 (Bedrock) / MockLLM\nJSON SupportReply, canary in system prompt"];
+  }
+
+  subgraph cluster_output {
+    label="Output guardrails"; style="rounded,filled"; fillcolor="#fbf1e4"; color="#c9a46b"; fontsize=11;
+    schema       [label="7a. Schema\nPydantic SupportReply, citations exist,\nescalate rule"];
+    grounded     [label="7b. Groundedness\nclaims vs cited chunks: HHEM NLI\n+ exact numbers and dates"];
+    leakage      [label="7c. Sensitive-info\nPII diff vs input, canary,\nsystem-prompt similarity"];
+    remediation  [label="Remediation policy\nregenerate / strip / redact / mask /\nfallback / block"];
+  }
+
+  audit [label="8. Audit log\nSHA-256 hash-chained JSONL", shape=cylinder, fillcolor="#f3f3f3"];
+  reply [label="Reply + guardrail_report", shape=oval, fillcolor="#eeeeee"];
+
+  refuse [label="Generic refusal", shape=note, fillcolor="#fde2e2"];
+  route  [label="Fixed route: crisis helpline,\nfraud block, off-topic redirect", shape=note, fillcolor="#fde2e2"];
+
+  user -> normalizer -> pii -> injection -> topics -> retriever -> chunkscan -> llm -> schema;
+  schema -> grounded -> leakage -> remediation -> reply;
+
+  injection -> refuse [label="block", color="#c0392b", fontcolor="#c0392b"];
+  topics -> route [label="crisis / fraud / off-topic", color="#c0392b", fontcolor="#c0392b"];
+  schema -> llm [label="invalid: retry ≤2\nwith error", style=dashed, constraint=false];
+  grounded -> llm [label="unsupported: regenerate\nonce at temp 0", style=dashed, constraint=false];
+
+  remediation -> audit [label="every stage\nappends an entry", style=dotted, color="#999999"];
+  {rank=same; reply; audit}
+}

@@ -35,6 +35,9 @@ pii = [
 
 [dependency-groups]
 dev = ["pytest>=8", "ruff>=0.6"]
+docs = [
+    "markdown>=3.11.4",
+]
 
 [build-system]
 requires = ["hatchling"]
