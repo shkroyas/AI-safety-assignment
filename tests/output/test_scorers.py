@@ -1,4 +1,4 @@
-"""Claim scorers, HHEM factory and leakage embedder settings, no weights (docs/specs/ml-output.md)."""
+"""Claim scorers, HHEM factory and leakage embedder settings; no weights (ml-output spec)."""
 
 import copy
 
