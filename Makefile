@@ -1,4 +1,4 @@
-.PHONY: install install-ml test test-all lint format eval eval-full ablations
+.PHONY: install install-ml test test-all lint format eval eval-full ablations serve
 
 install:
 	uv sync
@@ -28,3 +28,6 @@ eval-full:
 
 ablations:
 	uv run --extra ml python eval/run_ablations.py --mode full
+
+serve:
+	uv run uvicorn --factory guardbank.api:serve_app --port 8000

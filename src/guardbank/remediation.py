@@ -57,3 +57,21 @@ class Remediation:
             latency_ms=0.0,
             details={"reason": reason, "attempts": attempts, **details},
         )
+
+
+def public_report(stages: list[GuardResult]) -> list[dict[str, Any]]:
+    """Per-stage summary safe to return to a client: no detail text, no raw input, no PII."""
+    out = []
+    for st in stages:
+        entry = {
+            "stage": st.stage,
+            "action": st.action.value,
+            "detected": st.detected,
+            "score": round(st.score, 4),
+            "category": st.category,
+            "latency_ms": round(st.latency_ms, 3),
+        }
+        if st.stage == STAGE:
+            entry["reason"] = st.details.get("reason")
+        out.append(entry)
+    return out

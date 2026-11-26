@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "guardbank": {
+      "command": "uv",
+      "args": ["run", "--quiet", "python", "-m", "guardbank.mcp_server"]
+    }
+  }
+}

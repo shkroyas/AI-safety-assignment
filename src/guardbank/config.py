@@ -48,6 +48,7 @@ class Settings(BaseModel):
     input: dict[str, Any] = {}
     rag: dict[str, Any] = {}
     remediation: dict[str, Any] = {}
+    api: dict[str, Any] = {}
     output: dict[str, Any] = {}
 
     def resolve(self, relative: str) -> Path:
