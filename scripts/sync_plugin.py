@@ -56,9 +56,7 @@ def main() -> int:
     args = ap.parse_args()
     want = expected()
     have = {
-        f"{name}/{rel}": data
-        for name in MIRRORED
-        for rel, data in _files(PLUGIN / name).items()
+        f"{name}/{rel}": data for name in MIRRORED for rel, data in _files(PLUGIN / name).items()
     }
     problems = [f"missing or stale: {p}" for p, d in want.items() if have.get(p) != d]
     problems += [f"extra: {p}" for p in have if p not in want]

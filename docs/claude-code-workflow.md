@@ -13,7 +13,7 @@ and a log of how it was actually used. Entries are added as the work happens, no
 | Skills | `.claude/skills/` | `start-feature`, `add-test-case`, `run-eval`, `nepal-recognizer` |
 | Subagents | `.claude/agents/` | `red-teamer`, `guardrail-reviewer` (read-only), `eval-analyst` |
 | MCP | `.mcp.json`, `src/guardbank/mcp_server.py` | Exposes the guardrails as tools (`check_input`, `check_output`, `run_case`). Added in `feat/api-mcp` |
-| Plugin | `plugins/guardbank-dev/`, `.claude-plugin/marketplace.json` | Packages the skills, agents and hooks for reuse. Added in `chore/plugin` |
+| Plugin | `plugins/guardbank-dev/`, `.claude-plugin/marketplace.json` | Packages the 4 skills, 3 agents and 3 hooks for reuse (e.g. a fresh clone or another worktree). Generated from `.claude/` by `scripts/sync_plugin.py`; a test fails on drift. Added in `chore/plugin` |
 | Permissions | `.claude/settings.json` | Allow-list for test/lint commands; deny reads of `.env`, model caches, logs and eval JSONL |
 
 ## Context window management
@@ -42,6 +42,21 @@ and a log of how it was actually used. Entries are added as the work happens, no
 | 2026-11-19 | `feat/skeleton` | Loaded the `claude-api` skill and read the current Bedrock docs before writing the client. Found that Opus 4.6 is only on Bedrock's `bedrock-runtime` path and that SDK 2.x sends an API version it rejects, so the spec delta pinned `anthropic[bedrock]<2`. Spec delta approved, then failing tests committed before code |
 | 2026-11-19 | `feat/skeleton` | Live run on Bedrock: valid `SupportReply` JSON in 3.5 s. Found a retrieval miss to carry into the eval: for "ATM limit and annual card fee", top-4 (hashing embedder) missed `atm-cards#3`; the model correctly declined the fee part instead of inventing it |
 | 2026-11-19 | `chore/token-optimisation` | Measured context costs: CLAUDE.md ~650 tok/turn; the session's big costs were one-off reads (2 PDFs as images, the claude-api skill, 2 full Bedrock doc pages ≈30k tok). Added one-feature-per-branch roadmap, `start-feature` skill, `spec_section.sh`, ≤40-line spec template, quieter pytest/Stop-hook output and a Bash output cap |
+| 2026-11-27 | `chore/plugin` | `claude plugin validate --strict` passed for the plugin and the marketplace. Installed it with `CLAUDE_CONFIG_DIR` pointed at a scratch directory, so the real config was untouched: `plugin details` listed 4 skills, 3 agents, 3 hooks, ~376 always-on tokens. The validator's catalog checks flag a missing LICENSE and icon; not needed for a local marketplace |
+
+## Installing the plugin
+
+```bash
+/plugin marketplace add ./            # from the repo root; the marketplace is named guardbank
+/plugin install guardbank-dev@guardbank
+```
+
+Skills and agents then appear namespaced (`guardbank-dev:run-eval`). Do not enable the plugin in
+a checkout that also has `.claude/settings.json` hooks active, or every hook runs twice. The MCP
+server is not bundled: it needs this repo's code and stays in the root `.mcp.json`. Permissions
+and env from `settings.json` are not bundled either (plugins cannot set them). After changing
+anything under `.claude/skills`, `.claude/agents` or `.claude/hooks`, run
+`python scripts/sync_plugin.py`.
 
 ## Context per branch
 
