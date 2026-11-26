@@ -62,6 +62,18 @@ class PiiVault:
     def restore(self, text: str) -> str:
         return _TOKEN.sub(lambda m: self._by_token.get(m.group(0), m.group(0)), text)
 
+    def value_of(self, token: str) -> str | None:
+        return self._by_token.get(token)
+
+    def has_value(self, value: str) -> bool:
+        """True if this user typed `value` (spaces, dashes and case ignored)."""
+        want = _canon(value)
+        return any(_canon(v) == want for _, v in self._by_value)
+
+
+def _canon(value: str) -> str:
+    return re.sub(r"[\s-]", "", value).lower()
+
 
 class PiiRedactor:
     def __init__(self, config: dict[str, Any], detector: Detector | None = None) -> None:
@@ -122,6 +134,10 @@ class PiiRedactor:
             latency_ms=(time.perf_counter() - t0) * 1000,
             details={"redacted": redacted, "decoded_redacted": decoded_redacted, "warning": warn},
         )
+
+    def find(self, text: str) -> list[tuple[int, int, str]]:
+        """Non-overlapping PII hits as (start, end, label), in text order. Nothing is stored."""
+        return self._resolve(self._candidates(text))
 
     def _redact(self, text: str, vault: PiiVault) -> tuple[str, list[Span]]:
         chosen = self._resolve(self._candidates(text))

@@ -202,3 +202,9 @@ output:
     tau_g: 0.6                 # claim supported when score >= tau_g (and no number missing); tune on dev
     number_check: true         # every number, %, amount and date in a claim must be in the cited chunks
     fallback_below: 0.5        # SPEC §4: support < 0.5 -> safe fallback; else regenerate
+  leakage:
+    canary_prefix: "GB-CANARY-"  # any value with this prefix in an answer is a leak, not just this session's
+    tau_prompt: 0.75           # block when an answer sentence is this similar to a system-prompt sentence
+                               # (hashing embedder: clean corpus max 0.63, verbatim prompt lines 0.87-1.0)
+    keep_last: 4               # user's own PII echoed back keeps only its last 4 characters
+    full_hide: [CARD, OTP, PASSWORD]   # own PII of these labels is never shown, even partially
