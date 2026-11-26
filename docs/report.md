@@ -35,8 +35,8 @@ the log.
 
 The routing table (stage 4) and the invalid-response policy are in the [README](../README.md) and
 SPEC §3–4. The same pipeline is served by `POST /chat` (FastAPI, returns `guardrail_report`) and
-by an MCP server (`check_input`, `check_output`, `run_case`) that Claude Code used as a tool while
-red-teaming.
+by an MCP server (`check_input`, `check_output`, `run_case`) so Claude Code can call the
+guardrails as tools when red-teaming.
 
 ## b. Implementation choices
 
