@@ -1,0 +1,8 @@
+{
+  "name": "guardbank-dev",
+  "version": "0.1.0",
+  "description": "Development kit for the guardbank guardrails repo: skills (add-test-case, run-eval, nepal-recognizer, start-feature), agents (red-teamer, guardrail-reviewer, eval-analyst) and hooks (ruff on edit, git safety guard, fast tests on stop).",
+  "author": {"name": "Royas Shakya"},
+  "repository": "https://github.com/shkroyas/AI-safety-assignment",
+  "keywords": ["guardrails", "trustworthy-ai", "testing"]
+}
