@@ -14,7 +14,8 @@ DOT = ROOT / "docs" / "architecture.dot"
 def _routing_table(text: str) -> str:
     """The markdown table that starts with the routing-table header row."""
     lines = text.splitlines()
-    start = next(i for i, ln in enumerate(lines) if ln.startswith("| Category | Example | Action |"))
+    header = "| Category | Example | Action |"
+    start = next(i for i, ln in enumerate(lines) if ln.startswith(header))
     end = start
     while end < len(lines) and lines[end].startswith("|"):
         end += 1
@@ -29,6 +30,7 @@ def test_readme_routing_table_matches_spec():
 def test_report_tables_are_current():
     proc = subprocess.run(
         [sys.executable, str(ROOT / "scripts" / "report_tables.py"), "--check"],
+        check=False,
         capture_output=True,
         text=True,
         cwd=ROOT,

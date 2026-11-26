@@ -117,9 +117,9 @@ from guardbank.rag.llm import MockLLM
 
 pipeline = Pipeline.from_settings(load_settings(), llm=MockLLM())
 result = pipeline.run("My OTP is 482913, how do I block my card?", Session())
-print(result.outcome, result.text)          # answered, with the "never share" warning
+print(result.outcome, result.text)  # answered, with the "never share" warning
 for stage in result.stages:
-    print(stage.stage, stage.action.value, stage.score)   # input_pii redact 1.0, ...
+    print(stage.stage, stage.action.value, stage.score)  # input_pii redact 1.0, ...
 ```
 
 ### MCP server (Claude Code)

@@ -1,4 +1,4 @@
-.PHONY: install install-ml test test-all lint format eval eval-full ablations serve
+.PHONY: install install-ml test test-all lint format eval eval-full ablations serve docs
 
 install:
 	uv sync
@@ -31,3 +31,9 @@ ablations:
 
 serve:
 	uv run uvicorn --factory guardbank.api:serve_app --port 8000
+
+docs:
+	dot -Tpng -Gdpi=150 docs/architecture.dot -o docs/architecture.png
+	dot -Tsvg docs/architecture.dot -o docs/architecture.svg
+	uv run python scripts/report_tables.py
+	uv run --group docs python scripts/build_report.py
