@@ -1,8 +1,8 @@
 {
   "mode": "fast",
-  "commit": "354e844746e4f67288001f3dd7d5572481304000",
+  "commit": "2520ac932232d05cea9048d94e171757c1a22254",
   "dirty": false,
-  "config_sha256": "491d6db793fd40936635e7c370a2abd4f524958b9dd67821334fba4337f893d9",
+  "config_sha256": "1e475f3e99608617eaabf61e143523c8fc0a5e7a79b883c3bf4a12bdf6557372",
   "models": {
     "injection": "stub",
     "pii": "stub",
