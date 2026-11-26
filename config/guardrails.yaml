@@ -22,6 +22,20 @@ corpus:
 audit:
   path: logs/audit.jsonl
 
+rag:
+  chunk_scan:
+    tau: 0.8                   # drop a chunk when max(pattern weight, classifier score) >= tau
+    allowed_domains: [sagarmatha-digital.example]   # filled into {allowed} below
+    # Chunk-only patterns, added after the input injection bank. Too strict for user input,
+    # safe on bank-authored policy text. Case-insensitive, run on normalized chunk text.
+    extra_patterns:
+      EXTERNAL_EXFIL:
+        regex: '\b(?:send|forward|e-?mail|mail)\w*\b[^.\n]{0,60}?\bto\s+[\w.+-]+@(?!(?:{allowed})\b)[\w-]+(?:\.[\w-]+)+'
+        weight: 1.0
+      CREDENTIAL_REQUEST:
+        regex: '\bcvv\b[^.\n]{0,40}\b(?:chat|send|pathau\w*)\b'
+        weight: 1.0
+
 # Guardrail sections are filled in by the feature branches that implement them.
 input:
   normalizer:
