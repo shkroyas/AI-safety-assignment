@@ -1,4 +1,4 @@
-.PHONY: install install-ml test test-all lint format eval eval-full
+.PHONY: install install-ml test test-all lint format eval eval-full ablations
 
 install:
 	uv sync
@@ -25,3 +25,6 @@ eval:
 
 eval-full:
 	uv run --extra ml python eval/run_eval.py --mode full
+
+ablations:
+	uv run --extra ml python eval/run_ablations.py --mode full
