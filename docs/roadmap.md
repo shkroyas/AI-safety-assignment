@@ -19,8 +19,9 @@ code → PR with green CI → Royas merges → `/clear`. "Spec" = the SPEC.md se
 | 9 | `feat/remediation-pipeline` | remediation policy + full pipeline + audit per stage | 4. Output guardrails | merged #13 |
 | 10a | `feat/ml-input` | DeBERTa / Prompt Guard 2, GLiNER, topic classifier | 3. Input guardrails | merged #14 |
 | 10b | `feat/ml-output` | HHEM groundedness, sentence-transformer prompt similarity | 4. Output guardrails | merged #15 |
-| 11 | `feat/e2e-cases` | 40+ cases in `tests/cases.yaml` | 5. Test case format | this PR |
-| 12 | `feat/eval` | labeled sets, metrics, ablations, sweeps, latency | 6. Evaluation | |
+| 11 | `feat/e2e-cases` | 40+ cases in `tests/cases.yaml` | 5. Test case format | merged #16 |
+| 12a | `feat/eval` | labeled sets, metrics, make eval / eval-full | 6. Evaluation | this PR |
+| 12b | `feat/eval-ablations` | ablations, tau / tau_g sweeps, latency, charts | 6. Evaluation | |
 | 13 | `feat/api-mcp` | FastAPI `/chat` + MCP server | 9. Claude Code development layer | |
 | 14 | `docs/report` | architecture diagram, README, report | — | |
 | — | `fix/*` | one per real failure found by the eval | 6. Evaluation | |
