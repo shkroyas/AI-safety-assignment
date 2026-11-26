@@ -95,8 +95,15 @@ input:
       name: urchade/gliner_multi_pii-v1
       threshold: 0.5
       labels: {person: PERSON, location: LOCATION}   # GLiNER label -> our label
-      # Whole-span matches dropped: GLiNER scores "I" as a person at 0.96 at sentence start.
-      ignore: [i, me, my, mine, myself, you, your, yours, we, us, our, he, him, his, she, her, they, them, their, it]
+      # A span is dropped when its head word (last token after leading determiners) is listed here.
+      # GLiNER scores these as high as real names ("I" 0.96, "My manager" 0.98, "staff member" 0.94),
+      # so no threshold separates them (docs/specs/fix-gliner-generic-nouns.md). Closed list.
+      ignore: [i, me, my, mine, myself, you, your, yours, we, us, our, he, him, his, she, her, they, them, their, it,
+               someone, somebody, anyone, anybody, everyone, everybody, nobody, one,
+               family, mother, father, brother, sister, wife, husband, son, daughter, friend, neighbour, neighbor, relative,
+               member, staff, agent, manager, officer, employee, customer, boss, teller, representative,
+               card, account, request, atm, branch, bank, app]
+      determiners: [my, your, our, his, her, their, its, the, a, an, this, that]
       device: auto             # auto (cuda if available) | cpu | cuda
     spacy_model: en_core_web_sm
     # Order = priority when two equal-length spans overlap.

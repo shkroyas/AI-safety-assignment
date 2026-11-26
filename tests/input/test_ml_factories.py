@@ -109,3 +109,28 @@ def test_gliner_ignores_pronouns(settings):
     det._model = FakeGliner()
     spans = det.detect("I met with Sita Sharma today.")
     assert [(s.label, s.text) for s in spans] == [("PERSON", "Sita Sharma")]
+
+
+def test_gliner_drops_generic_heads(settings):
+    spans_in = [
+        ("Someone", "person"),
+        ("my family", "person"),
+        ("staff member", "person"),
+        ("My manager", "person"),
+        ("Your request", "person"),
+        ("customer service agent", "person"),
+        ("ATM", "location"),
+        ("the Pokhara branch", "location"),
+        ("Sita Sharma", "person"),
+        ("sita sharma", "person"),
+        ("Dharan", "location"),
+    ]
+
+    class FakeGliner:
+        def predict_entities(self, text, labels, threshold):
+            return [{"start": 0, "end": len(t), "label": lab, "text": t} for t, lab in spans_in]
+
+    det = build_pii_detector(_cfg(settings, "pii", backend="gliner"))
+    det._model = FakeGliner()
+    kept = [(s.label, s.text) for s in det.detect("x")]
+    assert kept == [("PERSON", "Sita Sharma"), ("PERSON", "sita sharma"), ("LOCATION", "Dharan")]

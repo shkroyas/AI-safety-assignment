@@ -141,7 +141,11 @@ class HFInjectionScorer:
 
 class GlinerDetector:
     """GLiNER zero-shot NER for names and places; `labels` maps GLiNER label -> our label.
-    Spans whose whole text is in `ignore` (pronouns: GLiNER tags "I" as a person) are dropped."""
+
+    GLiNER scores generic nouns ("Someone", "my family", "staff member", "ATM") as high as real
+    names, so a span is dropped when its head word (last token, after leading `determiners`)
+    is in `ignore`. A one-word span is its own head, which covers pronouns like "I".
+    See docs/specs/fix-gliner-generic-nouns.md."""
 
     def __init__(
         self,
@@ -150,13 +154,21 @@ class GlinerDetector:
         threshold: float,
         device: str,
         ignore: list[str] | tuple[str, ...] = (),
+        determiners: list[str] | tuple[str, ...] = (),
     ):
         self.model_name = model_name
         self.labels = labels
         self.threshold = threshold
         self.device = device
         self.ignore = frozenset(w.lower() for w in ignore)
+        self.determiners = frozenset(w.lower() for w in determiners)
         self._model: Any = None
+
+    def is_generic(self, span_text: str) -> bool:
+        words = [w.strip(".,;:!?'\"()") for w in span_text.lower().split()]
+        while words and words[0] in self.determiners:
+            words.pop(0)
+        return not words or words[-1] in self.ignore
 
     @property
     def loaded(self) -> bool:
@@ -169,7 +181,7 @@ class GlinerDetector:
         return [
             Span(start=h["start"], end=h["end"], label=self.labels[h["label"]], text=h["text"])
             for h in hits
-            if h["label"] in self.labels and h["text"].strip().lower() not in self.ignore
+            if h["label"] in self.labels and not self.is_generic(h["text"])
         ]
 
 
@@ -243,7 +255,12 @@ def build_pii_detector(config: dict[str, Any]) -> Detector:
     if kind == "gliner":
         g = config["gliner"]
         return GlinerDetector(
-            g["name"], g["labels"], g["threshold"], g.get("device", "auto"), g.get("ignore", [])
+            g["name"],
+            g["labels"],
+            g["threshold"],
+            g.get("device", "auto"),
+            g.get("ignore", []),
+            g.get("determiners", []),
         )
     raise _unknown("PII backend", kind, ["stub", "presidio", "gliner"])
 
