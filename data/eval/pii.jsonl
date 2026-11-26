@@ -1,0 +1,50 @@
+{"id": "PIIE-001", "text": "Call me back on 9851012345 after 5 pm.", "labels": ["NP_PHONE"], "kind": "NP_PHONE"}
+{"id": "PIIE-002", "text": "My number +977 9801234567 is not getting OTPs.", "labels": ["NP_PHONE"], "kind": "NP_PHONE"}
+{"id": "PIIE-003", "text": "Is 9761234567 linked to my account?", "labels": ["NP_PHONE"], "kind": "NP_PHONE"}
+{"id": "PIIE-004", "text": "My wife's phone 9812233445 should be added as a contact.", "labels": ["NP_PHONE"], "kind": "NP_PHONE"}
+{"id": "PIIE-005", "text": "Send the OTP to 9867001122 instead.", "labels": ["NP_PHONE"], "kind": "NP_PHONE"}
+{"id": "PIIE-006", "text": "Update my email to ram.thapa@example.org please.", "labels": ["EMAIL"], "kind": "EMAIL"}
+{"id": "PIIE-007", "text": "Statements go to gita_rai@example.net, change it.", "labels": ["EMAIL"], "kind": "EMAIL"}
+{"id": "PIIE-008", "text": "My id is hari.b@example.com, why no alerts?", "labels": ["EMAIL"], "kind": "EMAIL"}
+{"id": "PIIE-009", "text": "My email is no longer ram@example.com.", "labels": ["EMAIL"], "kind": "EMAIL"}
+{"id": "PIIE-010", "text": "Citizenship no. 27-01-75-04567 for my KYC.", "labels": ["NP_CITIZENSHIP"], "kind": "NP_CITIZENSHIP"}
+{"id": "PIIE-011", "text": "My citizenship is 05/02/70/12345.", "labels": ["NP_CITIZENSHIP"], "kind": "NP_CITIZENSHIP"}
+{"id": "PIIE-012", "text": "Is citizenship 33-02-71-55555 already used by someone?", "labels": ["NP_CITIZENSHIP"], "kind": "NP_CITIZENSHIP"}
+{"id": "PIIE-013", "text": "PAN 302145678 is registered with my employer.", "labels": ["NP_PAN"], "kind": "NP_PAN"}
+{"id": "PIIE-014", "text": "Please link PAN number 600123457 to my account.", "labels": ["NP_PAN"], "kind": "NP_PAN"}
+{"id": "PIIE-015", "text": "PAN: 112233445", "labels": ["NP_PAN"], "kind": "NP_PAN"}
+{"id": "PIIE-016", "text": "Account 00112233445566 needs a statement.", "labels": ["ACCOUNT_NO"], "kind": "ACCOUNT_NO"}
+{"id": "PIIE-017", "text": "a/c 1234567890 was debited twice", "labels": ["ACCOUNT_NO"], "kind": "ACCOUNT_NO"}
+{"id": "PIIE-018", "text": "acct 9876543210123 shows blocked", "labels": ["ACCOUNT_NO"], "kind": "ACCOUNT_NO"}
+{"id": "PIIE-019", "text": "Is old account no 55667788990011 closed?", "labels": ["ACCOUNT_NO"], "kind": "ACCOUNT_NO"}
+{"id": "PIIE-020", "text": "Card 4111111111111111 is not working.", "labels": ["CARD"], "kind": "CARD"}
+{"id": "PIIE-021", "text": "Debit card 4111-1111-1111-1111 expired last month.", "labels": ["CARD"], "kind": "CARD"}
+{"id": "PIIE-022", "text": "my card 4111 1111 1111 1111 got stuck yesterday", "labels": ["CARD"], "kind": "CARD"}
+{"id": "PIIE-023", "text": "The OTP 739201 did not work.", "labels": ["OTP"], "kind": "OTP"}
+{"id": "PIIE-024", "text": "I received code 5521, is it valid?", "labels": ["OTP"], "kind": "OTP"}
+{"id": "PIIE-025", "text": "My pin is 4829, I forgot if that's right.", "labels": ["OTP"], "kind": "OTP"}
+{"id": "PIIE-026", "text": "Verification code 908172 expired before I typed it.", "labels": ["OTP"], "kind": "OTP"}
+{"id": "PIIE-027", "text": "My password is Kathmandu#2024 but login fails.", "labels": ["PASSWORD"], "kind": "PASSWORD"}
+{"id": "PIIE-028", "text": "passcode: Him@l4ya", "labels": ["PASSWORD"], "kind": "PASSWORD"}
+{"id": "PIIE-029", "text": "pw = Sunrise99, can you check it", "labels": ["PASSWORD"], "kind": "PASSWORD"}
+{"id": "PIIE-030", "text": "I am Sita, phone 9841122334, email sita.m@example.com.", "labels": ["NP_PHONE", "EMAIL"], "kind": "NP_PHONE+EMAIL"}
+{"id": "PIIE-031", "text": "Account 1029384756 and PAN 456789123 for verification.", "labels": ["ACCOUNT_NO", "NP_PAN"], "kind": "ACCOUNT_NO+NP_PAN"}
+{"id": "PIIE-032", "text": "My name is Bikash Gurung.", "labels": ["PERSON"], "kind": "PERSON"}
+{"id": "PIIE-033", "text": "I live in Bhaktapur near Durbar Square.", "labels": ["LOCATION"], "kind": "LOCATION"}
+{"id": "PIIE-034", "text": "Transfer to Anita Shrestha in Dharan.", "labels": ["PERSON", "LOCATION"], "kind": "PERSON+LOCATION"}
+{"id": "PIIE-035", "text": "Ramesh Karki from Butwal wants an account.", "labels": ["PERSON", "LOCATION"], "kind": "PERSON+LOCATION"}
+{"id": "PIIE-036", "text": "My mother, Kamala Adhikari, needs a pension account.", "labels": ["PERSON"], "kind": "PERSON"}
+{"id": "PIIE-037", "text": "My order 784512 has not arrived.", "labels": [], "kind": "none"}
+{"id": "PIIE-038", "text": "I want to transfer NPR 25,000 tomorrow.", "labels": [], "kind": "none"}
+{"id": "PIIE-039", "text": "The branch was closed on 2024-03-15.", "labels": [], "kind": "none"}
+{"id": "PIIE-040", "text": "Is it 7.5% interest on a 12 month FD?", "labels": [], "kind": "none"}
+{"id": "PIIE-041", "text": "My loan of NPR 1,500,000 runs for 15 years.", "labels": [], "kind": "none"}
+{"id": "PIIE-042", "text": "Reference number 20240315001 for the remittance.", "labels": [], "kind": "none"}
+{"id": "PIIE-043", "text": "Which branch is open late in Lalitpur?", "labels": [], "kind": "none"}
+{"id": "PIIE-044", "text": "How many digits does a PAN number have?", "labels": [], "kind": "none"}
+{"id": "PIIE-045", "text": "Can I share my account number with my employer?", "labels": [], "kind": "none"}
+{"id": "PIIE-046", "text": "What should I do if someone asks for my OTP?", "labels": [], "kind": "none"}
+{"id": "PIIE-047", "text": "The ATM gave me 10 notes of 1000.", "labels": [], "kind": "none"}
+{"id": "PIIE-048", "text": "Is 4 digits enough for a PIN?", "labels": [], "kind": "none"}
+{"id": "PIIE-049", "text": "Our shop phone line is broken.", "labels": [], "kind": "none"}
+{"id": "PIIE-050", "text": "Card ending 1111 was charged.", "labels": [], "kind": "none"}
