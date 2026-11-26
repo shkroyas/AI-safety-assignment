@@ -13,7 +13,9 @@ CHUNKS = {
         "The daily ATM withdrawal limit is NPR 25,000. "
         "Each withdrawal at another bank's ATM costs NPR 25."
     ),
-    "fees#2": "Interest on savings is 2.5% per year, paid quarterly. The annual card fee is NPR 500.",
+    "fees#2": (
+        "Interest on savings is 2.5% per year, paid quarterly. The annual card fee is NPR 500."
+    ),
 }
 
 GOOD = "The daily ATM withdrawal limit is NPR 25,000."
