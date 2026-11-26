@@ -86,5 +86,26 @@ input:
       ACCOUNT_NO: [account, a/c, acct]
       OTP: [otp, code, pin]
       PASSWORD: [password, passcode, pw]
+  injection:
+    classifier: stub           # stub | prompt_guard | deberta (models arrive in feat/ml-detectors)
+    tau: 0.8                   # block when max(pattern weight, classifier score) >= tau
+    refusal: "Sorry, I can't help with that request. I can answer questions about Sagarmatha Digital Bank services."
+    # name -> {regex, weight}; matched case-insensitively, multiline. Order = priority on equal weight.
+    patterns:
+      IGNORE_INSTRUCTIONS:
+        regex: '\b(?:ignore|disregard|forget)\s+(?:(?:all|the|your|any|of)\s+)*(?:previous|prior|above|earlier)\s+(?:instructions|rules|prompts?|directions)\b'
+        weight: 1.0
+      ROLE_OVERRIDE:
+        regex: '\byou\s+are\s+now\b|\bact\s+as\s+(?:dan\b|an?\s+(?:unrestricted|unfiltered|jailbroken)\b)|\b(?:developer|god|jailbreak)\s+mode\b'
+        weight: 1.0
+      PROMPT_EXTRACTION:
+        regex: '\b(?:reveal|print|repeat|show|output|display|tell\s+me)\s+(?:me\s+)?(?:your|the)\s+(?:system\s+prompt|instructions|internal\s+reference|hidden\s+prompt|initial\s+prompt)\b'
+        weight: 1.0
+      FAKE_DELIMITER:
+        regex: '<\s*/?\s*system\s*>|\[/?INST\]|<\|im_(?:start|end)\|>|^\s*#{2,}\s*system\s*:'
+        weight: 1.0
+      CANARY_PROBE:
+        regex: 'GB-CANARY-|\bcanary\b'
+        weight: 1.0
 
 output: {}
