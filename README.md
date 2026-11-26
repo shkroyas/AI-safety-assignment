@@ -211,3 +211,8 @@ Verdict: **suitable only with restrictions** (human-supervised pilot), not for u
 Spec first, failing test first, one feature branch and PR per roadmap row
 ([docs/roadmap.md](docs/roadmap.md)), with Claude Code hooks, skills, subagents and the MCP
 server described in [docs/claude-code-workflow.md](docs/claude-code-workflow.md).
+
+The skills, agents and hooks are also packaged as a plugin. From the repo root, run
+`/plugin marketplace add ./` then `/plugin install guardbank-dev@guardbank` in a fresh clone
+or another worktree. Don't install it in a checkout whose own `.claude/` hooks are active, or
+every hook runs twice.

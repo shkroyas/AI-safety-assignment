@@ -1,0 +1,13 @@
+{
+  "name": "guardbank",
+  "owner": {"name": "Royas Shakya"},
+  "description": "Claude Code plugins for the guardbank guardrails assignment.",
+  "plugins": [
+    {
+      "name": "guardbank-dev",
+      "source": "./plugins/guardbank-dev",
+      "description": "Skills, agents and hooks used to build and test the guardbank guardrails.",
+      "version": "0.1.0"
+    }
+  ]
+}
