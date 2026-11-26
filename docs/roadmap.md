@@ -9,8 +9,8 @@ code → PR with green CI → Royas merges → `/clear`. "Spec" = the SPEC.md se
 | 0 | `feat/skeleton` | types, audit, corpus, retriever, LLM, CI | 2. Pipeline order | merged #3 |
 | 0 | `chore/token-optimisation` | roadmap, start-feature skill, token rules | 10. Git workflow | merged #4 |
 | 1 | `feat/input-normalizer` | NFKC, zero-width, homoglyphs, base64/hex decode | 2. Pipeline order | merged #5 |
-| 2 | `feat/input-pii` | Presidio + Nepal recognizers, typed-token vault | 3. Input guardrails | this PR |
-| 3 | `feat/input-injection` | regex bank + canary-aware refusal | 3. Input guardrails | |
+| 2 | `feat/input-pii` | Presidio + Nepal recognizers, typed-token vault | 3. Input guardrails | merged #6 |
+| 3 | `feat/input-injection` | regex bank + canary-aware refusal | 3. Input guardrails | this PR |
 | 4 | `feat/input-topics` | crisis fast-path + routing table (verified helpline) | 3. Input guardrails | |
 | 5 | `feat/chunk-scan` | injection scan on retrieved chunks, drop poisoned | 2. Pipeline order | |
 | 6 | `feat/output-schema` | SupportReply + citation-exists + fault injection | 4. Output guardrails | |
