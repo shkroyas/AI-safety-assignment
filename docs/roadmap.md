@@ -11,8 +11,8 @@ code → PR with green CI → Royas merges → `/clear`. "Spec" = the SPEC.md se
 | 1 | `feat/input-normalizer` | NFKC, zero-width, homoglyphs, base64/hex decode | 2. Pipeline order | merged #5 |
 | 2 | `feat/input-pii` | Presidio + Nepal recognizers, typed-token vault | 3. Input guardrails | merged #6 |
 | 3 | `feat/input-injection` | regex bank + canary-aware refusal | 3. Input guardrails | merged #7 |
-| 4 | `feat/input-topics` | crisis fast-path + routing table (verified helpline) | 3. Input guardrails | this PR |
-| 5 | `feat/chunk-scan` | injection scan on retrieved chunks, drop poisoned | 2. Pipeline order | |
+| 4 | `feat/input-topics` | crisis fast-path + routing table (verified helpline) | 3. Input guardrails | merged #8 |
+| 5 | `feat/chunk-scan` | injection scan on retrieved chunks, drop poisoned | 2. Pipeline order | this PR |
 | 6 | `feat/output-schema` | SupportReply + citation-exists + fault injection | 4. Output guardrails | |
 | 7 | `feat/output-groundedness` | claim split, number/date match, keyword baseline | 4. Output guardrails | |
 | 8 | `feat/output-leakage` | output PII diff, canary, prompt similarity | 4. Output guardrails | |
