@@ -25,6 +25,8 @@ audit:
 rag:
   chunk_scan:
     tau: 0.8                   # drop a chunk when max(pattern weight, classifier score) >= tau
+    classifier: stub           # stub | deberta | prompt_guard. Stub on purpose: DeBERTa scores 7/117 clean
+                               # chunks >= 0.999 (poisoned = 1.0), so no tau separates them (ml-input spec)
     allowed_domains: [sagarmatha-digital.example]   # filled into {allowed} below
     # Chunk-only patterns, added after the input injection bank. Too strict for user input,
     # safe on bank-authored policy text. Case-insensitive, run on normalized chunk text.
@@ -88,7 +90,14 @@ input:
       "Τ": "T"
       "Χ": "X"
   pii:
-    backend: stub              # stub | presidio (needs the `pii` extra)
+    backend: stub              # stub | presidio (`pii` extra) | gliner (`ml` extra)
+    gliner:                    # names and places only; regex recognizers cover the rest
+      name: urchade/gliner_multi_pii-v1
+      threshold: 0.5
+      labels: {person: PERSON, location: LOCATION}   # GLiNER label -> our label
+      # Whole-span matches dropped: GLiNER scores "I" as a person at 0.96 at sentence start.
+      ignore: [i, me, my, mine, myself, you, your, yours, we, us, our, he, him, his, she, her, they, them, their, it]
+      device: auto             # auto (cuda if available) | cpu | cuda
     spacy_model: en_core_web_sm
     # Order = priority when two equal-length spans overlap.
     labels: [CARD, NP_CITIZENSHIP, NP_PAN, ACCOUNT_NO, NP_PHONE, OTP, PASSWORD, EMAIL, PERSON, LOCATION]
@@ -101,7 +110,12 @@ input:
       OTP: [otp, code, pin]
       PASSWORD: [password, passcode, pw]
   injection:
-    classifier: stub           # stub | prompt_guard | deberta (models arrive in feat/ml-detectors)
+    classifier: stub           # stub | deberta | prompt_guard (both need the `ml` extra)
+    models:                    # kind -> HF model + the label that means "attack"
+      deberta: {name: protectai/deberta-v3-base-prompt-injection-v2, positive_label: INJECTION}
+      prompt_guard: {name: meta-llama/Llama-Prompt-Guard-2-86M, positive_label: LABEL_1}  # gated: needs HF_TOKEN
+    max_length: 512            # longer inputs are truncated
+    device: auto               # auto (cuda if available) | cpu | cuda
     tau: 0.8                   # block when max(pattern weight, classifier score) >= tau
     refusal: "Sorry, I can't help with that request. I can answer questions about Sagarmatha Digital Bank services."
     # name -> {regex, weight}; matched case-insensitively, multiline. Order = priority on equal weight.
@@ -123,7 +137,12 @@ input:
         weight: 1.0
 
   topics:
-    classifier: stub           # stub | embed_logreg (model arrives in feat/ml-detectors)
+    classifier: stub           # stub | embed_logreg (`ml` extra)
+    embed_logreg:
+      embedding_model: BAAI/bge-small-en-v1.5
+      train_path: data/topics/train.yaml   # synthetic; trained at start-up
+      C: 50.0                  # inverse regularisation; C=4 gave too-soft probabilities (crisis paraphrase 0.71)
+      device: auto
     tau: 0.7                   # use the classifier label only when its probability >= tau
     helpline:
       name: National Suicide Prevention Helpline
@@ -198,7 +217,7 @@ output:
   schema:
     strip_code_fence: true   # accept one ```json ... ``` wrapper around the object
   groundedness:
-    scorer: keyword            # keyword | hhem (model arrives in feat/ml-detectors)
+    scorer: keyword            # keyword | hhem (model arrives in feat/ml-output)
     tau_g: 0.6                 # claim supported when score >= tau_g (and no number missing); tune on dev
     number_check: true         # every number, %, amount and date in a claim must be in the cited chunks
     fallback_below: 0.5        # SPEC §4: support < 0.5 -> safe fallback; else regenerate

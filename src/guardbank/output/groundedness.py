@@ -85,7 +85,7 @@ class GroundednessChecker:
         if scorer is None:
             kind = config.get("scorer", "keyword")
             if kind != "keyword":
-                raise NotImplementedError(f"scorer {kind!r} arrives in feat/ml-detectors")
+                raise NotImplementedError(f"scorer {kind!r} arrives in feat/ml-output")
             scorer = KeywordScorer()
         self.scorer = scorer
 

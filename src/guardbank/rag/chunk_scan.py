@@ -31,6 +31,8 @@ class ChunkScanner:
         allowed = "|".join(re.escape(d) for d in config["allowed_domains"])
         cfg = copy.deepcopy(injection_config)
         cfg["tau"] = config["tau"]
+        # Own classifier setting: injection models over-flag policy text (ml-input spec).
+        cfg["classifier"] = config.get("classifier", "stub")
         for name, p in config["extra_patterns"].items():
             cfg["patterns"][name] = {
                 "regex": p["regex"].replace("{allowed}", allowed),

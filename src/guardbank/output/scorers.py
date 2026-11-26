@@ -1,6 +1,6 @@
 """Claim scorers for the groundedness check (docs/specs/output-groundedness.md).
 
-`KeywordScorer` is the baseline. The HHEM NLI scorer arrives in feat/ml-detectors behind
+`KeywordScorer` is the baseline. The HHEM NLI scorer arrives in feat/ml-output behind
 the same `ClaimScorer` protocol, so the eval can ablate keyword vs NLI.
 """
 

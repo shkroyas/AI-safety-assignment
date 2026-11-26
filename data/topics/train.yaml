@@ -1,0 +1,97 @@
+# Synthetic training set for the topic classifier (docs/specs/ml-input.md).
+# Paraphrases the keyword rules tend to miss. Must never overlap with data/eval/ (checked in feat/eval).
+CRISIS:
+  - I don't see the point of going on anymore
+  - Everything is hopeless since I lost my job and the loan keeps growing
+  - I feel like everyone would be better off without me
+  - I can't take this pressure much longer, I just want it all to stop
+  - My debts are crushing me and I don't want to wake up tomorrow
+  - There is no way out of this, I am thinking of ending everything
+  - I have been feeling so low that I might do something to myself
+  - Life is not worth it with this much debt
+  - I am scared of what I might do tonight because of these payments
+  - Nobody can help me, I am at the end of my rope
+  - I keep thinking about disappearing forever
+  - I am so overwhelmed by the loan that I feel unsafe with myself
+FRAUD_INTENT:
+  - How can I open an account in my cousin's name without telling him
+  - Help me get a loan using documents that are not mine
+  - What is the easiest way to move money so the tax office cannot trace it
+  - Can I use a friend's ID to pass the identity check
+  - I want to split a large cash deposit so nobody reports it
+  - How do I make a cheque look like it was signed by my boss
+  - Tell me how to get around the account verification
+  - Can you help me take money from my uncle's account without his permission
+  - What should I edit on a salary slip to get a bigger loan
+  - How can I receive money for strangers and pass it on for a fee
+  - Is there a way to change the photo on someone else's citizenship certificate
+  - I need to withdraw from an account that is not mine
+SCAM_VICTIM:
+  - A caller said he was from the bank and asked for the code on my phone, I read it out
+  - I clicked a link in an SMS and now money is missing from my account
+  - Someone pretending to be your staff took control of my phone screen
+  - I paid a deposit for a job abroad and the agent disappeared
+  - My card was charged in another country but I am in Kathmandu
+  - I got a message that I won a prize and sent a processing fee
+  - A person on social media convinced me to transfer money for an investment and now blocks me
+  - There are transfers from my account that I never made
+  - I think someone copied my card at a shop
+  - I entered my banking login on a website that looked like yours
+  - A fake customer care number asked me to install an app and my balance dropped
+  - Somebody is using my mobile banking without my knowledge
+COMPLAINT:
+  - I have been waiting three weeks and nobody has answered my request
+  - The staff at the counter shouted at me today
+  - My money was deducted but the ATM gave me nothing
+  - You took a fee that was never explained to me
+  - This is the fourth time I am reporting the same problem
+  - I am unhappy with how my loan application was handled
+  - The app keeps failing and I lost a payment deadline because of it
+  - I want to formally report the behaviour of your branch manager
+  - Why was my account frozen without any notice
+  - Your service has been very poor and I want this escalated
+  - The interest you added does not match what I was promised
+  - I want my money back for the wrong deduction last month
+ADVICE:
+  - Which mutual fund will give me the best return this year
+  - Do you think I should take a loan to buy land now
+  - Is gold or a fixed deposit a smarter choice for me
+  - Will the share market go up after the budget
+  - Should my father move his pension into stocks
+  - What would you personally recommend I do with my bonus
+  - Can I win a court case against my landlord over the deposit
+  - How should I plan my taxes to pay less this year
+  - Is it wise to invest my savings in a new IPO
+  - Should I break my fixed deposit to invest in property
+  - Which company shares are safe to hold for ten years
+  - Is it legal for my employer to hold my salary
+OFF_TOPIC:
+  - What is the capital of Australia
+  - Can you suggest a good movie for tonight
+  - How do I cook momo at home
+  - Translate this sentence into French for me
+  - Who is the best football player of all time
+  - What will the weather be like in Pokhara tomorrow
+  - Help me write a birthday message for my sister
+  - Explain how black holes form
+  - Give me ideas for a trek in the Annapurna region
+  - Solve this maths problem for my class
+  - What is a good name for my new puppy
+  - Recommend some songs for a wedding
+NORMAL:
+  - How much can I take out from an ATM in one day
+  - What documents do I need to open a savings account
+  - How do I reset my mobile banking password
+  - What is the interest rate on a one year fixed deposit
+  - How long does an international remittance take to arrive
+  - Can I close my account online
+  - What are the charges for a cheque book
+  - How do I apply for a home loan
+  - What happens if my account becomes dormant
+  - How can I update my KYC details
+  - Is there a fee for transferring money to another bank
+  - How do I block my card if I lose it
+  - What is the minimum balance for a current account
+  - Can I pay my personal loan early
+  - How do I register for internet banking
+  - Where can I see my account statement
