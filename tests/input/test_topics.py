@@ -112,9 +112,7 @@ def test_classifier_under_tau_normal(settings):
 
 def test_keyword_beats_classifier(settings):
     clf = FakeClassifier("OFF_TOPIC", 0.99)
-    r = TopicRouter(settings.input["topics"], classifier=clf).check(
-        "Your branch charged me twice"
-    )
+    r = TopicRouter(settings.input["topics"], classifier=clf).check("Your branch charged me twice")
     assert r.category == "COMPLAINT"
     assert r.details["source"] == "keyword"
     assert r.details["matches"]
