@@ -94,11 +94,11 @@ def ablations_table() -> str:
 
 
 RENDERERS = {"cases": cases_table, "metrics": metrics_table, "ablations": ablations_table}
-BLOCK = re.compile(r"(<!-- tables:(\w+) -->\n)(.*?)(\n<!-- /tables:\2 -->)", re.S)
+BLOCK = re.compile(r"(<!-- tables:(\w+) -->\n)(.*?)(<!-- /tables:\2 -->)", re.S)
 
 
 def render(text: str) -> str:
-    return BLOCK.sub(lambda m: m.group(1) + RENDERERS[m.group(2)]() + m.group(4), text)
+    return BLOCK.sub(lambda m: m.group(1) + RENDERERS[m.group(2)]() + "\n" + m.group(4), text)
 
 
 def main() -> int:
