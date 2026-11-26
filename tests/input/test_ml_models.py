@@ -73,3 +73,9 @@ def test_topic_classifier_unseen(settings, text, label):
     got, prob = clf.predict(text)
     assert got == label
     assert 0.0 <= prob <= 1.0
+
+
+def test_gliner_skips_pronoun(settings):
+    pytest.importorskip("gliner")
+    det = build_pii_detector(_cfg(settings, "pii", backend="gliner"))
+    assert det.detect("I don't see the point of going on anymore") == []

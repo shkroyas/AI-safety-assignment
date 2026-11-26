@@ -95,3 +95,17 @@ def test_chunk_scan_classifier_is_its_own_setting(settings):
     assert isinstance(ChunkScanner.from_settings(s).detector.classifier, StubScorer)
     s.rag["chunk_scan"]["classifier"] = "deberta"
     assert isinstance(ChunkScanner.from_settings(s).detector.classifier, HFInjectionScorer)
+
+
+def test_gliner_ignores_pronouns(settings):
+    class FakeGliner:
+        def predict_entities(self, text, labels, threshold):
+            return [
+                {"start": 0, "end": 1, "label": "person", "text": "I"},
+                {"start": 11, "end": 22, "label": "person", "text": "Sita Sharma"},
+            ]
+
+    det = build_pii_detector(_cfg(settings, "pii", backend="gliner"))
+    det._model = FakeGliner()
+    spans = det.detect("I met with Sita Sharma today.")
+    assert [(s.label, s.text) for s in spans] == [("PERSON", "Sita Sharma")]
