@@ -208,3 +208,11 @@ output:
                                # (hashing embedder: clean corpus max 0.63, verbatim prompt lines 0.87-1.0)
     keep_last: 4               # user's own PII echoed back keeps only its last 4 characters
     full_hide: [CARD, OTP, PASSWORD]   # own PII of these labels is never shown, even partially
+
+# Invalid-response policy (SPEC §4), applied by remediation.py / pipeline.py.
+remediation:
+  max_schema_retries: 2        # schema-invalid reply: regenerate with the error, at most this many times
+  regenerate_instruction: "Answer only from the CONTEXT. Remove any statement the context does not support, and reply with the JSON object only."
+  strip_note: "I couldn't verify the rest, please confirm with a branch."
+  fallback_text: "I'm sorry, I couldn't find a reliable answer to that. A member of our team will follow up, or you can visit any branch."
+  block_text: "Sorry, I can't help with that request. I can answer questions about Sagarmatha Digital Bank services."
