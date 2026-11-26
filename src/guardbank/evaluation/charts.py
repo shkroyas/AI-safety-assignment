@@ -55,6 +55,7 @@ def _sweep(plt, name: str, s: dict[str, Any], theme: dict[str, Any], path: Path)
         plt, theme, f"{name}: dev-split sweep (current {s['current']}, dev-best {s['dev_best']})"
     )
     taus = [r["tau"] for r in curve]
+    ends = []
     for i, key in enumerate(("precision", "recall", "f1")):
         ys = [r[key] if r[key] is not None else float("nan") for r in curve]
         ax.plot(taus, ys, color=theme["series"][i], linewidth=2, label=key)
@@ -62,28 +63,36 @@ def _sweep(plt, name: str, s: dict[str, Any], theme: dict[str, Any], path: Path)
             ((t, y) for t, y in zip(reversed(taus), reversed(ys), strict=True) if y == y), None
         )
         if last:
-            ax.annotate(
-                key,
-                last,
-                xytext=(4, 0),
-                textcoords="offset points",
-                color=theme["text"],
-                fontsize=8,
-                va="center",
-            )
+            ends.append([last[1], last[0], key])
+    # Direct end labels, nudged apart so overlapping curves never overprint (min gap 0.06).
+    ends.sort()
+    for k in range(1, len(ends)):
+        ends[k][0] = max(ends[k][0], ends[k - 1][0] + 0.06)
+    for y, t, key in ends:
+        ax.annotate(
+            key,
+            (t, y),
+            xytext=(6, 0),
+            textcoords="offset points",
+            color=theme["text"],
+            fontsize=8,
+            va="center",
+        )
     for tau, label in ((s["current"], "current"), (s["dev_best"], "dev-best")):
         ax.axvline(tau, color=theme["muted"], linewidth=1, linestyle="--")
         ax.annotate(
             label,
             (tau, 1.02),
+            xytext=(3, 0),
+            textcoords="offset points",
             color=theme["muted"],
             fontsize=8,
-            ha="center",
+            ha="left",
             xycoords=("data", "axes fraction"),
         )
     ax.set_xlabel("threshold", color=theme["muted"], fontsize=9)
     ax.set_ylim(0, 1.05)
-    ax.set_xlim(0, 1.05)
+    ax.set_xlim(0, 1.12)
     _legend(ax, theme)
     fig.tight_layout()
     fig.savefig(path, facecolor=theme["surface"])

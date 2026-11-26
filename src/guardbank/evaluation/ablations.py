@@ -277,7 +277,7 @@ def _tables(abl: dict, sweeps: dict, lat: dict) -> str:
         "|---|---|---|---|",
     ]
     for mode, m in lat["modes"].items():
-        hw = m["hardware"].get("gpu") or "CPU only"
+        hw = "stubs, no models" if mode == "fast" else (m["hardware"].get("gpu") or "CPU only")
         out.append(f"| {mode} | {m['total']['p50']:.1f} | {m['total']['p95']:.1f} | {hw} |")
     return "\n".join(out) + "\n"
 
