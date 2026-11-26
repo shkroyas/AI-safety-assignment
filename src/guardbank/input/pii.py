@@ -12,11 +12,10 @@ import time
 from collections.abc import Iterable
 from typing import Any
 
-from guardbank.input.detectors import Detector, PresidioDetector, StubDetector
+from guardbank.input.detectors import Detector, build_pii_detector
 from guardbank.types import Action, GuardResult, Span
 
 STAGE = "input_pii"
-_ML_LABELS = ("PERSON", "LOCATION")
 _TOKEN = re.compile(r"<[A-Z_]+_\d+>")
 
 # Patterns are structure, not thresholds; context words and window come from YAML.
@@ -99,13 +98,7 @@ class PiiRedactor:
             if pw_words
             else None
         )
-        if detector is None:
-            ml = [x for x in self.labels if x in _ML_LABELS]
-            if config.get("backend") == "presidio":
-                detector = PresidioDetector(config["spacy_model"], ml)
-            else:
-                detector = StubDetector()
-        self.detector = detector
+        self.detector = detector or build_pii_detector(config)
 
     @classmethod
     def from_settings(cls, settings: Any) -> PiiRedactor:

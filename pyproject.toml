@@ -16,7 +16,14 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-ml = ["sentence-transformers>=3"]
+ml = [
+    "gliner>=0.2.13",
+    "protobuf>=4",
+    "scikit-learn>=1.4",
+    "sentence-transformers>=3",
+    "sentencepiece>=0.2",
+    "transformers>=4.44",
+]
 pii = [
     "en-core-web-sm",
     "presidio-analyzer>=2.2",

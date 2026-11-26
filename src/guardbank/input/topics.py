@@ -10,7 +10,7 @@ import re
 import time
 from typing import Any
 
-from guardbank.input.detectors import StubTopicClassifier, TopicClassifier
+from guardbank.input.detectors import TopicClassifier, build_topic_classifier
 from guardbank.types import Action, GuardResult, Span
 
 STAGE = "input_topic"
@@ -35,12 +35,7 @@ class TopicRouter:
             if r.get("response"):
                 r["response"] = r["response"].format(**fill)
             self.routes[name] = r
-        if classifier is None:
-            kind = config.get("classifier", "stub")
-            if kind != "stub":
-                raise NotImplementedError(f"classifier {kind!r} arrives in feat/ml-detectors")
-            classifier = StubTopicClassifier()
-        self.classifier = classifier
+        self.classifier = classifier or build_topic_classifier(config)
 
     @classmethod
     def from_settings(cls, settings: Any) -> TopicRouter:

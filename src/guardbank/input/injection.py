@@ -10,7 +10,7 @@ import time
 from collections.abc import Iterable
 from typing import Any
 
-from guardbank.input.detectors import ScoreDetector, StubScorer
+from guardbank.input.detectors import ScoreDetector, build_injection_scorer
 from guardbank.types import Action, GuardResult, Span
 
 STAGE = "input_injection"
@@ -28,12 +28,7 @@ class InjectionDetector:
         self.weights: dict[str, float] = {
             name: float(p["weight"]) for name, p in config["patterns"].items()
         }
-        if classifier is None:
-            kind = config.get("classifier", "stub")
-            if kind != "stub":
-                raise NotImplementedError(f"classifier {kind!r} arrives in feat/ml-detectors")
-            classifier = StubScorer()
-        self.classifier = classifier
+        self.classifier = classifier or build_injection_scorer(config)
 
     @classmethod
     def from_settings(cls, settings: Any) -> InjectionDetector:
