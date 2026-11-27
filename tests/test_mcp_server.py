@@ -60,3 +60,20 @@ def test_tool_call_through_server():
     res = asyncio.run(mcp_server.server.call_tool("run_case", {"case_id": "TOP-01"}))
     assert res.is_error is False
     assert json.loads(res.content[0].text)["passed"] is True
+
+
+def test_check_input_routes_unredacted_text(monkeypatch):
+    """docs/specs/fix-route-unredacted.md: MCP agrees with the pipeline."""
+    import guardbank.input.topics as topics_mod
+
+    class SeesRaw:
+        def predict(self, text):
+            return ("CRISIS", 0.9) if "9841234567" in text else ("NORMAL", 0.9)
+
+        def class_prob(self, text, label):
+            return 0.0
+
+    monkeypatch.setattr(topics_mod, "build_topic_classifier", lambda cfg: SeesRaw())
+    r = mcp_server.check_input("My number is 9841234567 and I can't cope any more")
+    assert r["verdict"] == "route"
+    assert "9841234567" not in json.dumps(r)

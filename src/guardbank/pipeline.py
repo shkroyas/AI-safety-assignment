@@ -170,7 +170,9 @@ class _Run:
         if inj.action == Action.BLOCK:
             return self.finish("blocked", inj.details["refusal"], Action.BLOCK, "input_injection")
 
-        topic = self.log(p.topics.check(redacted, decoded=pii.details["decoded_redacted"]))
+        # The router runs in-process and logs only its verdict, so it reads the unredacted text:
+        # redaction hid crisis words like "my kids" (fix-route-unredacted spec).
+        topic = self.log(p.topics.check(norm["normalized"], decoded=norm["decoded"]))
         route = topic.details["route"]
         if route in _FIXED_ROUTES:
             outcome = _FIXED_ROUTES[route]

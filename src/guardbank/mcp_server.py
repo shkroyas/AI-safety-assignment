@@ -71,7 +71,9 @@ def check_input(text: str) -> dict[str, Any]:
     results.append(inj)
     verdict = "block" if inj.action == Action.BLOCK else "allow"
     if verdict == "allow":
-        topic = TopicRouter.from_settings(s).check(pii.details["redacted"])
+        topic = TopicRouter.from_settings(s).check(
+            norm.details["normalized"], decoded=norm.details["decoded"]
+        )
         results.append(topic)
         if topic.action != Action.ALLOW and topic.details["route"] != "answer":
             verdict = "block" if topic.action == Action.BLOCK else "route"
