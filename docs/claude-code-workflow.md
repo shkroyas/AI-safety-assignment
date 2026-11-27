@@ -52,6 +52,7 @@ and a log of how it was actually used. Entries are added as the work happens, no
 | 2026-11-27 | `fix/claim-splitting` | A slow leakage test failed after the change. Traced it rather than adjusting the test: the leakage check reuses the splitter, and a clean corpus line had only passed because of its "- " prefix. Measured all 369 clean sentences against the leak items, then asked Royas before moving the threshold (0.75 → 0.78) and amended the spec |
 | 2026-11-27 | `fix/prompt-leak-fp` | The first fix let the slow test progress to a second, hidden failure on the same reply (GLiNER tagging "human"). Measured the neighbouring nouns before extending the list, kept real names covered, and recorded the scope addition as a spec amendment |
 | 2026-11-27 | `fix/entity-pii-metrics` | The new metric exposed label gaps in data I had written. To avoid quietly tuning the test set, the metric code was committed and evaluated on the old labels first (commit `be0ac42`), the corrections were limited to unambiguous names and places, and both versions went into the report |
+| 2026-11-27 | `fix/groundedness-live-style` | The re-recorded live demo showed a gap no eval had: the synthetic groundedness set scored 1.00 while real Claude answers fell back. Spent 3 approved Bedrock calls on claim-level evidence before proposing anything, labelled the 23 real sentences and committed the labels before measuring the fix on them |
 
 ## Installing the plugin
 

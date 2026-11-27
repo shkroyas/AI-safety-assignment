@@ -35,6 +35,7 @@ code → PR with green CI → Royas merges → `/clear`. "Spec" = the SPEC.md se
 | — | `fix/prompt-leak-fp` | escalation rule public; generic escalation nouns not people | 4. Output guardrails | merged #30 |
 | — | `fix/output-pipeline` | token overlap, single leakage check, redaction verdict, sanitized reply | 4. Output guardrails | merged #31 |
 | — | `docs/per-case-table` | input, reference, expected, actual, pass per case; report Appendix A | 5. Test case format | merged #32 |
-| — | `fix/entity-pii-metrics` | entity-level PII P/R/F1; five label gaps corrected | 6. Evaluation | this PR |
+| — | `fix/entity-pii-metrics` | entity-level PII P/R/F1; five label gaps corrected | 6. Evaluation | merged #33 |
+| — | `fix/groundedness-live-style` | non-claim sentences not scored; `groundedness_live` set from real Claude answers | 4. Output guardrails | this PR |
 | — | `fix/*` | one per real failure found by the eval | 6. Evaluation | |
 | — | `chore/plugin` | package skills/agents/hooks as a plugin | 9. Claude Code development layer | merged #22 |

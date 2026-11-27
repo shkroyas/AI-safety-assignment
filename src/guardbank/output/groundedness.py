@@ -46,6 +46,7 @@ class GroundednessChecker:
         self.number_check: bool = bool(config["number_check"])
         self.fallback_below: float = config["fallback_below"]
         self.scorer = scorer or build_claim_scorer(config)
+        self.non_claims = [re.compile(p, re.IGNORECASE) for p in config.get("non_claims", [])]
 
     @classmethod
     def from_settings(cls, settings: Any) -> GroundednessChecker:
@@ -74,6 +75,18 @@ class GroundednessChecker:
         ev_set = set(extract_facts("\n".join(cited))[0])
         claims = []
         for text in split_claims(reply.answer):
+            if any(rx.search(text) for rx in self.non_claims):
+                # Kept in the answer, not scored: nothing factual to check.
+                claims.append(
+                    {
+                        "text": text,
+                        "score": 1.0,
+                        "numbers_missing": [],
+                        "supported": True,
+                        "skipped": True,
+                    }
+                )
+                continue
             facts, _ = extract_facts(text)
             missing = list(dict.fromkeys(f for f in facts if f not in ev_set))
             if not self.number_check:
@@ -89,7 +102,8 @@ class GroundednessChecker:
             )
 
         unsupported = [i for i, c in enumerate(claims) if not c["supported"]]
-        support = 1 - len(unsupported) / len(claims) if claims else 1.0
+        scored = [c for c in claims if not c.get("skipped")]
+        support = 1 - len(unsupported) / len(scored) if scored else 1.0
         details = {"support": support, "claims": claims, "unsupported": unsupported}
         if not unsupported:
             return result(Action.ALLOW, None, 0.0, **details)

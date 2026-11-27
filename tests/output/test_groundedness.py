@@ -198,3 +198,40 @@ def test_step_numbers_not_checked_as_facts(checker):
     r = checker.check(reply, chunks)
     assert r.action == Action.ALLOW
     assert all(not c["numbers_missing"] for c in r.details["claims"])
+
+
+# ---------- sentences with nothing to check (docs/specs/fix-groundedness-live-style.md) ----------
+
+
+def _reply(answer):
+    return SupportReply(
+        answer=answer, citations=["atm-cards#1"], intent="cards", confidence=0.9, escalate=False
+    )
+
+
+@pytest.mark.parametrize(
+    "sentence",
+    [
+        "I'm sorry to hear your card was swallowed by the ATM.",
+        "Here's what you should do:",
+        "Please do not share your PIN, password, or OTP with anyone.",
+    ],
+)
+def test_conversational_sentences_skipped(checker, sentence):
+    r = checker.check(_reply(f"{sentence}\nThe daily ATM withdrawal limit is NPR 25,000."), CHUNKS)
+    assert r.action == Action.ALLOW
+    skipped = [c for c in r.details["claims"] if c.get("skipped")]
+    assert [c["text"] for c in skipped] == [sentence]
+
+
+def test_factual_sentences_still_checked(checker):
+    r = checker.check(_reply("Blocked cards cannot be unblocked. The fee is NPR 500."), CHUNKS)
+    assert not any(c.get("skipped") for c in r.details["claims"])
+    assert r.action != Action.ALLOW
+
+
+def test_apology_does_not_hide_an_invented_claim(checker):
+    r = checker.check(
+        _reply("I'm sorry about this. Premium members get free airport lounge access."), CHUNKS
+    )
+    assert r.action != Action.ALLOW

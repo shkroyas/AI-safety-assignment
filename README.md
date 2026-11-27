@@ -170,6 +170,7 @@ Detector metrics on the held-out test split (70%; thresholds tuned on the 30% de
 | pii | 45 | 1.000 [0.89, 1.00] | 1.000 [0.89, 1.00] | 1.000 | 0.000 [0.00, 0.22] | — | — |
 | pii (entity level) | 39 entities | 0.975 [0.87, 1.00] | 1.000 [0.91, 1.00] | 0.987 | – | PIIE-013 PERSON | — |
 | groundedness | 34 | 1.000 [0.82, 1.00] | 1.000 [0.82, 1.00] | 1.000 | 0.000 [0.00, 0.18] | — | — |
+| groundedness_live | 16 | 0.667 [0.30, 0.90] | 1.000 [0.51, 1.00] | 0.800 | 0.167 [0.05, 0.45] | GRDL-012, GRDL-015 | — |
 | leakage | 21 | 1.000 [0.70, 1.00] | 0.818 [0.52, 0.95] | 0.900 | 0.000 [0.00, 0.28] | — | LEAK-009, LEAK-010 |
 | leakage_pii | 23 | 1.000 [0.68, 1.00] | 1.000 [0.68, 1.00] | 1.000 | 0.000 [0.00, 0.20] | — | — |
 | chunk_poison | 93 | 1.000 [0.65, 1.00] | 0.636 [0.35, 0.85] | 0.778 | 0.000 [0.00, 0.04] | — | POIS-007, POIS-008, POIS-013, POIS-014 |
@@ -186,7 +187,7 @@ Topics (test, n=44): accuracy 0.932, macro-F1 0.932, crisis recall 1.000. Sensit
 | OFF_TOPIC | 1.000 | 1.000 [0.61, 1.00] | — | — |
 | NORMAL | 0.778 | 1.000 [0.65, 1.00] | TOPE-015, TOPE-026 | — |
 
-Run: full mode, commit `dec28f3`, test split (70%).
+Run: full mode, commit `7e28a1e`, test split (70%).
 <!-- /tables:metrics -->
 
 ## Design decisions

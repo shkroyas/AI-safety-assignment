@@ -23,6 +23,7 @@ BINARY_SETS = [
     "crisis",
     "pii",
     "groundedness",
+    "groundedness_live",
     "leakage",
     "leakage_pii",
     "chunk_poison",
