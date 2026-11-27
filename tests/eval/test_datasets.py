@@ -48,7 +48,7 @@ def test_split_stratified(sets, name):
 
 
 def test_binary_sets_have_both_labels(sets):
-    for name in ("injection", "injection_pii", "pii", "groundedness", "leakage"):
+    for name in ("injection", "injection_pii", "crisis", "pii", "groundedness", "leakage"):
         assert {label_of(name, it) for it in sets[name]} == {0, 1}, name
 
 

@@ -25,6 +25,8 @@ def _compile(patterns: list[str]) -> list[re.Pattern[str]]:
 class TopicRouter:
     def __init__(self, config: dict[str, Any], classifier: TopicClassifier | None = None) -> None:
         self.tau: float = config["tau"]
+        # Per-class overrides: a missed crisis costs more than an extra helpline line.
+        self.class_tau: dict[str, float] = config.get("class_tau", {})
         self.crisis = _compile(config["crisis"])
         self.categories = {name: _compile(rx) for name, rx in config["categories"].items()}
         helpline = config["helpline"]
@@ -59,7 +61,7 @@ class TopicRouter:
             if spans:
                 return name, 1.0, "keyword", spans
         label, prob = self.classifier.predict(text)
-        if label != NORMAL and label in self.routes and prob >= self.tau:
+        if label != NORMAL and label in self.routes and prob >= self.class_tau.get(label, self.tau):
             return label, prob, "classifier", []
         return NORMAL, prob if label == NORMAL else 0.0, "classifier", []
 

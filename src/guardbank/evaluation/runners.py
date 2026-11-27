@@ -184,9 +184,27 @@ def run_chunk_scan(items: list[Any], s: Settings) -> list[Prediction]:
     return out
 
 
+def run_crisis(items: list[Any], s: Settings) -> list[Prediction]:
+    """Crisis set run like the pipeline (normalize, redact, route); pred = routed to CRISIS."""
+    norm, red, router = (
+        Normalizer.from_settings(s),
+        PiiRedactor.from_settings(s),
+        TopicRouter.from_settings(s),
+    )
+    out = []
+    for it in items:
+        n = norm.check(it.text).details
+        redacted = red.check(n["normalized"], PiiVault(), decoded=n["decoded"]).details["redacted"]
+        r = router.check(redacted)
+        pred = int(r.category == "CRISIS")
+        out.append(Prediction(it.id, it.label, pred, r.score, it.kind, it.text))
+    return out
+
+
 RUNNERS = {
     "injection": run_injection,
     "injection_pii": run_injection,
+    "crisis": run_crisis,
     "pii": run_pii,
     "topics": run_topics,
     "groundedness": run_groundedness,

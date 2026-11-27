@@ -18,3 +18,20 @@ def test_run_injection_uses_redacted_text(settings, monkeypatch):
     ]
     preds = {p.id: p.pred for p in run_injection(items, settings)}
     assert preds == {"A": 0, "B": 1}
+
+
+def test_run_crisis_predicts_crisis_route(settings, monkeypatch):
+    """docs/specs/fix-crisis-recall.md: the crisis set runs the router end to end."""
+    import guardbank.input.topics as topics_mod
+    from guardbank.evaluation.runners import run_crisis
+
+    class Fake:
+        def predict(self, text):
+            return ("CRISIS", 0.55) if "miss me" in text else ("NORMAL", 0.9)
+
+    monkeypatch.setattr(topics_mod, "build_topic_classifier", lambda cfg: Fake())
+    items = [
+        TextItem(id="C", text="Would anyone even miss me", label=1, kind="t"),
+        TextItem(id="N", text="My late father's account needs closing", label=0, kind="t"),
+    ]
+    assert {p.id: p.pred for p in run_crisis(items, settings)} == {"C": 1, "N": 0}
