@@ -19,6 +19,10 @@ SPEC section: 2. Pipeline order (step 5, chunk scan). From EVALUATION_RECOMMENDA
 - NEPALI_OVERRIDE: "niyam / nirdesan / nirdesh … birs-" (forget the rules).
 - Chunk-only: user input is unaffected.
 
+## Amendment: CREDENTIAL_ASK replaces CREDENTIAL_REQUEST
+- The existing rule ("cvv … chat|send") also drops the benign "Do not send your CVV by email or chat." The new
+  rule covers both poisoned items it was written for (POIS-004, POIS-011) and has the negation guard.
+
 ## Measured on the existing data (rules written after seeing the 4 misses, so not a fair test)
 - Clean corpus: 0 of 117 chunks flagged before and after. Poisoned: 11/15 → 15/15 caught (all splits).
 
