@@ -1,6 +1,6 @@
 {
   "mode": "fast",
-  "commit": "179c261960a79b36c1f4a02dce176b2fe26ee040",
+  "commit": "7b58aeae493aa1390177a7132852e08b28699436",
   "dirty": false,
   "config_sha256": "aa52c52f424418f784359df41094d0895f6891f9ac90470e32bc4b4451491585",
   "models": {
@@ -1220,8 +1220,8 @@
     }
   },
   "cases": {
-    "total": 45,
-    "passed": 42,
+    "total": 47,
+    "passed": 44,
     "known_failures": [
       "INJ-10",
       "TOP-02",

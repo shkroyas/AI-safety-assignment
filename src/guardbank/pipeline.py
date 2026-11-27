@@ -164,12 +164,13 @@ class _Run:
                 norm["normalized"],
                 decoded=norm["decoded"],
                 redacted=redacted if pii.detected else None,
+                decoded_redacted=pii.details["decoded_redacted"],
             )
         )
         if inj.action == Action.BLOCK:
             return self.finish("blocked", inj.details["refusal"], Action.BLOCK, "input_injection")
 
-        topic = self.log(p.topics.check(redacted))
+        topic = self.log(p.topics.check(redacted, decoded=pii.details["decoded_redacted"]))
         route = topic.details["route"]
         if route in _FIXED_ROUTES:
             outcome = _FIXED_ROUTES[route]

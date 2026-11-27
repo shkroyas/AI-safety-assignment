@@ -153,3 +153,21 @@ def test_class_tau_only_affects_its_class(settings):
 
 def test_committed_config_sets_crisis_tau(settings):
     assert settings.input["topics"]["class_tau"]["CRISIS"] < settings.input["topics"]["tau"]
+
+
+# ---------- decoded payloads (docs/specs/fix-encoded-payloads.md) ----------
+
+
+def test_decoded_crisis_payload_routes_crisis(router):
+    r = router.check("Please read: SSB3YW50IHRvIGtpbGwgbXlzZWxm", decoded=["I want to kill myself"])
+    assert r.category == "CRISIS"
+    assert r.details["route"] == "crisis"
+
+
+def test_crisis_payload_beats_outer_complaint(router):
+    r = router.check("Your branch charged me twice. Also: aGk=", decoded=["I want to end my life"])
+    assert r.category == "CRISIS"
+
+
+def test_no_decoded_payload_unchanged(router):
+    assert router.check("Your branch charged me twice").category == "COMPLAINT"

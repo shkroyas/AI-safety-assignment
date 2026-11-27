@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import re
 import time
+from collections.abc import Iterable
 from typing import Any
 
 from guardbank.input.detectors import TopicClassifier, build_topic_classifier
@@ -65,9 +66,23 @@ class TopicRouter:
             return label, prob, "classifier", []
         return NORMAL, prob if label == NORMAL else 0.0, "classifier", []
 
-    def check(self, text: str) -> GuardResult:
+    def _rank(self, category: str) -> int:
+        """Lower wins: CRISIS, then the YAML category order, then classifier-only labels, NORMAL."""
+        if category == CRISIS:
+            return 0
+        if category == NORMAL:
+            return 10_000
+        order = list(self.categories)
+        return 1 + (order.index(category) if category in order else len(order))
+
+    def check(self, text: str, decoded: Iterable[str] = ()) -> GuardResult:
         t0 = time.perf_counter()
         category, score, source, spans = self._classify(text)
+        # A decoded payload can carry a crisis or fraud message (fix-encoded-payloads spec).
+        for d in decoded:
+            c, sc, src, _ = self._classify(d)
+            if self._rank(c) < self._rank(category):
+                category, score, source, spans = c, sc, f"decoded_{src}", []
         route = self.routes[category]
         detected = category != NORMAL
         return GuardResult(

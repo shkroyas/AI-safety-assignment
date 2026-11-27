@@ -19,7 +19,8 @@ from guardbank.types import Action, GuardResult, Span
 STAGE = "normalizer"
 _CHANGE_ORDER = ("nfkc", "zero_width", "homoglyph", "base64", "hex")
 _INVISIBLE = re.compile("[​-‏‪-‮⁠-⁤﻿]")
-_TOKEN = re.compile(r"(?<![A-Za-z0-9+/=])(?:0x)?[A-Za-z0-9+/]+={0,2}(?![A-Za-z0-9+/=])")
+# Standard and URL-safe base64 alphabets (docs/specs/fix-encoded-payloads.md).
+_TOKEN = re.compile(r"(?<![A-Za-z0-9+/=_-])(?:0x)?[A-Za-z0-9+/_-]+={0,2}(?![A-Za-z0-9+/=_-])")
 _HEX = re.compile(r"[0-9A-Fa-f]+")
 
 
@@ -108,8 +109,10 @@ class Normalizer:
         return self._printable(bytes.fromhex(body))
 
     def _try_base64(self, body: str) -> str | None:
-        if len(body) % 4:
+        body = body.replace("-", "+").replace("_", "/").rstrip("=")
+        if len(body) % 4 == 1:  # no valid base64 has this length
             return None
+        body += "=" * (-len(body) % 4)  # padding is often dropped
         try:
             raw = base64.b64decode(body, validate=True)
         except (binascii.Error, ValueError):

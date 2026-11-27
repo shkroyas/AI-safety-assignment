@@ -140,7 +140,7 @@ make ablations   # ablations, tau sweeps, latency, charts -> eval/results/ablati
 make docs        # diagram, report tables, PDF
 ```
 
-The 45 end-to-end cases in `tests/cases.yaml` cover normal inputs, malicious inputs, sensitive
+The 47 end-to-end cases in `tests/cases.yaml` cover normal inputs, malicious inputs, sensitive
 information, sensitive topics, invalid outputs and unsupported claims; each records expected
 and actual behaviour and pass/fail. Results (full mode):
 
@@ -148,14 +148,14 @@ and actual behaviour and pass/fail. Results (full mode):
 | category | cases | passed (full mode) |
 |---|---|---|
 | normal_input | 8 | 8 |
-| malicious_input | 10 | 10 |
+| malicious_input | 11 | 11 |
 | sensitive_info | 10 | 9 |
-| sensitive_topic | 7 | 6 |
+| sensitive_topic | 8 | 7 |
 | invalid_output | 5 | 5 |
 | unsupported_claim | 5 | 5 |
-| **total** | **45** | **43** |
+| **total** | **47** | **45** |
 
-Full mode failed: PII-04, TOP-02. Fast mode (stubs): 42/45 passed, failed: INJ-10, TOP-02, TOP-07.
+Full mode failed: PII-04, TOP-02. Fast mode (stubs): 44/47 passed, failed: INJ-10, TOP-02, TOP-07.
 <!-- /tables:cases -->
 
 Detector metrics on the held-out test split (70%; thresholds tuned on the 30% dev split):
@@ -184,7 +184,7 @@ Topics (test, n=44): accuracy 0.932, macro-F1 0.932, crisis recall 1.000. Sensit
 | OFF_TOPIC | 1.000 | 1.000 [0.61, 1.00] | — | — |
 | NORMAL | 0.778 | 1.000 [0.65, 1.00] | TOPE-015, TOPE-026 | — |
 
-Run: full mode, commit `179c261`, test split (70%).
+Run: full mode, commit `7b58aea`, test split (70%).
 <!-- /tables:metrics -->
 
 ## Design decisions
