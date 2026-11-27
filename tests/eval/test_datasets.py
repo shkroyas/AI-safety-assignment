@@ -83,7 +83,7 @@ def test_only_test_card_numbers(sets):
 
 
 def test_injection_pii_items_contain_pii(sets, settings):
-    """Every item in the injection_pii set has PII the stub redactor finds (else it tests nothing)."""
+    """Every injection_pii item has PII the stub redactor finds (else it tests nothing)."""
     from guardbank.input.normalizer import Normalizer
     from guardbank.input.pii import PiiRedactor, PiiVault
 

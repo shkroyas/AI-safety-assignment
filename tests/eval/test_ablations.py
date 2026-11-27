@@ -85,7 +85,9 @@ def test_run_ablations_fast_writes_outputs(tmp_path):
     for f in ("ablations.json", "sweeps.json", "latency.json", "tables.md"):
         assert (tmp_path / f).exists(), f
     abl = json.loads((tmp_path / "ablations.json").read_text())
-    assert set(abl["injection"]) == {"regex", "classifier", "hybrid"}
+    variants = {"regex", "classifier", "hybrid", "hybrid+pii-routing"}
+    assert set(abl["injection"]) == variants
+    assert set(abl["injection_pii"]) == variants
     assert set(abl["groundedness"]) == {"keyword", "keyword+number", "nli", "nli+number"}
     for part in ("dev", "test"):
         assert "f1" in abl["injection"]["regex"][part]

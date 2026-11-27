@@ -8,6 +8,8 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 from guardbank.evaluation.run import run
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -18,6 +20,7 @@ def _fmt(x: float | None) -> str:
 
 
 def main() -> None:
+    load_dotenv(ROOT / ".env")  # HF_TOKEN for gated models; by path, not cwd search
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--mode", choices=["fast", "full"], default="fast")
     ap.add_argument("--out", type=Path, default=None)

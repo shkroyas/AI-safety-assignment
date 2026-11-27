@@ -8,12 +8,15 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 from guardbank.evaluation.ablations import run_ablations
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def main() -> None:
+    load_dotenv(ROOT / ".env")  # HF_TOKEN for gated models; by path, not cwd search
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--mode", choices=["fast", "full"], default="full")
     ap.add_argument("--out", type=Path, default=ROOT / "eval" / "results" / "ablations")

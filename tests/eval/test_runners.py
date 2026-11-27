@@ -1,4 +1,4 @@
-"""Injection runner applies the same PII routing as the pipeline (docs/specs/fix-injection-pii-refusals.md)."""
+"""Injection runner routes by PII like the pipeline (docs/specs/fix-injection-pii-refusals.md)."""
 
 import copy
 

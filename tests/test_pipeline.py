@@ -245,7 +245,7 @@ def test_audit_chain_intact_and_no_raw_input(make, audit_path):
 
 
 def test_injection_classifier_routed_by_pii(make, settings):
-    """PII in the input switches the injection classifier (docs/specs/fix-injection-pii-refusals.md)."""
+    """Input PII switches the injection classifier (docs/specs/fix-injection-pii-refusals.md)."""
     from guardbank.input.injection import InjectionDetector
 
     class Fixed:

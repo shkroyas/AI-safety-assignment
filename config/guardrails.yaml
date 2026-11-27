@@ -118,6 +118,8 @@ input:
       PASSWORD: [password, passcode, pw]
   injection:
     classifier: stub           # stub | deberta | prompt_guard (both need the `ml` extra)
+    # classifier_with_pii: prompt_guard   # optional: scorer for messages where input PII was found.
+    #   Unset = same classifier. Full mode sets it (docs/specs/fix-injection-pii-refusals.md).
     models:                    # kind -> HF model + the label that means "attack"
       deberta: {name: protectai/deberta-v3-base-prompt-injection-v2, positive_label: INJECTION}
       prompt_guard: {name: meta-llama/Llama-Prompt-Guard-2-86M, positive_label: LABEL_1}  # gated: needs HF_TOKEN

@@ -18,7 +18,12 @@ CLASSIFIER = "CLASSIFIER"
 
 
 class InjectionDetector:
-    def __init__(self, config: dict[str, Any], classifier: ScoreDetector | None = None) -> None:
+    def __init__(
+        self,
+        config: dict[str, Any],
+        classifier: ScoreDetector | None = None,
+        pii_classifier: ScoreDetector | None = None,
+    ) -> None:
         self.tau: float = config["tau"]
         self.refusal: str = config["refusal"]
         self.patterns: dict[str, re.Pattern[str]] = {
@@ -29,6 +34,15 @@ class InjectionDetector:
             name: float(p["weight"]) for name, p in config["patterns"].items()
         }
         self.classifier = classifier or build_injection_scorer(config)
+        # Messages with PII are scored by a second classifier when configured: DeBERTa
+        # over-flags benign messages carrying card/account numbers or passwords.
+        with_pii = config.get("classifier_with_pii")
+        if pii_classifier is not None:
+            self.pii_classifier = pii_classifier
+        elif with_pii:
+            self.pii_classifier = build_injection_scorer({**config, "classifier": with_pii})
+        else:
+            self.pii_classifier = self.classifier
 
     @classmethod
     def from_settings(cls, settings: Any) -> InjectionDetector:
@@ -43,7 +57,7 @@ class InjectionDetector:
         ]
         return sorted(spans, key=lambda s: s.start)
 
-    def check(self, text: str, decoded: Iterable[str] = ()) -> GuardResult:
+    def check(self, text: str, decoded: Iterable[str] = (), has_pii: bool = False) -> GuardResult:
         t0 = time.perf_counter()
         spans = self.scan(text)
         matched = {s.label for s in spans}
@@ -54,7 +68,8 @@ class InjectionDetector:
 
         regex_score = max((self.weights[n] for n in matches), default=0.0)
         top = max(matches, key=lambda n: self.weights[n]) if matches else None
-        clf_score = self.classifier.score(text)
+        clf_name = "with_pii" if has_pii else "default"
+        clf_score = (self.pii_classifier if has_pii else self.classifier).score(text)
         score = max(regex_score, clf_score)
         category = CLASSIFIER if clf_score > regex_score else top
 
@@ -70,6 +85,7 @@ class InjectionDetector:
             details={
                 "matches": matches,
                 "regex_score": regex_score,
+                "classifier": clf_name,
                 "classifier_score": clf_score,
                 "refusal": self.refusal if detected else None,
             },
