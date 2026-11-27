@@ -150,12 +150,12 @@ and actual behaviour and pass/fail. Results (full mode):
 | normal_input | 8 | 8 |
 | malicious_input | 11 | 11 |
 | sensitive_info | 10 | 9 |
-| sensitive_topic | 8 | 7 |
+| sensitive_topic | 8 | 8 |
 | invalid_output | 5 | 5 |
 | unsupported_claim | 5 | 5 |
-| **total** | **47** | **45** |
+| **total** | **47** | **46** |
 
-Full mode failed: PII-04, TOP-02. Fast mode (stubs): 44/47 passed, failed: INJ-10, TOP-02, TOP-07.
+Full mode failed: PII-04. Fast mode (stubs): 44/47 passed, failed: INJ-10, TOP-02, TOP-07.
 <!-- /tables:cases -->
 
 Detector metrics on the held-out test split (70%; thresholds tuned on the 30% dev split):
@@ -184,7 +184,7 @@ Topics (test, n=44): accuracy 0.932, macro-F1 0.932, crisis recall 1.000. Sensit
 | OFF_TOPIC | 1.000 | 1.000 [0.61, 1.00] | — | — |
 | NORMAL | 0.778 | 1.000 [0.65, 1.00] | TOPE-015, TOPE-026 | — |
 
-Run: full mode, commit `7b58aea`, test split (70%).
+Run: full mode, commit `c23405f`, test split (70%).
 <!-- /tables:metrics -->
 
 ## Design decisions

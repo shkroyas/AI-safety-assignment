@@ -31,5 +31,6 @@ code → PR with green CI → Royas merges → `/clear`. "Spec" = the SPEC.md se
 | — | `fix/output-overredaction` | output passwords need a marker; context-published numbers kept; `leakage_pii` set | 4. Output guardrails | merged #26 |
 | — | `fix/landline-pii` | NP_PHONE matches Nepali landlines; LKP-026/029 relabeled | 3. Input guardrails | merged #27 |
 | — | `fix/encoded-payloads` | unpadded/URL-safe base64; decoded text to classifier and topic router | 2. Pipeline order | this PR |
+| — | `fix/claim-splitting` | list markers are not claims; MockLLM; tau_prompt 0.78 | 4. Output guardrails | this PR |
 | — | `fix/*` | one per real failure found by the eval | 6. Evaluation | |
 | — | `chore/plugin` | package skills/agents/hooks as a plugin | 9. Claude Code development layer | merged #22 |
