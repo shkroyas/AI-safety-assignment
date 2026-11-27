@@ -75,6 +75,20 @@ def _errors_md(mode: str, commit: dict[str, Any], results: dict[str, list[Predic
     return "\n".join(lines)
 
 
+def _short(text: str, n: int) -> str:
+    text = " ".join(text.split())
+    return text if len(text) <= n else text[: n - 1] + "…"
+
+
+def _reference(case: Any) -> str:
+    """The reference information for a case (assignment §3): retrieved docs or the scripted LLM output."""
+    if case.llm_output:
+        return "scripted LLM output: " + _short(" | ".join(case.llm_output), 120)
+    if case.reference_docs:
+        return "retrieved docs: " + ", ".join(case.reference_docs)
+    return "—"
+
+
 def _run_cases(settings, out_dir: Path) -> list[dict[str, Any]]:
     pipeline = Pipeline.from_settings(
         settings, llm=MockLLM(), audit=AuditLog(out_dir / "cases_audit.jsonl")
@@ -86,8 +100,12 @@ def _run_cases(settings, out_dir: Path) -> list[dict[str, Any]]:
             {
                 "id": r.id,
                 "category": case.category,
-                "pass": r.passed,
+                "input": case.input,
+                "reference": _reference(case),
+                "expected": case.expected.model_dump(exclude_none=True, exclude_defaults=True),
                 "actual": r.actual,
+                "reply": _short(r.text, 160),
+                "pass": r.passed,
                 "reasons": r.reasons,
                 "known_failure": case.known_failure,
             }
