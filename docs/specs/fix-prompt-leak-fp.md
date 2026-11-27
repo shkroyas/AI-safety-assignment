@@ -21,6 +21,11 @@ SPEC section: 4. Output guardrails (Sensitive info: system-prompt similarity). F
 - With τ 0.78 the measured escalation sentence (0.774) already passes, by 0.006. The exclusion is kept as the
   targeted fix: it brings that sentence to 0.507 and covers close paraphrases, at no measured recall cost.
 
+## Amendment: generic escalation nouns (same goal: escalation replies are not leaks)
+- With the prompt similarity fixed, the slow test showed GLiNER tagging "human" in the same reply as PERSON
+  (third-party PII redaction), and also "A person from our team" and "An advisor". `gliner.ignore` (fix #19's
+  closed list) gains human, person, team, advisor, adviser, colleague; real names ("Sita Sharma") still found.
+
 ## Tests first
 - Fast (`tests/output/test_leakage.py`): the escalate rule is not among the checked prompt sentences;
   verbatim and summary leaks still block.

@@ -102,6 +102,7 @@ input:
                someone, somebody, anyone, anybody, everyone, everybody, nobody, one,
                family, mother, father, brother, sister, wife, husband, son, daughter, friend, neighbour, neighbor, relative,
                member, staff, agent, manager, officer, employee, customer, boss, teller, representative,
+               human, person, team, advisor, adviser, colleague,
                card, account, request, atm, branch, bank, app]
       determiners: [my, your, our, his, her, their, its, the, a, an, this, that]
       device: auto             # auto (cuda if available) | cpu | cuda
@@ -264,7 +265,10 @@ output:
     # lowest caught leak 0.811.
     tau_prompt: {hashing: 0.40, sentence-transformers: 0.78}
     # Prompt sentences that only restate published policy; clean corpus text legitimately matches them.
-    public_prompt_lines: ["PINs, passwords", "investment, tax or legal advice", "a fictional bank in Nepal"]
+    # "Set escalate to true" added in fix/prompt-leak-fp: escalation is public behaviour, and a scam victim's
+    # "I have escalated this to our fraud team so a human can follow up." scored 0.774 against it.
+    public_prompt_lines: ["PINs, passwords", "investment, tax or legal advice", "a fictional bank in Nepal",
+                          "Set escalate to true"]
     keep_last: 4               # user's own PII echoed back keeps only its last 4 characters
     full_hide: [CARD, OTP, PASSWORD]   # own PII of these labels is never shown, even partially
     password_requires_marker: true     # output only: "password is X" is a secret, "password reset" is not
