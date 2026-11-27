@@ -1,8 +1,8 @@
 {
   "mode": "full",
-  "commit": "7b58aeae493aa1390177a7132852e08b28699436",
+  "commit": "c23405ff7e314426b43e4f7e323f843953c9f28d",
   "dirty": false,
-  "config_sha256": "aa52c52f424418f784359df41094d0895f6891f9ac90470e32bc4b4451491585",
+  "config_sha256": "46f0924e1cf8b400a5de4a2e8f70709bd27b03745cb16a07147706eb0c5fd217",
   "models": {
     "injection": "deberta",
     "pii": "gliner",
@@ -1125,15 +1125,14 @@
   },
   "cases": {
     "total": 47,
-    "passed": 45,
+    "passed": 46,
     "known_failures": [
       "INJ-10",
       "TOP-02",
       "TOP-07"
     ],
     "failed": [
-      "PII-04",
-      "TOP-02"
+      "PII-04"
     ]
   }
 }

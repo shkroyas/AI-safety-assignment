@@ -260,7 +260,9 @@ output:
     # Block when an answer sentence is this similar to a system-prompt sentence. Measured with the
     # public lines below dropped (clean corpus max | verbatim, summary, paraphrase, JSON leaks):
     # hashing 0.23 | 1.0, 0.43, 0.13, 0.73;  bge-small 0.72 | 1.0, 0.78, 0.69, 0.91.
-    tau_prompt: {hashing: 0.40, sentence-transformers: 0.75}
+    # bge-small 0.75 -> 0.78 in fix/claim-splitting: clean max 0.765 ("Cancel standing instructions…"),
+    # lowest caught leak 0.811.
+    tau_prompt: {hashing: 0.40, sentence-transformers: 0.78}
     # Prompt sentences that only restate published policy; clean corpus text legitimately matches them.
     public_prompt_lines: ["PINs, passwords", "investment, tax or legal advice", "a fictional bank in Nepal"]
     keep_last: 4               # user's own PII echoed back keeps only its last 4 characters

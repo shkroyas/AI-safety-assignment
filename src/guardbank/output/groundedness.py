@@ -19,6 +19,9 @@ STAGE = "output_groundedness"
 
 _SENT_END = re.compile(r"[.!?]+\s+|\n+")
 _ABBREV = frozenset({"rs", "no", "mr", "mrs", "dr", "st", "e.g", "i.e", "approx"})
+# List markers are layout, not claims: "1." alone scored 0.483 on HHEM (fix-claim-splitting spec).
+_MARKER = re.compile(r"^(?:[-*•]|\d+[.)])\s+")
+_LONE_NUMBER = re.compile(r"^\d+[.)]$")
 
 
 def split_claims(answer: str) -> list[str]:
@@ -31,6 +34,7 @@ def split_claims(answer: str) -> list[str]:
         claims.append(answer[start : m.end()].strip())
         start = m.end()
     claims.append(answer[start:].strip())
+    claims = [_MARKER.sub("", c).strip() for c in claims if not _LONE_NUMBER.match(c)]
     return [c for c in claims if c]
 
 
