@@ -33,6 +33,7 @@ code → PR with green CI → Royas merges → `/clear`. "Spec" = the SPEC.md se
 | — | `fix/encoded-payloads` | unpadded/URL-safe base64; decoded text to classifier and topic router | 2. Pipeline order | merged #28 |
 | — | `fix/claim-splitting` | list markers are not claims; MockLLM; tau_prompt 0.78 | 4. Output guardrails | merged #29 |
 | — | `fix/prompt-leak-fp` | escalation rule public; generic escalation nouns not people | 4. Output guardrails | merged #30 |
-| — | `fix/output-pipeline` | token overlap, single leakage check, redaction verdict, sanitized reply | 4. Output guardrails | this PR |
+| — | `fix/output-pipeline` | token overlap, single leakage check, redaction verdict, sanitized reply | 4. Output guardrails | merged #31 |
+| — | `docs/per-case-table` | input, reference, expected, actual, pass per case; report Appendix A | 5. Test case format | this PR |
 | — | `fix/*` | one per real failure found by the eval | 6. Evaluation | |
 | — | `chore/plugin` | package skills/agents/hooks as a plugin | 9. Claude Code development layer | merged #22 |

@@ -185,7 +185,7 @@ Topics (test, n=44): accuracy 0.932, macro-F1 0.932, crisis recall 1.000. Sensit
 | OFF_TOPIC | 1.000 | 1.000 [0.61, 1.00] | — | — |
 | NORMAL | 0.778 | 1.000 [0.65, 1.00] | TOPE-015, TOPE-026 | — |
 
-Run: full mode, commit `1a3b455`, test split (70%).
+Run: full mode, commit `b59cf67`, test split (70%).
 <!-- /tables:metrics -->
 
 ## Design decisions

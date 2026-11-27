@@ -100,8 +100,13 @@ def _cell(text: object) -> str:
     return str(text).replace("|", "/").replace("\n", " ")
 
 
+def _trim(text: str, n: int) -> str:
+    return text if len(text) <= n else text[: n - 1] + "…"
+
+
 def _behaviour(d: dict) -> str:
-    parts = [d.get("stage"), d.get("action"), d.get("outcome")]
+    stage = re.sub(r"^(?:input|output|rag)[._]", "", d.get("stage") or "")
+    parts = [stage, d.get("action"), d.get("outcome")]
     return " / ".join(_cell(p) for p in parts if p)
 
 
@@ -110,21 +115,22 @@ def cases_detail_table() -> str:
     full = _load(RESULTS / "full" / "cases.json")
     fast = {r["id"]: r for r in _load(RESULTS / "fast" / "cases.json")}
     out = [
-        "| id | category | input | reference | expected (stage / action / outcome) "
-        "| actual (stage / action / outcome) | pass full | pass fast |",
+        "| id | category | input | reference | expected: stage / action / outcome "
+        "| actual: stage / action / outcome | full | fast |",
         "|---|---|---|---|---|---|---|---|",
     ]
     for r in full:
         f = fast.get(r["id"], {})
         fast_pass = "yes" if f.get("pass") else ("known" if f.get("known_failure") else "no")
+        ref = _cell(_trim(r["reference"], 70))
         out.append(
-            f"| {r['id']} | {r['category']} | {_cell(r['input'])} | {_cell(r['reference'])} "
+            f"| {r['id']} | {r['category']} | {_cell(_trim(r['input'], 70))} | {ref} "
             f"| {_behaviour(r['expected'])} | {_behaviour(r['actual'])} "
             f"| {'yes' if r['pass'] else 'no'} | {fast_pass} |"
         )
     out += [
         "",
-        "Full mode: real models, MockLLM or the case's scripted LLM output. "
+        "full / fast: pass in full mode (real models) and fast mode (stubs); "
         '"known" marks a fast-mode failure recorded in `tests/cases.yaml` (`known_failure`). '
         "Replies and failure reasons per case are in `eval/results/full/cases.json`.",
     ]
