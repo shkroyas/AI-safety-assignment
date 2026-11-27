@@ -135,3 +135,37 @@ def test_presidio_person_redacted(settings, vault):
     labels = {s.label for s in r.spans}
     assert "PERSON" in labels
     assert "Ram Bahadur Thapa" not in r.details["redacted"]
+
+
+# ---------- Nepali landlines (docs/specs/fix-landline-pii.md) ----------
+
+
+@pytest.mark.parametrize(
+    ("text", "value"),
+    [
+        ("Phone me at home on 01-5970123 after six.", "01-5970123"),
+        ("Our landline is 01 4412345.", "01 4412345"),
+        ("The Pokhara office number is 061-523456.", "061-523456"),
+        ("From abroad dial +977-1-5970123.", "+977-1-5970123"),
+        ("My shop line is +977 21 456789.", "+977 21 456789"),
+    ],
+)
+def test_landline_found_as_phone(pii, vault, text, value):
+    r = pii.check(text, vault)
+    assert [s.label for s in r.spans] == ["NP_PHONE"]
+    span = r.spans[0]
+    assert text[span.start : span.end] == value
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "The statement date is 2024-01-15.",
+        "I paid NPR 1,50,000 last week.",
+        "My order ORD-015970123 has not arrived.",
+        "Call the hotline on 1660-01-12345 to block it.",
+        "Ref 0123456789 is the old file number.",
+    ],
+)
+def test_landline_lookalikes_not_phone(pii, text):
+    assert "NP_PHONE" not in [label for _, _, label in pii.find(text)]

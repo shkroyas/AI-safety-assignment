@@ -190,3 +190,19 @@ def test_own_pii_still_masked_with_new_rules(checker, vault):
     r = run(checker, "We will call 9841234567 shortly.", vault)
     assert r.category == "OWN_PII"
     assert r.details["text"] == "We will call ******4567 shortly."
+
+
+GRIEVANCE_CTX = "[grievance-process#1] Call the grievance desk on 01-5970123 or visit any branch."
+
+
+def test_third_party_landline_redacted(checker):
+    r = checker.check("Ram's home phone is 01-4412345.", PiiVault(), CANARY, GRIEVANCE_CTX)
+    assert r.category == "THIRD_PARTY_PII"
+    assert "01-4412345" not in r.details["text"]
+
+
+def test_published_landline_kept(checker):
+    answer = "Call the grievance desk on 01-5970123."
+    r = checker.check(answer, PiiVault(), CANARY, GRIEVANCE_CTX)
+    assert r.action == Action.ALLOW
+    assert r.details["text"] == answer
