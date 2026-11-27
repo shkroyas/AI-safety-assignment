@@ -29,3 +29,22 @@ def test_fast_run_outputs(tmp_path):
     assert len(cases) >= 40 and {"id", "pass", "actual"} <= set(cases[0])
     errors = (tmp_path / "errors.md").read_text()
     assert "# Errors" in errors
+
+
+def test_cases_json_records_the_full_case(tmp_path):
+    """docs/specs/docs-per-case-table.md: every field the assignment asks for, per case."""
+    import yaml
+
+    from guardbank.evaluation.run import ROOT
+
+    run("fast", tmp_path)
+    rows = {r["id"]: r for r in json.loads((tmp_path / "cases.json").read_text())}
+    cases = yaml.safe_load((ROOT / "tests" / "cases.yaml").read_text(encoding="utf-8"))
+    assert set(rows) == {c["id"] for c in cases}
+    for c in cases:
+        row = rows[c["id"]]
+        for key in ("input", "reference", "expected", "actual", "reply", "pass", "reasons"):
+            assert key in row, (c["id"], key)
+        assert row["input"] == c["input"]
+        if c.get("reference_docs") or c.get("llm_output"):
+            assert row["reference"] != "—", c["id"]

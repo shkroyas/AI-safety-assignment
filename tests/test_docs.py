@@ -71,3 +71,17 @@ def test_architecture_names_every_pipeline_stage():
         "audit",
     ):
         assert stage in dot, stage
+
+
+def test_report_appendix_has_every_case():
+    """docs/specs/docs-per-case-table.md: one appendix row per end-to-end case."""
+    import yaml
+
+    cases = yaml.safe_load((ROOT / "tests" / "cases.yaml").read_text(encoding="utf-8"))
+    text = REPORT.read_text()
+    assert "## Appendix A. End-to-end cases" in text
+    block = text.split("<!-- tables:cases_detail -->", 1)[1].split("<!-- /tables:cases_detail -->")[
+        0
+    ]
+    rows = [ln for ln in block.splitlines() if ln.startswith("| ") and not ln.startswith("| id ")]
+    assert len(rows) == len(cases)
