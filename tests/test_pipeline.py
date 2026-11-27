@@ -339,3 +339,41 @@ def test_soft_crisis_note_appended_to_answer(make, settings):
     assert r.outcome == "answered"
     assert "100,000" in r.text or "25,000" in r.text
     assert r.text.rstrip().endswith(stage(r, "input_topic")[0].details["crisis_note"])
+
+
+# ---------- router reads unredacted text (docs/specs/fix-route-unredacted.md) ----------
+
+
+class SeesRawDigits:
+    """CRISIS only if the raw number is visible; redaction would hide it behind <NP_PHONE_1>."""
+
+    def predict(self, text):
+        return ("CRISIS", 0.9) if "9841234567" in text else ("NORMAL", 0.9)
+
+    def class_prob(self, text, label):
+        return 0.0
+
+
+def test_router_reads_unredacted_text(make, settings, audit_path):
+    from guardbank.input.topics import TopicRouter
+
+    p, llm = make()
+    p.topics = TopicRouter(settings.input["topics"], classifier=SeesRawDigits())
+    r = p.run("My number is 9841234567 and I can't cope any more", Session())
+    assert r.outcome == "crisis"
+    assert llm.calls == []
+    assert "9841234567" not in audit_path.read_text()
+
+
+def test_llm_still_gets_redacted_text(make, settings):
+    from guardbank.input.topics import TopicRouter
+
+    class Normal(SeesRawDigits):
+        def predict(self, text):
+            return "NORMAL", 0.9
+
+    p, llm = make()
+    p.topics = TopicRouter(settings.input["topics"], classifier=Normal())
+    p.run("My phone is 9841234567, what is the ATM limit?", Session())
+    sent = json.dumps(llm.calls[0]["messages"])
+    assert "9841234567" not in sent and "<NP_PHONE_1>" in sent
