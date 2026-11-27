@@ -116,3 +116,40 @@ def test_keyword_beats_classifier(settings):
     assert r.category == "COMPLAINT"
     assert r.details["source"] == "keyword"
     assert r.details["matches"]
+
+
+# ---------- per-class threshold (docs/specs/fix-crisis-recall.md) ----------
+
+INDIRECT = "Nobody would notice if I disappeared"
+
+
+def _cfg(settings, class_tau):
+    import copy
+
+    cfg = copy.deepcopy(settings.input["topics"])
+    if class_tau is None:
+        cfg.pop("class_tau", None)
+    else:
+        cfg["class_tau"] = class_tau
+    return cfg
+
+
+def test_crisis_class_tau_routes_lower_probability(settings):
+    r = TopicRouter(_cfg(settings, {"CRISIS": 0.5}), FakeClassifier("CRISIS", 0.55)).check(INDIRECT)
+    assert r.category == "CRISIS"
+    assert r.details["route"] == "crisis"
+    assert r.details["source"] == "classifier"
+
+
+def test_without_class_tau_shared_tau_applies(settings):
+    r = TopicRouter(_cfg(settings, None), FakeClassifier("CRISIS", 0.55)).check(INDIRECT)
+    assert r.category == "NORMAL"
+
+
+def test_class_tau_only_affects_its_class(settings):
+    r = TopicRouter(_cfg(settings, {"CRISIS": 0.5}), FakeClassifier("ADVICE", 0.55)).check(INDIRECT)
+    assert r.category == "NORMAL"
+
+
+def test_committed_config_sets_crisis_tau(settings):
+    assert settings.input["topics"]["class_tau"]["CRISIS"] < settings.input["topics"]["tau"]
