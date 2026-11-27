@@ -158,3 +158,43 @@ def test_scorer_swappable(settings):
         .action
         == Action.ALLOW
     )
+
+
+# ---------- list markers (docs/specs/fix-claim-splitting.md) ----------
+
+
+@pytest.mark.parametrize(
+    ("text", "want"),
+    [
+        (
+            "1. Block your card in the SDB app or call 1660-01-12345.",
+            ["Block your card in the SDB app or call 1660-01-12345."],
+        ),
+        (
+            "Steps:\n1. Open the SDB app.\n2. Select Cards and Block.\n3) Call the hotline.",
+            ["Steps:", "Open the SDB app.", "Select Cards and Block.", "Call the hotline."],
+        ),
+        (
+            "- Keep your PIN safe.\n* Never share your OTP.",
+            ["Keep your PIN safe.", "Never share your OTP."],
+        ),
+        ("The limit is 5. Ask a branch.", ["The limit is 5.", "Ask a branch."]),
+        ("Pay Rs. 500 at the branch.", ["Pay Rs. 500 at the branch."]),
+    ],
+)
+def test_list_markers_not_claims(text, want):
+    assert split_claims(text) == want
+
+
+def test_step_numbers_not_checked_as_facts(checker):
+    chunks = {"card-blocking#2": "Block your card in the app. Then call the hotline."}
+    reply = SupportReply(
+        answer="1. Block your card in the app.\n2. Then call the hotline.",
+        citations=["card-blocking#2"],
+        intent="cards",
+        confidence=0.9,
+        escalate=False,
+    )
+    r = checker.check(reply, chunks)
+    assert r.action == Action.ALLOW
+    assert all(not c["numbers_missing"] for c in r.details["claims"])

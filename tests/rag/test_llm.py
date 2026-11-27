@@ -68,3 +68,12 @@ def test_bedrock_live_returns_valid_json(settings):
     out = llm.generate(system, [{"role": "user", "content": "What is the ATM limit?"}])
     reply = SupportReply.model_validate_json(out.text)
     assert "atm-cards#1" in reply.citations
+
+
+def test_mock_strips_list_marker_from_context_line():
+    """docs/specs/fix-claim-splitting.md: the answer is the step, not "1."."""
+    system = (
+        "...\n[fraud-and-scams#2] 1. Block your card immediately in the SDB app. 2. Call us.\n..."
+    )
+    data = json.loads(MockLLM().generate(system, []).text)
+    assert data["answer"] == "Block your card immediately in the SDB app."
