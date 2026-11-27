@@ -42,6 +42,10 @@ def _set_metrics(name: str, preds: list[Prediction], classes: list[str]) -> dict
         m["crisis_recall"] = crisis["recall"]
         return m
     m = binary_metrics((p.id, int(p.label), int(p.pred)) for p in preds)
+    if name == "crisis":  # the soft note also gives the helpline (fix-soft-crisis-note spec)
+        m["route_or_note"] = binary_metrics(
+            (p.id, int(p.label), int(p.pred or p.extra.get("noted", 0))) for p in preds
+        )
     if name == "pii":
         per_label: dict[str, list[int]] = {}
         for p in preds:

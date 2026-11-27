@@ -28,6 +28,9 @@ class TopicRouter:
         self.tau: float = config["tau"]
         # Per-class overrides: a missed crisis costs more than an extra helpline line.
         self.class_tau: dict[str, float] = config.get("class_tau", {})
+        # Soft crisis note (fix-soft-crisis-note spec): a possible crisis below the route threshold
+        # gets one helpline sentence added to the normal reply. None = off.
+        self.soft_crisis_tau: float | None = config.get("soft_crisis_tau")
         self.crisis = _compile(config["crisis"])
         self.categories = {name: _compile(rx) for name, rx in config["categories"].items()}
         helpline = config["helpline"]
@@ -38,6 +41,9 @@ class TopicRouter:
             if r.get("response"):
                 r["response"] = r["response"].format(**fill)
             self.routes[name] = r
+        self.crisis_note: str | None = (
+            config["crisis_note"].format(**fill) if config.get("crisis_note") else None
+        )
         self.classifier = classifier or build_topic_classifier(config)
 
     @classmethod
@@ -65,6 +71,12 @@ class TopicRouter:
         if label != NORMAL and label in self.routes and prob >= self.class_tau.get(label, self.tau):
             return label, prob, "classifier", []
         return NORMAL, prob if label == NORMAL else 0.0, "classifier", []
+
+    def _crisis_note(self, text: str, category: str) -> str | None:
+        if category == CRISIS or self.soft_crisis_tau is None or not self.crisis_note:
+            return None
+        prob = getattr(self.classifier, "class_prob", lambda t, label: 0.0)(text, CRISIS)
+        return self.crisis_note if prob >= self.soft_crisis_tau else None
 
     def _rank(self, category: str) -> int:
         """Lower wins: CRISIS, then the YAML category order, then classifier-only labels, NORMAL."""
@@ -100,5 +112,6 @@ class TopicRouter:
                 "disclaimer": route.get("disclaimer"),
                 "matches": sorted({s.label for s in spans}),
                 "source": source,
+                "crisis_note": self._crisis_note(text, category),
             },
         )
