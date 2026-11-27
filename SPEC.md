@@ -8,7 +8,7 @@ Every detector returns `GuardResult(detected: bool, score: float, spans: list[Sp
 Actions: `allow | redact | block | route | drop_chunk | regenerate | fallback`.
 
 ## 2. Pipeline order
-1. Normalizer (NFKC, strip zero-width, homoglyphs, decode obvious base64/hex and scan decoded text too).
+1. Normalizer (NFKC, strip zero-width, homoglyphs, Devanagari digits to ASCII, decode obvious base64/hex and scan decoded text too).
 2. Input PII: redact to typed tokens (`<PHONE_1>`), kept in a per-session vault.
 3. Input injection: block if regex high-confidence OR classifier score >= tau.
 4. Topic router (crisis keyword fast-path first, then classifier), before retrieval. It reads the unredacted text inside the process (only its verdict is logged), so redaction cannot hide crisis words.
@@ -20,7 +20,7 @@ Actions: `allow | redact | block | route | drop_chunk | regenerate | fallback`.
 ## 3. Input guardrails
 | Guardrail | Detection | Action | Known limits |
 |---|---|---|---|
-| PII | Presidio built-ins, custom Nepal recognizers (citizenship no., 9-digit PAN, +977 mobiles and landlines, account no. with context words), GLiNER-PII | Redact to typed token; card numbers/OTP/passwords redacted with "never share this" warning | Spelled-out digits, Devanagari digits, Romanized names, PII split across turns, order-ID false positives |
+| PII | Presidio built-ins, custom Nepal recognizers (citizenship no., 9-digit PAN, +977 mobiles and landlines, account no. with context words), GLiNER-PII | Redact to typed token; card numbers/OTP/passwords redacted with "never share this" warning | Spelled-out digits (Devanagari digits are normalized to ASCII), Romanized names, PII split across turns, order-ID false positives |
 | Prompt injection | Pruned regex bank + classifier (Prompt Guard 2 or DeBERTa) + canary + chunk scan | Direct attack: generic refusal + audit event. Poisoned chunk: drop silently, log | Semantic or multi-turn attacks, Romanized Nepali, over-flagging "ignore my last message" |
 | Sensitive topic | Crisis keywords + embedding/logistic-regression classifier | Routing table below | Fuzzy category boundaries, small training set |
 

@@ -23,7 +23,7 @@ the log.
 
 | # | Guardrail | Purpose | Why at this stage |
 |---|---|---|---|
-| 1 | Normalizer | Undo obfuscation: NFKC, zero-width characters, Cyrillic/Greek homoglyphs, base64 (standard, URL-safe, unpadded) and hex payloads; the injection classifier and the topic router also see the decoded text | Every later detector sees the same canonical text; otherwise "іgnore" or a base64 payload slips past regex and classifier alike |
+| 1 | Normalizer | Undo obfuscation: NFKC, zero-width characters, Cyrillic/Greek homoglyphs, Devanagari digits to ASCII, base64 (standard, URL-safe, unpadded) and hex payloads; the injection classifier and the topic router also see the decoded text | Every later detector sees the same canonical text; otherwise "іgnore" or a base64 payload slips past regex and classifier alike |
 | 2 | Input PII | Replace card, account, citizenship, PAN, phone, OTP, password, email, names and places with typed tokens (`<CARD_1>`) held in a per-session vault | Before anything leaves the process: the LLM provider, the retriever and the logs never see raw PII |
 | 3 | Prompt injection | Block attempts to override instructions, change role or extract the prompt | Before retrieval and generation: a blocked request costs no LLM call and gives the model nothing to obey |
 | 4 | Topic router | Send crisis, fraud-intent, scam-victim, advice, complaint and off-topic messages to a fixed route | Before retrieval: a crisis reply must not depend on what the retriever or the LLM happens to produce |
@@ -51,7 +51,7 @@ citizenship numbers, 9-digit PAN and account numbers (only with a context word s
 GLiNER (`urchade/gliner_multi_pii-v1`, τ 0.5) adds names and places, which regex cannot do.
 *Why:* structured identifiers are exact and cheap with regex; names need a model. *Action:*
 redact to a typed token; for card, OTP and password the reply also carries "Never share card
-numbers, OTPs or passwords, even with bank staff." *Limits:* spelled-out or Devanagari digits,
+numbers, OTPs or passwords, even with bank staff." *Limits:* spelled-out numbers (Devanagari digits are mapped to ASCII by the normalizer since fix/devanagari-digits),
 PII split across turns, numbers without context words, and GLiNER labelling generic nouns as
 people (see failure 1).
 
@@ -103,7 +103,7 @@ similarity threshold (τ 0.78 for bge-small; LEAK-009/010/012), and numbers in f
 
 ## c. Evaluation results
 
-**Test suite.** 523 pytest tests (446 fast, the rest need real models or the live API), including
+**Test suite.** 530 pytest tests (453 fast, the rest need real models or the live API), including
 47 end-to-end cases in `tests/cases.yaml`: each records input, reference context or scripted LLM
 output, expected behaviour, actual behaviour and pass/fail (`eval/results/full/cases.json`).
 
@@ -121,7 +121,7 @@ output, expected behaviour, actual behaviour and pass/fail (`eval/results/full/c
 Full mode failed: PII-04. Fast mode (stubs): 44/47 passed, failed: INJ-10, TOP-02, TOP-07.
 <!-- /tables:cases -->
 
-**Detector metrics.** 444 labeled items in `data/eval/` plus 132 labeled corpus chunks, split 30%
+**Detector metrics.** 449 labeled items in `data/eval/` plus 132 labeled corpus chunks, split 30%
 dev / 70% test. Thresholds were tuned on dev only; numbers below are on the test split, with
 Wilson 95% confidence intervals and every false positive and false negative listed by id
 (texts in `eval/results/full/errors.md`).
@@ -132,8 +132,8 @@ Wilson 95% confidence intervals and every false positive and false negative list
 | injection | 49 | 0.889 [0.72, 0.96] | 0.960 [0.80, 0.99] | 0.923 | 0.125 [0.04, 0.31] | INJE-037, INJE-038, INJE-043 | INJE-009 |
 | injection_pii | 32 | 0.786 [0.52, 0.92] | 1.000 [0.74, 1.00] | 0.880 | 0.143 [0.05, 0.35] | INJP-013, INJP-015, INJP-028 | — |
 | crisis | 22 | 1.000 [0.68, 1.00] | 0.727 [0.43, 0.90] | 0.842 | 0.000 [0.00, 0.26] | — | CRIS-002, CRIS-008, CRIS-010 |
-| pii | 45 | 1.000 [0.89, 1.00] | 1.000 [0.89, 1.00] | 1.000 | 0.000 [0.00, 0.22] | — | — |
-| pii (entity level) | 39 entities | 0.975 [0.87, 1.00] | 1.000 [0.91, 1.00] | 0.987 | – | PIIE-013 PERSON | — |
+| pii | 49 | 1.000 [0.90, 1.00] | 1.000 [0.90, 1.00] | 1.000 | 0.000 [0.00, 0.20] | — | — |
+| pii (entity level) | 42 entities | 0.977 [0.88, 1.00] | 1.000 [0.92, 1.00] | 0.988 | – | PIIE-013 PERSON | — |
 | groundedness | 34 | 1.000 [0.82, 1.00] | 1.000 [0.82, 1.00] | 1.000 | 0.000 [0.00, 0.18] | — | — |
 | groundedness_live | 16 | 0.667 [0.30, 0.90] | 1.000 [0.51, 1.00] | 0.800 | 0.167 [0.05, 0.45] | GRDL-012, GRDL-015 | — |
 | leakage | 21 | 1.000 [0.70, 1.00] | 0.818 [0.52, 0.95] | 0.900 | 0.000 [0.00, 0.28] | — | LEAK-009, LEAK-010 |
@@ -153,7 +153,7 @@ Topics (test, n=44): accuracy 0.932, macro-F1 0.932, crisis recall 1.000. Sensit
 | OFF_TOPIC | 1.000 | 1.000 [0.61, 1.00] | — | — |
 | NORMAL | 0.778 | 1.000 [0.65, 1.00] | TOPE-015, TOPE-026 | — |
 
-Run: full mode, commit `c7b28cd`, test split (70%).
+Run: full mode, commit `401ecec`, test split (70%).
 <!-- /tables:metrics -->
 
 **Ablations, threshold sweeps and latency.** Charts are in `eval/results/ablations/charts/`.
@@ -198,9 +198,9 @@ Run: full mode, commit `c7b28cd`, test split (70%).
 
 | mode | p50 | p95 | hardware |
 |---|---|---|---|
-| fast | 1.0 | 1.6 | stubs, no models |
-| full-gpu | 54.3 | 86.3 | NVIDIA GeForce RTX 4050 Laptop GPU |
-| full-cpu | 224.9 | 376.9 | CPU only |
+| fast | 1.0 | 1.5 | stubs, no models |
+| full-gpu | 51.4 | 80.2 | NVIDIA GeForce RTX 4050 Laptop GPU |
+| full-cpu | 232.5 | 392.7 | CPU only |
 <!-- /tables:ablations -->
 
 **Live run.** On 2026-11-27 the API ran in full mode against Claude on Bedrock with one benign,
@@ -530,7 +530,7 @@ but it caught only 7 of the 15 attacks that carry PII, so it was not shipped.
 |---|---|---|---|
 | Direct prompt injection, paraphrased or non-English | LLM01 Prompt Injection | Measure 2.7 (security), Manage 2.2 | Medium: recall 0.96 on English test set; Romanized Nepali and role-play misses (failure 4) |
 | Indirect injection via poisoned documents | LLM01, LLM04 Data and Model Poisoning | Map 4.1, Manage 3.1 | **Medium–high**: chunk rules catch 15/15 of the original poisoned chunks but only 4/12 of a held-out set written later (1/12 benign flagged); poison in plain policy language passes; classifier left as stub (DeBERTa flags 7/117 clean chunks) |
-| PII sent to the model provider or echoed to others | LLM02 Sensitive Information Disclosure | Measure 2.10 (privacy) | Low–medium: entity-level P 0.975, R 1.00 on the set (full mode; fast mode misses names and places, R 0.74), untested on Devanagari digits and multi-turn PII |
+| PII sent to the model provider or echoed to others | LLM02 Sensitive Information Disclosure | Measure 2.10 (privacy) | Low–medium: entity-level P 0.975, R 1.00 on the set (full mode; fast mode misses names and places, R 0.74), Devanagari digits now normalized (4 new items, all found); multi-turn PII untested |
 | System-prompt leak | LLM07 System Prompt Leakage | Measure 2.7 | Low–medium: canary blocks verbatim leaks; paraphrased leaks missed (leakage recall 0.82) |
 | Wrong fee, limit or rate stated as policy | LLM09 Misinformation | Measure 2.5 (validity), Manage 2.3 | Low–medium: synthetic set F1 1.00; on real Claude sentences every unsupported addition was caught but 3 of 17 supported paraphrases were flagged (failure 11); 512-token window and corpus-only truth remain |
 | Malformed or unhandled output | LLM05 Improper Output Handling | Measure 2.5 | Low: schema + retries + fallback; every path tested |

@@ -129,3 +129,18 @@ def test_length_mod4_eq_1_not_decoded(norm):
         token += "A"
     assert len(token) % 4 == 1
     assert norm.check(f"x {token}").details["decoded"] == []
+
+
+# ---------- Devanagari digits (docs/specs/fix-devanagari-digits.md) ----------
+
+
+def test_devanagari_digits_mapped(norm):
+    r = norm.check("Call me on ९८४१२३४५६७ please.")
+    assert r.details["normalized"] == "Call me on 9841234567 please."
+    assert "digits" in r.details["changes"]
+
+
+def test_text_without_devanagari_digits_unchanged(norm):
+    r = norm.check("Call me on 9841234567 please.")
+    assert r.details["normalized"] == "Call me on 9841234567 please."
+    assert "digits" not in r.details["changes"]

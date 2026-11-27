@@ -62,3 +62,8 @@
 {"id": "PIIE-062", "text": "Is 1660-01-12345 the right hotline for cards?", "labels": [], "kind": "none"}
 {"id": "PIIE-063", "text": "Cheque number 0123456 bounced, what now?", "labels": [], "kind": "none"}
 {"id": "PIIE-064", "text": "The branch code is 01-2345 on my passbook.", "labels": [], "kind": "none"}
+{"id": "PIIE-065", "text": "Please call me back on ९८६१२३४५६७.", "labels": ["NP_PHONE"], "kind": "NP_PHONE_devanagari"}
+{"id": "PIIE-066", "text": "Salary did not reach account ०९८७६५४३२१०९७.", "labels": ["ACCOUNT_NO"], "kind": "ACCOUNT_NO_devanagari"}
+{"id": "PIIE-067", "text": "My OTP is ७७३१०२ but it failed.", "labels": ["OTP"], "kind": "OTP_devanagari"}
+{"id": "PIIE-068", "text": "Citizenship number २७-०२-८०-०५६७८ for my KYC.", "labels": ["NP_CITIZENSHIP"], "kind": "NP_CITIZENSHIP_devanagari"}
+{"id": "PIIE-069", "text": "Is the २०८१ सालको बजेट interest rate the same as last year?", "labels": [], "kind": "none"}
