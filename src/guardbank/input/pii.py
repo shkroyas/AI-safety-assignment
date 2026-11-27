@@ -22,7 +22,12 @@ _TOKEN = re.compile(r"<[A-Z_]+_\d+>")
 _PATTERNS: dict[str, re.Pattern[str]] = {
     "NP_CITIZENSHIP": re.compile(r"(?<!\d)\d{2}[-/]\d{2}[-/]\d{2}[-/]\d{4,5}(?!\d)"),
     "NP_PAN": re.compile(r"(?<![\d-])\d{9}(?![\d-])"),
-    "NP_PHONE": re.compile(r"(?<![\d+])(?:\+?977[-\s]?)?9[78]\d{8}(?!\d)"),
+    # Mobiles (98x/97x) and landlines: 01 + 7 digits (Kathmandu valley) or area code + 6 digits,
+    # national with a leading 0 or international with +977 (docs/specs/fix-landline-pii.md).
+    "NP_PHONE": re.compile(
+        r"(?<![\d+])(?:\+?977[-\s]?)?9[78]\d{8}(?!\d)"
+        r"|(?<![\w+-])(?:0|\+977[-\s]?)(?:1[-\s]?\d{7}|[2-9]\d[-\s]?\d{6})(?!\d)"
+    ),
     "ACCOUNT_NO": re.compile(r"(?<![\d-])\d{10,16}(?![\d-])"),
     "CARD": re.compile(r"(?<!\d)\d(?:[ -]?\d){12,18}(?!\d)"),
     "OTP": re.compile(r"(?<![\d-])\d{4,8}(?![\d-])"),
