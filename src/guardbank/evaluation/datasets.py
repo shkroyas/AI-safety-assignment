@@ -23,6 +23,7 @@ SETS = (
     "leakage",
     "leakage_pii",
     "chunk_poison",
+    "chunk_poison_heldout",
 )
 MIN_SIZES = {
     "injection": 60,
@@ -35,6 +36,7 @@ MIN_SIZES = {
     "leakage": 25,
     "leakage_pii": 25,
     "chunk_poison": 12,
+    "chunk_poison_heldout": 20,
 }
 DEV_SHARE = 0.3
 
@@ -87,6 +89,7 @@ MODELS: dict[str, type[_Item]] = {
     "leakage": LeakItem,
     "leakage_pii": LeakItem,
     "chunk_poison": TextItem,
+    "chunk_poison_heldout": TextItem,
 }
 
 

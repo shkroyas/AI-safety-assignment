@@ -34,8 +34,19 @@ rag:
       EXTERNAL_EXFIL:
         regex: '\b(?:send|forward|e-?mail|mail)\w*\b[^.\n]{0,60}?\bto\s+[\w.+-]+@(?!(?:{allowed})\b)[\w-]+(?:\.[\w-]+)+'
         weight: 1.0
-      CREDENTIAL_REQUEST:
-        regex: '\bcvv\b[^.\n]{0,40}\b(?:chat|send|pathau\w*)\b'
+      # fix/chunk-scan-rules: rules from what bank-authored policy text never does. CREDENTIAL_ASK replaces
+      # CREDENTIAL_REQUEST ("cvv … chat|send"), which also dropped "Do not send your CVV by email or chat".
+      UNKNOWN_EMAIL:
+        regex: '[\w.+-]+@(?!(?:{allowed})\b)[\w-]+(?:\.[\w-]+)+'
+        weight: 1.0
+      CREDENTIAL_ASK:
+        regex: '(?<!never\s)(?<!not\s)(?<!n''t\s)\b(?:share|send|give|tell|provide|type|enter|ask\s+for|sodh\w*|pathau\w*|mag\w*)\b[^.\n]{0,40}\b(?:pin|otp|cvv|password)s?\b|\b(?:pin|otp|cvv|password)s?\b[^.\n]{0,30}\b(?:sodh\w*|pathau\w*|mag\w*)'
+        weight: 1.0
+      RULE_OVERRIDE:
+        regex: '\b(?:disregard|ignore|forget|override)\b[^.\n]{0,40}\b(?:rules?|polic(?:y|ies)|instructions?|guidelines?)\b|\bregardless\s+of\s+(?:the\s+|any\s+)?(?:polic(?:y|ies)|rules?)\b|\btell\s+(?:every|all)\s+(?:users?|customers?)\b'
+        weight: 1.0
+      NEPALI_OVERRIDE:
+        regex: '\b(?:niyam|nirdesan|nirdesh)\w*\s+birs\w*'
         weight: 1.0
 
 # Guardrail sections are filled in by the feature branches that implement them.

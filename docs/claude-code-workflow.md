@@ -55,6 +55,7 @@ and a log of how it was actually used. Entries are added as the work happens, no
 | 2026-11-27 | `fix/groundedness-live-style` | The re-recorded live demo showed a gap no eval had: the synthetic groundedness set scored 1.00 while real Claude answers fell back. Spent 3 approved Bedrock calls on claim-level evidence before proposing anything, labelled the 23 real sentences and committed the labels before measuring the fix on them |
 | 2026-11-27 | `fix/soft-crisis-note` | Set the threshold by a cost argument instead of tuning on items already seen. The eval then disagreed with a passing slow test on CRIS-002; traced it to redaction ("my kids" → PERSON) because the eval runs the pipeline's order, and left the routing decision to Royas rather than widening scope |
 | 2026-11-27 | `fix/route-unredacted` | Reversed an earlier design decision only after Royas chose it, with the measured cost and benefit in front of them; the eval runner and the MCP tool were aligned in the same branch so all three paths route identically |
+| 2026-11-27 | `fix/chunk-scan-rules` | Froze and committed the rules before writing the held-out set, and committed the set before measuring. The held-out result (4/12) contradicted the 15/15 on the seen data; reported as measured instead of adjusting the rules after the fact |
 
 ## Installing the plugin
 

@@ -190,6 +190,16 @@ def run_chunk_scan(items: list[Any], s: Settings) -> list[Prediction]:
     return out
 
 
+def run_chunk_items(items: list[Any], s: Settings) -> list[Prediction]:
+    """Chunk scan on items that carry their own labels (held-out poisoned and hard benign text)."""
+    scanner = ChunkScanner.from_settings(s)
+    out = []
+    for it in items:
+        _, r = scanner.filter([Hit(Chunk(id=it.id, doc_id=it.id, title="", text=it.text), 1.0)])
+        out.append(Prediction(it.id, it.label, int(r.detected), r.score, it.kind, it.text))
+    return out
+
+
 def run_crisis(items: list[Any], s: Settings) -> list[Prediction]:
     """Crisis set routed like the pipeline (normalized, unredacted); pred = routed to CRISIS."""
     norm, router = Normalizer.from_settings(s), TopicRouter.from_settings(s)
@@ -214,4 +224,5 @@ RUNNERS = {
     "leakage": run_leakage,
     "leakage_pii": run_leakage,
     "chunk_poison": run_chunk_scan,
+    "chunk_poison_heldout": run_chunk_items,
 }

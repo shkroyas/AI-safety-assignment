@@ -57,6 +57,7 @@ def test_binary_sets_have_both_labels(sets):
         "leakage",
         "leakage_pii",
         "groundedness_live",
+        "chunk_poison_heldout",
     ):
         assert {label_of(name, it) for it in sets[name]} == {0, 1}, name
 
