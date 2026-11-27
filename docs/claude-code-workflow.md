@@ -50,6 +50,7 @@ and a log of how it was actually used. Entries are added as the work happens, no
 | 2026-11-27 | `fix/landline-pii` | Used the `nepal-recognizer` skill, adapted to the current `_PATTERNS` code. Measuring the three leaks missed in #26 showed two were mislabeled (a wrong toll-free hotline is not personal data, and groundedness already catches it), so the spec corrected the labels instead of widening the PII rules |
 | 2026-11-27 | `fix/encoded-payloads` | Took an external review file as input: reproduced each claim before acting, ranked by reproduced severity, and noted the overstated ones (an unreachable branch, an OOM not seen here). Measured the wider decoder on all 656 benign texts before the spec. The eval's `dirty=True` stamp exposed untracked spec files for later branches; moved them aside and re-ran so results are stamped clean |
 | 2026-11-27 | `fix/claim-splitting` | A slow leakage test failed after the change. Traced it rather than adjusting the test: the leakage check reuses the splitter, and a clean corpus line had only passed because of its "- " prefix. Measured all 369 clean sentences against the leak items, then asked Royas before moving the threshold (0.75 → 0.78) and amended the spec |
+| 2026-11-27 | `fix/prompt-leak-fp` | The first fix let the slow test progress to a second, hidden failure on the same reply (GLiNER tagging "human"). Measured the neighbouring nouns before extending the list, kept real names covered, and recorded the scope addition as a spec amendment |
 
 ## Installing the plugin
 
