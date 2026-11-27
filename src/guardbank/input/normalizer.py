@@ -17,7 +17,7 @@ from typing import Any
 from guardbank.types import Action, GuardResult, Span
 
 STAGE = "normalizer"
-_CHANGE_ORDER = ("nfkc", "zero_width", "homoglyph", "base64", "hex")
+_CHANGE_ORDER = ("nfkc", "zero_width", "homoglyph", "digits", "base64", "hex")
 _INVISIBLE = re.compile("[​-‏‪-‮⁠-⁤﻿]")
 # Standard and URL-safe base64 alphabets (docs/specs/fix-encoded-payloads.md).
 _TOKEN = re.compile(r"(?<![A-Za-z0-9+/=_-])(?:0x)?[A-Za-z0-9+/_-]+={0,2}(?![A-Za-z0-9+/=_-])")
@@ -31,6 +31,9 @@ class Normalizer:
         self.min_printable: float = decode["min_printable"]
         self.homoglyphs: dict[str, str] = dict(config.get("homoglyphs", {}))
         self._table = str.maketrans(self.homoglyphs)
+        # Devanagari digits -> ASCII, so every detector sees one form (fix-devanagari-digits spec).
+        self.digits: dict[str, str] = dict(config.get("digits", {}))
+        self._digit_table = str.maketrans(self.digits)
 
     @classmethod
     def from_settings(cls, settings: Any) -> Normalizer:
@@ -43,6 +46,7 @@ class Normalizer:
         normalized = unicodedata.normalize("NFKC", text)
         normalized = _INVISIBLE.sub("", normalized)
         normalized = normalized.translate(self._table)
+        normalized = normalized.translate(self._digit_table)
         normalized = " ".join(normalized.split())
 
         decoded, decode_spans = self._decode(normalized, text)
@@ -75,6 +79,8 @@ class Normalizer:
                 label = "nfkc"
             elif ch in self.homoglyphs:
                 label = "homoglyph"
+            elif ch in self.digits:
+                label = "digits"
             else:
                 continue
             spans.append(Span(start=i, end=i + 1, label=label, text=ch))

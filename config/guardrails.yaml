@@ -52,6 +52,17 @@ rag:
 # Guardrail sections are filled in by the feature branches that implement them.
 input:
   normalizer:
+    digits:                # Devanagari -> ASCII digits (fix-devanagari-digits spec)
+      "०": "0"
+      "१": "1"
+      "२": "2"
+      "३": "3"
+      "४": "4"
+      "५": "5"
+      "६": "6"
+      "७": "7"
+      "८": "8"
+      "९": "9"
     decode:
       min_len: 16          # shortest base64/hex token considered for decoding
       min_printable: 0.9   # fraction of decoded chars that must be printable
