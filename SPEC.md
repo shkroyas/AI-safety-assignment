@@ -20,7 +20,7 @@ Actions: `allow | redact | block | route | drop_chunk | regenerate | fallback`.
 ## 3. Input guardrails
 | Guardrail | Detection | Action | Known limits |
 |---|---|---|---|
-| PII | Presidio built-ins, custom Nepal recognizers (citizenship no., 9-digit PAN, +977 mobiles, account no. with context words), GLiNER-PII | Redact to typed token; card numbers/OTP/passwords redacted with "never share this" warning | Spelled-out digits, Devanagari digits, Romanized names, PII split across turns, order-ID false positives |
+| PII | Presidio built-ins, custom Nepal recognizers (citizenship no., 9-digit PAN, +977 mobiles and landlines, account no. with context words), GLiNER-PII | Redact to typed token; card numbers/OTP/passwords redacted with "never share this" warning | Spelled-out digits, Devanagari digits, Romanized names, PII split across turns, order-ID false positives |
 | Prompt injection | Pruned regex bank + classifier (Prompt Guard 2 or DeBERTa) + canary + chunk scan | Direct attack: generic refusal + audit event. Poisoned chunk: drop silently, log | Semantic or multi-turn attacks, Romanized Nepali, over-flagging "ignore my last message" |
 | Sensitive topic | Crisis keywords + embedding/logistic-regression classifier | Routing table below | Fuzzy category boundaries, small training set |
 
