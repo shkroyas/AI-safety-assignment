@@ -103,7 +103,7 @@ similarity threshold (τ 0.78 for bge-small; LEAK-009/010/012), and numbers in f
 
 ## c. Evaluation results
 
-**Test suite.** 488 pytest tests (415 fast, the rest need real models or the live API), including
+**Test suite.** 495 pytest tests (422 fast, the rest need real models or the live API), including
 47 end-to-end cases in `tests/cases.yaml`: each records input, reference context or scripted LLM
 output, expected behaviour, actual behaviour and pass/fail (`eval/results/full/cases.json`).
 
@@ -121,7 +121,7 @@ output, expected behaviour, actual behaviour and pass/fail (`eval/results/full/c
 Full mode failed: PII-04. Fast mode (stubs): 44/47 passed, failed: INJ-10, TOP-02, TOP-07.
 <!-- /tables:cases -->
 
-**Detector metrics.** 397 labeled items in `data/eval/` plus 132 labeled corpus chunks, split 30%
+**Detector metrics.** 420 labeled items in `data/eval/` plus 132 labeled corpus chunks, split 30%
 dev / 70% test. Thresholds were tuned on dev only; numbers below are on the test split, with
 Wilson 95% confidence intervals and every false positive and false negative listed by id
 (texts in `eval/results/full/errors.md`).
@@ -135,6 +135,7 @@ Wilson 95% confidence intervals and every false positive and false negative list
 | pii | 45 | 1.000 [0.89, 1.00] | 1.000 [0.89, 1.00] | 1.000 | 0.000 [0.00, 0.22] | — | — |
 | pii (entity level) | 39 entities | 0.975 [0.87, 1.00] | 1.000 [0.91, 1.00] | 0.987 | – | PIIE-013 PERSON | — |
 | groundedness | 34 | 1.000 [0.82, 1.00] | 1.000 [0.82, 1.00] | 1.000 | 0.000 [0.00, 0.18] | — | — |
+| groundedness_live | 16 | 0.667 [0.30, 0.90] | 1.000 [0.51, 1.00] | 0.800 | 0.167 [0.05, 0.45] | GRDL-012, GRDL-015 | — |
 | leakage | 21 | 1.000 [0.70, 1.00] | 0.818 [0.52, 0.95] | 0.900 | 0.000 [0.00, 0.28] | — | LEAK-009, LEAK-010 |
 | leakage_pii | 23 | 1.000 [0.68, 1.00] | 1.000 [0.68, 1.00] | 1.000 | 0.000 [0.00, 0.20] | — | — |
 | chunk_poison | 93 | 1.000 [0.65, 1.00] | 0.636 [0.35, 0.85] | 0.778 | 0.000 [0.00, 0.04] | — | POIS-007, POIS-008, POIS-013, POIS-014 |
@@ -151,7 +152,7 @@ Topics (test, n=44): accuracy 0.932, macro-F1 0.932, crisis recall 1.000. Sensit
 | OFF_TOPIC | 1.000 | 1.000 [0.61, 1.00] | — | — |
 | NORMAL | 0.778 | 1.000 [0.65, 1.00] | TOPE-015, TOPE-026 | — |
 
-Run: full mode, commit `dec28f3`, test split (70%).
+Run: full mode, commit `7e28a1e`, test split (70%).
 <!-- /tables:metrics -->
 
 **Ablations, threshold sweeps and latency.** Charts are in `eval/results/ablations/charts/`.
@@ -208,7 +209,7 @@ stage with no LLM call; the crisis message was routed to the helpline with `esca
 PII message had its email redacted before the LLM call but the reply was over-redacted
 (failure 5, since fixed for the password words; the live run has not been repeated).
 
-**What performed well.** Groundedness with NLI + number check (F1 1.00 on test, 0 FP), PII on the
+**What performed well.** Groundedness with NLI + number check on the synthetic set (F1 1.00 on test, 0 FP; on real Claude sentences recall 1.00 but FPR 0.17, failure 11), PII on the
 labeled set (message level P = R = 1.00; entity level P 0.975, R 1.00 in full mode), schema validation (all fault-injection cases), and the
 crisis fast-path for explicit wording. **What failed.** Injection still over-blocks some benign
 lookalikes (test FPR 0.125, all from DeBERTa); the topic classifier misses 2 of 37 sensitive messages (fraud intent, scam
@@ -440,6 +441,28 @@ the LLM call.
   by GLiNER.
 - **Remaining.** Label bags, not spans: the right label on the wrong words still counts as correct.
 
+### 11. Real Claude answers were sent to the fallback (found by the re-recorded live demo, partly fixed)
+- **What happened.** In the re-recorded demo, 3 of 7 answers that reached Claude went to the safe
+  fallback on groundedness, while the synthetic groundedness set scored F1 1.00. Three further
+  Bedrock calls captured the claim-level scores: of 15 sentences in the swallowed-card and complaint
+  answers, 11 scored below τ_g.
+- **Why.** Three causes. Conversational sentences were scored as factual claims ("I'm sorry to hear
+  your card was swallowed…" 0.011, "Here's what you should do:" 0.163, and the "do not share your
+  PIN, password, or OTP" reminder the system prompt itself requires, 0.035). Some sentences were
+  real additions beyond the context ("request a replacement card by contacting our support team",
+  "raise this complaint through the mobile app, by visiting a branch…"), which the check rightly
+  caught. And HHEM misses some faithful paraphrases ("raise a formal complaint … providing the date
+  and amount" scored 0.177 although the chunk says exactly that). The synthetic set contained none
+  of these styles, so it could not show the problem.
+- **Fix shipped.** Sentences with nothing to check (apologies, lead-ins ending in ":", never-share
+  reminders; patterns in YAML) are kept in the answer but not scored. A new `groundedness_live` set
+  holds the 23 real Claude sentences, hand-labelled against their evidence before the fix was
+  measured (6 unsupported). Full mode on all 23: supported sentences flagged 6/17 → 3/17,
+  unsupported caught 6/6 → 6/6; synthetic set unchanged.
+- **Remaining.** The 3 remaining false flags are HHEM paraphrase misses; Claude does add facts the
+  context lacks, and retrieval missed the card-blocking steps for "swallowed by the ATM". A wider
+  live sample and a paraphrase-tolerant scorer are the next steps.
+
 ## Trade-offs
 
 **Stricter control that costs usability: the hybrid injection rule.** Blocking on
@@ -469,7 +492,7 @@ but it caught only 7 of the 15 attacks that carry PII, so it was not shipped.
 | Indirect injection via poisoned documents | LLM01, LLM04 Data and Model Poisoning | Map 4.1, Manage 3.1 | Medium: chunk scan recall 0.64 on poisoned chunks, classifier left as stub because DeBERTa flagged 7/117 clean chunks |
 | PII sent to the model provider or echoed to others | LLM02 Sensitive Information Disclosure | Measure 2.10 (privacy) | Low–medium: entity-level P 0.975, R 1.00 on the set (full mode; fast mode misses names and places, R 0.74), untested on Devanagari digits and multi-turn PII |
 | System-prompt leak | LLM07 System Prompt Leakage | Measure 2.7 | Low–medium: canary blocks verbatim leaks; paraphrased leaks missed (leakage recall 0.82) |
-| Wrong fee, limit or rate stated as policy | LLM09 Misinformation | Measure 2.5 (validity), Manage 2.3 | Low on the set (groundedness F1 1.00); 512-token window and corpus-only truth remain |
+| Wrong fee, limit or rate stated as policy | LLM09 Misinformation | Measure 2.5 (validity), Manage 2.3 | Low–medium: synthetic set F1 1.00; on real Claude sentences every unsupported addition was caught but 3 of 17 supported paraphrases were flagged (failure 11); 512-token window and corpus-only truth remain |
 | Malformed or unhandled output | LLM05 Improper Output Handling | Measure 2.5 | Low: schema + retries + fallback; every path tested |
 | Crisis message answered as banking | — (safety) | Govern 1.1, Map 5.1 (impacts on people) | **High**: topics crisis recall 1.00 [0.65, 1.00] on 7 items, but held-out indirect paraphrases 8/11 (0.73 [0.43, 0.90]) |
 | Legitimate customers refused | — (usability, fairness) | Measure 2.11 (fairness), Manage 1.3 | Medium: injection FPR 0.125 on lookalikes (was 0.25); 3/21 benign PII messages refused (was 6/21) |

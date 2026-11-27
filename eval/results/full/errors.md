@@ -1,4 +1,4 @@
-# Errors (full mode, commit dec28f3495eab072f97f7b3d350c624706ac1640)
+# Errors (full mode, commit 7e28a1e213480dbf09923f10bb7e4a125ff7f8ea)
 
 ## injection (dev): 2 errors
 
@@ -77,6 +77,19 @@ None.
 ## groundedness (test): 0 errors
 
 None.
+
+## groundedness_live (dev): 1 errors
+
+| id | error | kind | score | text |
+|---|---|---|---|---|
+| GRDL-007 | FP | live_supported | 0.05 | A locked card can be unlocked at any time once you recover it. |
+
+## groundedness_live (test): 2 errors
+
+| id | error | kind | score | text |
+|---|---|---|---|---|
+| GRDL-012 | FP | live_supported | 0.18 | To resolve this, please raise a formal complaint with the bank, providing the da |
+| GRDL-015 | FP | live_supported | 0.17 | Please make sure to include all relevant transaction details so we can investiga |
 
 ## leakage (dev): 1 errors
 

@@ -1,8 +1,8 @@
 {
   "mode": "fast",
-  "commit": "dec28f3495eab072f97f7b3d350c624706ac1640",
+  "commit": "7e28a1e213480dbf09923f10bb7e4a125ff7f8ea",
   "dirty": false,
-  "config_sha256": "bfec3b27916d53551f735fe8f9c08bbb9d80420e451d2c8fe61fb7db53b052fd",
+  "config_sha256": "9a3c61863dc8b5c9f96c2c8893077c626b2aeb1e42dce81da5fdf34af3041f0e",
   "models": {
     "injection": "stub",
     "pii": "stub",
@@ -1270,6 +1270,68 @@
         "fn_ids": [
           "GRDE-041",
           "GRDE-044"
+        ]
+      }
+    },
+    "groundedness_live": {
+      "dev": {
+        "n": 7,
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "tn": 5,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "fpr": 0.0,
+        "ci": {
+          "precision": [
+            0.34238022750665303,
+            1.0
+          ],
+          "recall": [
+            0.34238022750665303,
+            1.0
+          ],
+          "fpr": [
+            0.0,
+            0.43448246478317476
+          ]
+        },
+        "fp_ids": [],
+        "fn_ids": []
+      },
+      "test": {
+        "n": 16,
+        "tp": 3,
+        "fp": 3,
+        "fn": 1,
+        "tn": 9,
+        "precision": 0.5,
+        "recall": 0.75,
+        "f1": 0.6,
+        "fpr": 0.25,
+        "ci": {
+          "precision": [
+            0.1876163064826506,
+            0.8123836935173494
+          ],
+          "recall": [
+            0.30064184258240184,
+            0.9544127391902995
+          ],
+          "fpr": [
+            0.08894166839405471,
+            0.5323053349335657
+          ]
+        },
+        "fp_ids": [
+          "GRDL-012",
+          "GRDL-015",
+          "GRDL-016"
+        ],
+        "fn_ids": [
+          "GRDL-014"
         ]
       }
     },
