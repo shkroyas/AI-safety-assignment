@@ -129,7 +129,7 @@ class MockLLM:
         lines = []
         if match:
             lines = [
-                ln.strip(" -*").strip()
+                re.sub(r"^\d+[.)]\s+", "", ln.strip(" -*").strip())
                 for ln in match.group(2).splitlines()
                 if ln.strip() and not ln.lstrip().startswith(("#", "|"))
             ]

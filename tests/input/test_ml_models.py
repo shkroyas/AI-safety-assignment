@@ -230,3 +230,27 @@ def test_deberta_blocks_attack_inside_base64(settings):
     r = InjectionDetector.from_settings(full).check(n["normalized"], decoded=n["decoded"])
     assert r.details["matches"] == []  # regex alone misses it
     assert r.action == Action.BLOCK
+
+
+def test_hhem_passes_grounded_numbered_answer(settings):
+    """docs/specs/fix-claim-splitting.md: numbered steps are not scored as "1." claims."""
+    pytest.importorskip("transformers")
+    from guardbank.evaluation.runners import settings_for
+    from guardbank.output.groundedness import GroundednessChecker
+    from guardbank.output.schema import SupportReply
+    from guardbank.types import Action
+
+    chunks = {
+        "fraud-and-scams#2": "1. Block your card immediately in the SDB app or call 1660-01-12345. "
+        "2. Change your mobile banking password."
+    }
+    reply = SupportReply(
+        answer="1. Block your card immediately in the SDB app or call 1660-01-12345.\n"
+        "2. Change your mobile banking password.",
+        citations=list(chunks),
+        intent="cards",
+        confidence=0.9,
+        escalate=True,
+    )
+    r = GroundednessChecker.from_settings(settings_for(settings, "full")).check(reply, chunks)
+    assert r.action == Action.ALLOW, r.details["claims"]
