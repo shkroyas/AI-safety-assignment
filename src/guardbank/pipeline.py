@@ -197,9 +197,16 @@ class _Run:
                 "fallback", text, Action.FALLBACK, reason, escalate=True, attempts=self.llm_calls
             )
 
+        # Answer text -> its leakage result, so each distinct text is checked once.
+        leak: dict[str, GuardResult] = {}
+
+        def leak_check(answer: str) -> GuardResult:
+            if answer not in leak:
+                leak[answer] = self.log(p.leakage.check(answer, self.vault, canary, context))
+            return leak[answer]
+
         def leak_blocked(answer: str) -> bool:
-            r = self.log(p.leakage.check(answer, self.vault, canary, context))
-            return r.action == Action.BLOCK
+            return leak_check(answer).action == Action.BLOCK
 
         reply, messages = self.schema_valid(system, messages, list(chunks), None)
         if reply is None:
@@ -227,15 +234,20 @@ class _Run:
         if g.action == Action.FALLBACK:
             return fallback(f"groundedness_{(g.category or 'fallback').lower()}")
 
-        final = self.log(p.leakage.check(answer, self.vault, canary, context))
-        text = self.extras(final.details["text"], topic, pii)
+        final = leak_check(answer)
+        if final.action == Action.BLOCK:  # guard: a stripped answer is a subset, but enforce it
+            return self.finish("blocked", rem.block_text, Action.BLOCK, "output_leak")
+        if final.action == Action.REDACT and action == Action.ALLOW:
+            action, reason = Action.REDACT, f"redacted_{(final.category or 'pii').lower()}"
+        sanitized = final.details["text"]
+        text = self.extras(sanitized, topic, pii)
         escalate = reply.escalate or topic.details["escalate"]
         return self.finish(
             "answered",
             text,
             action,
             reason,
-            reply=reply,
+            reply=reply.model_copy(update={"answer": sanitized}),
             escalate=escalate,
             attempts=self.llm_calls,
         )
