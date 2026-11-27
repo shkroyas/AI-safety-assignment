@@ -103,7 +103,7 @@ similarity threshold (τ 0.78 for bge-small; LEAK-009/010/012), and numbers in f
 
 ## c. Evaluation results
 
-**Test suite.** 476 pytest tests (404 fast, the rest need real models or the live API), including
+**Test suite.** 478 pytest tests (405 fast, the rest need real models or the live API), including
 47 end-to-end cases in `tests/cases.yaml`: each records input, reference context or scripted LLM
 output, expected behaviour, actual behaviour and pass/fail (`eval/results/full/cases.json`).
 
@@ -121,7 +121,7 @@ output, expected behaviour, actual behaviour and pass/fail (`eval/results/full/c
 Full mode failed: PII-04. Fast mode (stubs): 44/47 passed, failed: INJ-10, TOP-02, TOP-07.
 <!-- /tables:cases -->
 
-**Detector metrics.** 394 labeled items in `data/eval/` plus 132 labeled corpus chunks, split 30%
+**Detector metrics.** 397 labeled items in `data/eval/` plus 132 labeled corpus chunks, split 30%
 dev / 70% test. Thresholds were tuned on dev only; numbers below are on the test split, with
 Wilson 95% confidence intervals and every false positive and false negative listed by id
 (texts in `eval/results/full/errors.md`).
@@ -135,7 +135,7 @@ Wilson 95% confidence intervals and every false positive and false negative list
 | pii | 45 | 1.000 [0.89, 1.00] | 1.000 [0.89, 1.00] | 1.000 | 0.000 [0.00, 0.22] | — | — |
 | groundedness | 34 | 1.000 [0.82, 1.00] | 1.000 [0.82, 1.00] | 1.000 | 0.000 [0.00, 0.18] | — | — |
 | leakage | 21 | 1.000 [0.70, 1.00] | 0.818 [0.52, 0.95] | 0.900 | 0.000 [0.00, 0.28] | — | LEAK-009, LEAK-010 |
-| leakage_pii | 21 | 1.000 [0.68, 1.00] | 1.000 [0.68, 1.00] | 1.000 | 0.000 [0.00, 0.23] | — | — |
+| leakage_pii | 23 | 1.000 [0.68, 1.00] | 1.000 [0.68, 1.00] | 1.000 | 0.000 [0.00, 0.20] | — | — |
 | chunk_poison | 93 | 1.000 [0.65, 1.00] | 0.636 [0.35, 0.85] | 0.778 | 0.000 [0.00, 0.04] | — | POIS-007, POIS-008, POIS-013, POIS-014 |
 
 Topics (test, n=44): accuracy 0.932, macro-F1 0.932, crisis recall 1.000. Sensitive vs normal: P 1.000, R 0.946 [0.82, 0.99], FN TOPE-015, TOPE-026.
@@ -150,7 +150,7 @@ Topics (test, n=44): accuracy 0.932, macro-F1 0.932, crisis recall 1.000. Sensit
 | OFF_TOPIC | 1.000 | 1.000 [0.61, 1.00] | — | — |
 | NORMAL | 0.778 | 1.000 [0.65, 1.00] | TOPE-015, TOPE-026 | — |
 
-Run: full mode, commit `c23405f`, test split (70%).
+Run: full mode, commit `05765cd`, test split (70%).
 <!-- /tables:metrics -->
 
 **Ablations, threshold sweeps and latency.** Charts are in `eval/results/ablations/charts/`.
@@ -196,8 +196,8 @@ Run: full mode, commit `c23405f`, test split (70%).
 | mode | p50 | p95 | hardware |
 |---|---|---|---|
 | fast | 1.0 | 1.5 | stubs, no models |
-| full-gpu | 65.0 | 98.7 | NVIDIA GeForce RTX 4050 Laptop GPU |
-| full-cpu | 290.4 | 460.4 | CPU only |
+| full-gpu | 57.5 | 89.3 | NVIDIA GeForce RTX 4050 Laptop GPU |
+| full-cpu | 275.0 | 434.7 | CPU only |
 <!-- /tables:ablations -->
 
 **Live run.** On 2026-11-27 the API ran in full mode against Claude on Bedrock with one benign,
@@ -385,6 +385,23 @@ the LLM call.
   risk of being blocked. Over 369 clean corpus sentences the maximum is 0.765 and the lowest caught
   leak is 0.811, so `tau_prompt` (bge-small) moved 0.75 → 0.78; leak recall unchanged.
 - **Remaining.** Inline lists ("1) …, 2) …" in one sentence) are not split.
+
+### 8. A scam victim's reply was blocked as a prompt leak (found by the live demo, fixed)
+- **What happened.** In the live demo run, "Someone called and I gave my OTP" was routed correctly
+  (SCAM_VICTIM), Claude answered, and the leakage check blocked the reply as PROMPT_LEAK at 0.776.
+  The raw reply was not stored; measured instead, "I have escalated this to our fraud team so a
+  human can follow up." scores 0.774 against the system-prompt rule "Set escalate to true for
+  complaints, suspected fraud, or when a human should follow up." With the prompt similarity
+  fixed, the same reply also had "human" tagged as a person by GLiNER, so it would have been
+  redacted as third-party PII.
+- **Consequence.** A scam victim, the customer who most needs help, got a refusal.
+- **Fix shipped.** The escalation rule only restates public behaviour, so it joins the existing
+  `public_prompt_lines` exclusions; "human", "person", "team", "advisor", "adviser" and
+  "colleague" join the generic-noun list from failure 1. Three escalation replies were added to
+  `leakage_pii`: before, two were flagged as third-party PII; after, none, with prompt similarity
+  about 0.51. Leak recall and PII recall unchanged; real names are still found.
+- **Remaining.** The cause is inferred from the measured sentence, not the stored reply. Other
+  public-behaviour paraphrases close to τ may still be blocked, and the generic-noun list is closed.
 
 ## Trade-offs
 
