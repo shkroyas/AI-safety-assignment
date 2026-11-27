@@ -169,3 +169,23 @@ def test_landline_found_as_phone(pii, vault, text, value):
 )
 def test_landline_lookalikes_not_phone(pii, text):
     assert "NP_PHONE" not in [label for _, _, label in pii.find(text)]
+
+
+# ---------- Devanagari digits (docs/specs/fix-devanagari-digits.md) ----------
+
+
+@pytest.mark.parametrize(
+    ("text", "label"),
+    [
+        ("Call me on ९८४१२३४५६७ please.", "NP_PHONE"),
+        ("My account number is ०१२३४५६७८९०१२.", "ACCOUNT_NO"),
+        ("My citizenship no is १२-०१-७५-०१२३४.", "NP_CITIZENSHIP"),
+        ("The OTP is ४८२९१३, is that fine?", "OTP"),
+        ("Card ४१११ ११११ ११११ ११११ was charged twice.", "CARD"),
+    ],
+)
+def test_devanagari_numbers_found_after_normalizing(settings, pii, vault, text, label):
+    from guardbank.input.normalizer import Normalizer
+
+    normalized = Normalizer.from_settings(settings).check(text).details["normalized"]
+    assert [lab for _, _, lab in pii.find(normalized)] == [label]
