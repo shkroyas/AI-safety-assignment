@@ -320,3 +320,22 @@ def test_final_leakage_block_is_enforced(make, settings):
     r = p.run(ATM_Q, Session())
     assert r.outcome == "blocked"
     assert r.text == settings.remediation["block_text"]
+
+
+def test_soft_crisis_note_appended_to_answer(make, settings):
+    """docs/specs/fix-soft-crisis-note.md: the answer stays, the note is added."""
+    from guardbank.input.topics import TopicRouter
+
+    class Soft:
+        def predict(self, text):
+            return "NORMAL", 0.9
+
+        def class_prob(self, text, label):
+            return 0.43 if label == "CRISIS" else 0.0
+
+    p, _ = make()
+    p.topics = TopicRouter(settings.input["topics"], classifier=Soft())
+    r = p.run(ATM_Q, Session())
+    assert r.outcome == "answered"
+    assert "100,000" in r.text or "25,000" in r.text
+    assert r.text.rstrip().endswith(stage(r, "input_topic")[0].details["crisis_note"])
