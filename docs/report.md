@@ -46,7 +46,8 @@ mode = real models.
 
 **PII (input).** Regex recognizers for the formats that matter in Nepal: 16-digit cards,
 citizenship numbers, 9-digit PAN and account numbers (only with a context word such as "PAN" or
-"account" within 30 characters), +977 mobiles, OTPs and passwords (context words), emails.
+"account" within 30 characters), mobiles and landlines (national and +977), OTPs and passwords
+(context words), emails.
 GLiNER (`urchade/gliner_multi_pii-v1`, τ 0.5) adds names and places, which regex cannot do.
 *Why:* structured identifiers are exact and cheap with regex; names need a model. *Action:*
 redact to a typed token; for card, OTP and password the reply also carries "Never share card
@@ -102,7 +103,7 @@ similarity threshold (LEAK-009/010/012), and numbers in formats the detectors do
 
 ## c. Evaluation results
 
-**Test suite.** 442 pytest tests (374 fast, the rest need real models or the live API), including
+**Test suite.** 454 pytest tests (386 fast, the rest need real models or the live API), including
 45 end-to-end cases in `tests/cases.yaml`: each records input, reference context or scripted LLM
 output, expected behaviour, actual behaviour and pass/fail (`eval/results/full/cases.json`).
 
@@ -120,7 +121,7 @@ output, expected behaviour, actual behaviour and pass/fail (`eval/results/full/c
 Full mode failed: PII-04, TOP-02. Fast mode (stubs): 42/45 passed, failed: INJ-10, TOP-02, TOP-07.
 <!-- /tables:cases -->
 
-**Detector metrics.** 380 labeled items in `data/eval/` plus 132 labeled corpus chunks, split 30%
+**Detector metrics.** 394 labeled items in `data/eval/` plus 132 labeled corpus chunks, split 30%
 dev / 70% test. Thresholds were tuned on dev only; numbers below are on the test split, with
 Wilson 95% confidence intervals and every false positive and false negative listed by id
 (texts in `eval/results/full/errors.md`).
@@ -131,10 +132,10 @@ Wilson 95% confidence intervals and every false positive and false negative list
 | injection | 49 | 0.889 [0.72, 0.96] | 0.960 [0.80, 0.99] | 0.923 | 0.125 [0.04, 0.31] | INJE-037, INJE-038, INJE-043 | INJE-009 |
 | injection_pii | 32 | 0.786 [0.52, 0.92] | 1.000 [0.74, 1.00] | 0.880 | 0.143 [0.05, 0.35] | INJP-013, INJP-015, INJP-028 | — |
 | crisis | 22 | 1.000 [0.68, 1.00] | 0.727 [0.43, 0.90] | 0.842 | 0.000 [0.00, 0.26] | — | CRIS-002, CRIS-008, CRIS-010 |
-| pii | 35 | 1.000 [0.87, 1.00] | 1.000 [0.87, 1.00] | 1.000 | 0.000 [0.00, 0.28] | — | — |
+| pii | 45 | 1.000 [0.89, 1.00] | 1.000 [0.89, 1.00] | 1.000 | 0.000 [0.00, 0.22] | — | — |
 | groundedness | 34 | 1.000 [0.82, 1.00] | 1.000 [0.82, 1.00] | 1.000 | 0.000 [0.00, 0.18] | — | — |
 | leakage | 21 | 1.000 [0.70, 1.00] | 0.818 [0.52, 0.95] | 0.900 | 0.000 [0.00, 0.28] | — | LEAK-009, LEAK-010 |
-| leakage_pii | 21 | 1.000 [0.68, 1.00] | 0.800 [0.49, 0.94] | 0.889 | 0.000 [0.00, 0.26] | — | LKP-026, LKP-029 |
+| leakage_pii | 21 | 1.000 [0.68, 1.00] | 1.000 [0.68, 1.00] | 1.000 | 0.000 [0.00, 0.23] | — | — |
 | chunk_poison | 93 | 1.000 [0.65, 1.00] | 0.636 [0.35, 0.85] | 0.778 | 0.000 [0.00, 0.04] | — | POIS-007, POIS-008, POIS-013, POIS-014 |
 
 Topics (test, n=44): accuracy 0.932, macro-F1 0.932, crisis recall 1.000. Sensitive vs normal: P 1.000, R 0.946 [0.82, 0.99], FN TOPE-015, TOPE-026.
@@ -149,7 +150,7 @@ Topics (test, n=44): accuracy 0.932, macro-F1 0.932, crisis recall 1.000. Sensit
 | OFF_TOPIC | 1.000 | 1.000 [0.61, 1.00] | — | — |
 | NORMAL | 0.778 | 1.000 [0.65, 1.00] | TOPE-015, TOPE-026 | — |
 
-Run: full mode, commit `fd8b158`, test split (70%).
+Run: full mode, commit `179c261`, test split (70%).
 <!-- /tables:metrics -->
 
 **Ablations, threshold sweeps and latency.** Charts are in `eval/results/ablations/charts/`.
@@ -195,8 +196,8 @@ Run: full mode, commit `fd8b158`, test split (70%).
 | mode | p50 | p95 | hardware |
 |---|---|---|---|
 | fast | 1.0 | 1.5 | stubs, no models |
-| full-gpu | 55.9 | 88.6 | NVIDIA GeForce RTX 4050 Laptop GPU |
-| full-cpu | 267.7 | 425.3 | CPU only |
+| full-gpu | 60.6 | 99.4 | NVIDIA GeForce RTX 4050 Laptop GPU |
+| full-cpu | 266.8 | 421.9 | CPU only |
 <!-- /tables:ablations -->
 
 **Live run.** On 2026-11-27 the API ran in full mode against Claude on Bedrock with one benign,
@@ -337,10 +338,15 @@ the LLM call.
   leak recall unchanged; the original `leakage` set unchanged. The rebuilt live reply now passes
   with no edits (slow test).
 - **Remaining.** The digit rule had no measured effect: no reformatted bank number was flagged
-  even before, so it is a guard for the unconfirmed live cause. Three leaks of a number one digit
-  off a published one are missed before and after (LKP-026/027/029), because the detectors do not
-  recognise landline or short formats at all. A password written without a marker ("password
-  Tara9988") is no longer caught in output.
+  even before, so it is a guard for the unconfirmed live cause. A password written without a
+  marker ("password Tara9988") is no longer caught in output.
+- **Follow-up (fix/landline-pii).** `leakage_pii` then showed that Nepali landlines were not
+  recognised at all ("01-5970124", LKP-027). `NP_PHONE` now also matches landlines (01 + 7
+  digits, area code + 6 digits, national or +977); on the `pii` set, with 8 landline examples and 6
+  look-alikes added, test recall rose 19/31 → 27/31 (fast) and 26/31 → 31/31 (full) with no new
+  false positives. LKP-026/029 had been mislabeled as leaks: they are the bank's toll-free hotline
+  with a wrong digit, a business number rather than personal data, and the groundedness
+  exact-number check already sends both to fallback; they are now labeled as non-leaks.
 
 ## Trade-offs
 

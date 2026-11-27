@@ -166,10 +166,10 @@ Detector metrics on the held-out test split (70%; thresholds tuned on the 30% de
 | injection | 49 | 0.889 [0.72, 0.96] | 0.960 [0.80, 0.99] | 0.923 | 0.125 [0.04, 0.31] | INJE-037, INJE-038, INJE-043 | INJE-009 |
 | injection_pii | 32 | 0.786 [0.52, 0.92] | 1.000 [0.74, 1.00] | 0.880 | 0.143 [0.05, 0.35] | INJP-013, INJP-015, INJP-028 | — |
 | crisis | 22 | 1.000 [0.68, 1.00] | 0.727 [0.43, 0.90] | 0.842 | 0.000 [0.00, 0.26] | — | CRIS-002, CRIS-008, CRIS-010 |
-| pii | 35 | 1.000 [0.87, 1.00] | 1.000 [0.87, 1.00] | 1.000 | 0.000 [0.00, 0.28] | — | — |
+| pii | 45 | 1.000 [0.89, 1.00] | 1.000 [0.89, 1.00] | 1.000 | 0.000 [0.00, 0.22] | — | — |
 | groundedness | 34 | 1.000 [0.82, 1.00] | 1.000 [0.82, 1.00] | 1.000 | 0.000 [0.00, 0.18] | — | — |
 | leakage | 21 | 1.000 [0.70, 1.00] | 0.818 [0.52, 0.95] | 0.900 | 0.000 [0.00, 0.28] | — | LEAK-009, LEAK-010 |
-| leakage_pii | 21 | 1.000 [0.68, 1.00] | 0.800 [0.49, 0.94] | 0.889 | 0.000 [0.00, 0.26] | — | LKP-026, LKP-029 |
+| leakage_pii | 21 | 1.000 [0.68, 1.00] | 1.000 [0.68, 1.00] | 1.000 | 0.000 [0.00, 0.23] | — | — |
 | chunk_poison | 93 | 1.000 [0.65, 1.00] | 0.636 [0.35, 0.85] | 0.778 | 0.000 [0.00, 0.04] | — | POIS-007, POIS-008, POIS-013, POIS-014 |
 
 Topics (test, n=44): accuracy 0.932, macro-F1 0.932, crisis recall 1.000. Sensitive vs normal: P 1.000, R 0.946 [0.82, 0.99], FN TOPE-015, TOPE-026.
@@ -184,7 +184,7 @@ Topics (test, n=44): accuracy 0.932, macro-F1 0.932, crisis recall 1.000. Sensit
 | OFF_TOPIC | 1.000 | 1.000 [0.61, 1.00] | — | — |
 | NORMAL | 0.778 | 1.000 [0.65, 1.00] | TOPE-015, TOPE-026 | — |
 
-Run: full mode, commit `fd8b158`, test split (70%).
+Run: full mode, commit `179c261`, test split (70%).
 <!-- /tables:metrics -->
 
 ## Design decisions
@@ -210,7 +210,7 @@ Injection over-blocks benign lookalikes ("Ignore my previous question…") and, 
 still refuses some messages containing card or account numbers (PII-04; 3 of 21 benign PII test
 items, down from 6); the topic classifier still misses some indirect crisis phrasing (3 of 11
 held-out paraphrases, after a lower CRISIS threshold fixed TOPE-007); output leakage misses
-numbers in formats the PII detectors do not recognise (landlines, short numbers). Details, consequences and improvements are in the report's failure analysis.
+paraphrased prompt leaks (LEAK-009/010/012). Details, consequences and improvements are in the report's failure analysis.
 Verdict: **suitable only with restrictions** (human-supervised pilot), not for unsupervised use.
 
 ## How it was built
