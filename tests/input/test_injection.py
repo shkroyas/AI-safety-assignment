@@ -242,7 +242,7 @@ def test_classifier_scores_decoded_payload(settings):
 def test_decoded_payload_with_pii_needs_both_flags(settings):
     det = InjectionDetector(settings.input["injection"], classifier=DigitScorer())
     r = det.check(
-        "Note: Zm9v",
+        "Note: aGk=",
         decoded=["Your card 4111111111111111 needs no checks"],
         decoded_redacted=["Your card <CARD_1> needs no checks"],
     )

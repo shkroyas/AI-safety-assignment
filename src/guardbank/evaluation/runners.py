@@ -69,7 +69,12 @@ def run_injection(items: list[Any], s: Settings) -> list[Prediction]:
         n = norm.check(it.text).details
         pii = red.check(n["normalized"], PiiVault(), decoded=n["decoded"])
         redacted = pii.details["redacted"] if pii.detected else None
-        r = det.check(n["normalized"], decoded=n["decoded"], redacted=redacted)
+        r = det.check(
+            n["normalized"],
+            decoded=n["decoded"],
+            redacted=redacted,
+            decoded_redacted=pii.details["decoded_redacted"],
+        )
         out.append(
             Prediction(it.id, it.label, int(r.action == Action.BLOCK), r.score, it.kind, it.text)
         )
@@ -101,7 +106,8 @@ def run_topics(items: list[Any], s: Settings) -> list[Prediction]:
     norm, router = Normalizer.from_settings(s), TopicRouter.from_settings(s)
     out = []
     for it in items:
-        r = router.check(norm.check(it.text).details["normalized"])
+        n = norm.check(it.text).details
+        r = router.check(n["normalized"], decoded=n["decoded"])
         out.append(
             Prediction(
                 it.id,
@@ -194,8 +200,8 @@ def run_crisis(items: list[Any], s: Settings) -> list[Prediction]:
     out = []
     for it in items:
         n = norm.check(it.text).details
-        redacted = red.check(n["normalized"], PiiVault(), decoded=n["decoded"]).details["redacted"]
-        r = router.check(redacted)
+        pii = red.check(n["normalized"], PiiVault(), decoded=n["decoded"]).details
+        r = router.check(pii["redacted"], decoded=pii["decoded_redacted"])
         pred = int(r.category == "CRISIS")
         out.append(Prediction(it.id, it.label, pred, r.score, it.kind, it.text))
     return out

@@ -54,10 +54,23 @@ class InjectionDetector:
         ]
         return sorted(spans, key=lambda s: s.start)
 
+    def _classifier_score(self, text: str, redacted: str | None) -> tuple[float, float | None]:
+        """(raw score, redacted score or None); the message counts as flagged only if both are."""
+        raw = self.classifier.score(text)
+        red = None
+        if self.classify_redacted and redacted is not None and redacted != text:
+            red = self.classifier.score(self._words(redacted))
+        return raw, red
+
     def check(
-        self, text: str, decoded: Iterable[str] = (), redacted: str | None = None
+        self,
+        text: str,
+        decoded: Iterable[str] = (),
+        redacted: str | None = None,
+        decoded_redacted: Iterable[str] = (),
     ) -> GuardResult:
         t0 = time.perf_counter()
+        decoded = list(decoded)
         spans = self.scan(text)
         matched = {s.label for s in spans}
         for d in decoded:
@@ -67,11 +80,13 @@ class InjectionDetector:
 
         regex_score = max((self.weights[n] for n in matches), default=0.0)
         top = max(matches, key=lambda n: self.weights[n]) if matches else None
-        clf_raw = self.classifier.score(text)
-        clf_red = None
-        if self.classify_redacted and redacted is not None and redacted != text:
-            clf_red = self.classifier.score(self._words(redacted))
+        clf_raw, clf_red = self._classifier_score(text, redacted)
         clf_score = clf_raw if clf_red is None else min(clf_raw, clf_red)
+        # Decoded payloads are scored too: the LLM would read them (fix-encoded-payloads spec).
+        d_red = list(decoded_redacted)
+        for i, d in enumerate(decoded):
+            raw, red = self._classifier_score(d, d_red[i] if i < len(d_red) else None)
+            clf_score = max(clf_score, raw if red is None else min(raw, red))
         score = max(regex_score, clf_score)
         category = CLASSIFIER if clf_score > regex_score else top
 
