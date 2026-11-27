@@ -127,3 +127,66 @@ def test_details_never_hold_raw_values(checker, vault):
         for raw in ("9812345678", "9841234567", CANARY):
             assert raw not in blob
     assert r1.category == "THIRD_PARTY_PII"
+
+
+# ---------- over-redaction (docs/specs/fix-output-overredaction.md) ----------
+
+HOTLINE_CTX = "[card-blocking#3] Call the hotline on 980-1234567 (toll free)."
+
+
+def _checker(settings, **changes):
+    import copy
+
+    s = copy.deepcopy(settings)
+    for k, v in changes.items():
+        if v is None:
+            s.output["leakage"].pop(k, None)
+        else:
+            s.output["leakage"][k] = v
+    return LeakageChecker.from_settings(s)
+
+
+@pytest.mark.parametrize(
+    "answer",
+    [
+        "After 3 wrong password attempts, the app locks for 30 minutes.",
+        "For a password reset, open Settings in the app.",
+        "Change your mobile banking password and block the card.",
+    ],
+)
+def test_password_word_without_marker_kept(checker, answer):
+    r = checker.check(answer, PiiVault(), CANARY, "")
+    assert r.action == Action.ALLOW
+    assert r.details["text"] == answer
+
+
+def test_password_with_marker_redacted(checker):
+    r = checker.check("Your password is Sagar@123, keep it safe.", PiiVault(), CANARY, "")
+    assert r.category == "THIRD_PARTY_PII"
+    assert "Sagar@123" not in r.details["text"]
+
+
+def test_public_number_in_other_format_kept(checker):
+    answer = "Call 9801234567 to block the card."
+    r = checker.check(answer, PiiVault(), CANARY, HOTLINE_CTX)
+    assert r.action == Action.ALLOW
+    assert r.details["text"] == answer
+
+
+def test_number_one_digit_off_redacted(checker):
+    r = checker.check("Call 9801234568 to block the card.", PiiVault(), CANARY, HOTLINE_CTX)
+    assert r.category == "THIRD_PARTY_PII"
+
+
+def test_rules_off_when_keys_unset(settings):
+    old = _checker(settings, password_requires_marker=None, public_digits_min=None)
+    r = old.check("After 3 wrong password attempts, the app locks.", PiiVault(), CANARY, "")
+    assert r.category == "THIRD_PARTY_PII"
+    r = old.check("Call 9801234567 to block the card.", PiiVault(), CANARY, HOTLINE_CTX)
+    assert r.category == "THIRD_PARTY_PII"
+
+
+def test_own_pii_still_masked_with_new_rules(checker, vault):
+    r = run(checker, "We will call 9841234567 shortly.", vault)
+    assert r.category == "OWN_PII"
+    assert r.details["text"] == "We will call ******4567 shortly."
