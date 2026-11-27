@@ -124,9 +124,9 @@ def cases_detail_table() -> str:
         )
     out += [
         "",
-        'Full mode: real models, MockLLM or the case\'s scripted LLM output. "known" marks a fast-mode '
-        "failure recorded in `tests/cases.yaml` (`known_failure`). Replies and failure reasons per case are "
-        "in `eval/results/full/cases.json`.",
+        "Full mode: real models, MockLLM or the case's scripted LLM output. "
+        '"known" marks a fast-mode failure recorded in `tests/cases.yaml` (`known_failure`). '
+        "Replies and failure reasons per case are in `eval/results/full/cases.json`.",
     ]
     return "\n".join(out)
 

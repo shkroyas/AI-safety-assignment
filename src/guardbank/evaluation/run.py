@@ -81,7 +81,7 @@ def _short(text: str, n: int) -> str:
 
 
 def _reference(case: Any) -> str:
-    """The reference information for a case (assignment §3): retrieved docs or the scripted LLM output."""
+    """Reference information for a case (assignment §3): retrieved docs or scripted LLM output."""
     if case.llm_output:
         return "scripted LLM output: " + _short(" | ".join(case.llm_output), 120)
     if case.reference_docs:
