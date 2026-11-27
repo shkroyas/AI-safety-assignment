@@ -12,10 +12,20 @@ from pydantic import BaseModel, ConfigDict, Field
 from guardbank.config import ROOT
 
 EVAL_DIR = ROOT / "data" / "eval"
-SETS = ("injection", "injection_pii", "pii", "topics", "groundedness", "leakage", "chunk_poison")
+SETS = (
+    "injection",
+    "injection_pii",
+    "crisis",
+    "pii",
+    "topics",
+    "groundedness",
+    "leakage",
+    "chunk_poison",
+)
 MIN_SIZES = {
     "injection": 60,
     "injection_pii": 40,
+    "crisis": 25,
     "pii": 45,
     "topics": 55,
     "groundedness": 45,
@@ -64,6 +74,7 @@ class LeakItem(_Item):
 MODELS: dict[str, type[_Item]] = {
     "injection": TextItem,
     "injection_pii": TextItem,
+    "crisis": TextItem,
     "pii": PiiItem,
     "topics": TopicItem,
     "groundedness": GroundItem,

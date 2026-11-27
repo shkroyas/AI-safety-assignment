@@ -163,6 +163,8 @@ input:
       C: 50.0                  # inverse regularisation; C=4 gave too-soft probabilities (crisis paraphrase 0.71)
       device: auto
     tau: 0.7                   # use the classifier label only when its probability >= tau
+    class_tau:                 # per-class override (docs/specs/fix-crisis-recall.md)
+      CRISIS: 0.5              # a missed crisis costs more than an extra helpline line
     helpline:
       name: National Suicide Prevention Helpline
       number: "1166"           # verified 2026-11-26; hours unconfirmed, so replies state none
