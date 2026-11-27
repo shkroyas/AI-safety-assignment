@@ -103,7 +103,7 @@ similarity threshold (τ 0.78 for bge-small; LEAK-009/010/012), and numbers in f
 
 ## c. Evaluation results
 
-**Test suite.** 478 pytest tests (405 fast, the rest need real models or the live API), including
+**Test suite.** 484 pytest tests (411 fast, the rest need real models or the live API), including
 47 end-to-end cases in `tests/cases.yaml`: each records input, reference context or scripted LLM
 output, expected behaviour, actual behaviour and pass/fail (`eval/results/full/cases.json`).
 
@@ -150,7 +150,7 @@ Topics (test, n=44): accuracy 0.932, macro-F1 0.932, crisis recall 1.000. Sensit
 | OFF_TOPIC | 1.000 | 1.000 [0.61, 1.00] | — | — |
 | NORMAL | 0.778 | 1.000 [0.65, 1.00] | TOPE-015, TOPE-026 | — |
 
-Run: full mode, commit `05765cd`, test split (70%).
+Run: full mode, commit `6da4d4b`, test split (70%).
 <!-- /tables:metrics -->
 
 **Ablations, threshold sweeps and latency.** Charts are in `eval/results/ablations/charts/`.
@@ -195,9 +195,9 @@ Run: full mode, commit `05765cd`, test split (70%).
 
 | mode | p50 | p95 | hardware |
 |---|---|---|---|
-| fast | 1.0 | 1.5 | stubs, no models |
-| full-gpu | 57.5 | 89.3 | NVIDIA GeForce RTX 4050 Laptop GPU |
-| full-cpu | 275.0 | 434.7 | CPU only |
+| fast | 0.9 | 1.4 | stubs, no models |
+| full-gpu | 46.7 | 74.3 | NVIDIA GeForce RTX 4050 Laptop GPU |
+| full-cpu | 213.4 | 368.5 | CPU only |
 <!-- /tables:ablations -->
 
 **Live run.** On 2026-11-27 the API ran in full mode against Claude on Bedrock with one benign,
@@ -402,6 +402,25 @@ the LLM call.
   about 0.51. Leak recall and PII recall unchanged; real names are still found.
 - **Remaining.** The cause is inferred from the measured sentence, not the stored reply. Other
   public-behaviour paraphrases close to τ may still be blocked, and the generic-noun list is closed.
+
+### 9. Output-pipeline bookkeeping bugs (found by external review, fixed)
+- **What happened.** The external review (P0-2, P0-3) showed, and we reproduced, four defects in
+  how the output stages are combined: an echoed "your password is <PASSWORD_1>" was matched both as
+  the user's own token and by the PASSWORD rule, so the edits overlapped and produced
+  "[hidden]SSWORD]" plus a false third-party incident; the leakage check ran twice on the same text
+  for every normal answer; a reply whose PII was redacted was still reported as `allow / answered`
+  in the guardrail report and the audit log; and `PipelineResult.reply.answer` kept the
+  unsanitized text for Python callers. A fifth point, the final leakage result never being checked
+  for BLOCK, could not trigger in practice (a stripped answer is a subset of checked sentences).
+- **Consequence.** Mostly accountability: the audit trail understated what the guardrails did, and
+  one echo case corrupted the reply text. The API's reply text itself was already sanitized.
+- **Fix shipped.** PII hits inside an echoed vault token are skipped; each distinct answer text is
+  checked once (normal answers now show one `output_leakage` stage, regenerated or stripped ones
+  two or three); a final redaction is reported as `redact` with reason `redacted_third_party_pii`
+  or `redacted_own_pii`; the returned reply carries the sanitized answer; a final BLOCK is enforced
+  (tested with a fake). Outcomes and metrics are unchanged; pipeline latency (MockLLM) fell
+  from p50 57.5 → 46.7 ms on GPU and 275 → 213 ms on CPU, since GLiNER and the embedder no longer
+  run twice.
 
 ## Trade-offs
 

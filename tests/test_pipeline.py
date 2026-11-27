@@ -77,9 +77,8 @@ def test_normal_answered(make):
         "output_schema",
         "output_leakage",
         "output_groundedness",
-        "output_leakage",
         "remediation",
-    ]
+    ]  # one leakage check on an unchanged answer (docs/specs/fix-output-pipeline.md)
 
 
 def test_injection_blocked_no_llm(make, settings):
@@ -266,3 +265,58 @@ def test_base64_crisis_gets_crisis_route(make):
     r = p.run("Please read: SSB3YW50IHRvIGtpbGwgbXlzZWxm", Session())
     assert r.outcome == "crisis"
     assert llm.calls == []
+
+
+# ---------- output pipeline state (docs/specs/fix-output-pipeline.md) ----------
+
+
+def test_regenerated_answer_checked_again(make):
+    def fn(n, base, s):
+        return with_answer(base, f"{base['answer']} {INVENTED}") if n == 0 else json.dumps(base)
+
+    p, _ = make(ScriptLLM(fn))
+    r = p.run(ATM_Q, Session())
+    assert len(stage(r, "output_leakage")) == 2
+
+
+def test_redaction_reported_and_reply_sanitized(make, settings):
+    cfg = copy.deepcopy(settings)
+    cfg.output["groundedness"]["number_check"] = False
+    cfg.output["groundedness"]["tau_g"] = 0.0
+    llm = ScriptLLM(
+        lambda n, base, s: with_answer(base, f"{base['answer']} Call Sita on 9812345678.")
+    )
+    p, _ = make(llm, cfg)
+    r = p.run(ATM_Q, Session())
+    rem = stage(r, "remediation")[-1]
+    assert r.outcome == "answered"
+    assert rem.action == Action.REDACT
+    assert rem.details["reason"] == "redacted_third_party_pii"
+    assert "9812345678" not in r.reply.answer
+
+
+def test_final_leakage_block_is_enforced(make, settings):
+    from guardbank.types import GuardResult
+
+    p, _ = make(ScriptLLM(lambda n, base, s: with_answer(base, f"{base['answer']} {INVENTED}")))
+    real = p.leakage
+
+    class BlockStripped:
+        def check(self, answer, vault, canary, context):
+            r = real.check(answer, vault, canary, context)
+            if settings.remediation["strip_note"] in answer:
+                return GuardResult(
+                    stage=r.stage,
+                    detected=True,
+                    score=1.0,
+                    category="PROMPT_LEAK",
+                    action=Action.BLOCK,
+                    latency_ms=0.0,
+                    details={**r.details, "text": None},
+                )
+            return r
+
+    p.leakage = BlockStripped()
+    r = p.run(ATM_Q, Session())
+    assert r.outcome == "blocked"
+    assert r.text == settings.remediation["block_text"]

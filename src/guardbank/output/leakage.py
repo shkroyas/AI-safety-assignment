@@ -141,7 +141,10 @@ class LeakageChecker:
             value = vault.value_of(m.group(0))
             if value is not None:
                 edits.append((m.start(), m.end(), self._mask(m[1], value), "OWN_PII", m[1]))
+        tokens = [(s, e) for s, e, *_ in edits]
         for start, end, label in self.redactor.find(answer):
+            if any(start < te and end > ts for ts, te in tokens):
+                continue  # inside an echoed vault token, already masked (fix-output-pipeline spec)
             value = answer[start:end]
             if value in context or self._public_number(value, context):
                 continue  # bank-published data, e.g. the grievance email or the hotline
