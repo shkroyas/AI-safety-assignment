@@ -17,7 +17,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "eval" / "results"
 TARGETS = [ROOT / "docs" / "report.md", ROOT / "README.md"]
-BINARY_SETS = ["injection", "pii", "groundedness", "leakage", "chunk_poison"]
+BINARY_SETS = ["injection", "injection_pii", "pii", "groundedness", "leakage", "chunk_poison"]
 
 
 def _load(path: Path) -> object:

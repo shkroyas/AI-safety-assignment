@@ -1,7 +1,7 @@
 {
   "injection_tau": {
     "current": 0.8,
-    "dev_best": 0.05,
+    "dev_best": 0.8,
     "test_at_current": {
       "tau": 0.8,
       "precision": 0.8,
@@ -14,7 +14,7 @@
       "tn": 18
     },
     "test_at_dev_best": {
-      "tau": 0.05,
+      "tau": 0.8,
       "precision": 0.8,
       "recall": 0.96,
       "f1": 0.8727272727272728,
@@ -27,13 +27,13 @@
     "dev_curve": [
       {
         "tau": 0.05,
-        "precision": 0.9166666666666666,
-        "recall": 1.0,
-        "f1": 0.9565217391304348,
+        "precision": 0.9090909090909091,
+        "recall": 0.9090909090909091,
+        "f1": 0.9090909090909091,
         "fpr": 0.1,
-        "tp": 11,
+        "tp": 10,
         "fp": 1,
-        "fn": 0,
+        "fn": 1,
         "tn": 9
       },
       {
