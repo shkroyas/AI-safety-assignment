@@ -48,3 +48,12 @@ def test_cases_json_records_the_full_case(tmp_path):
         assert row["input"] == c["input"]
         if c.get("reference_docs") or c.get("llm_output"):
             assert row["reference"] != "—", c["id"]
+
+
+def test_pii_summary_has_entity_metrics(tmp_path):
+    """docs/specs/fix-entity-pii-metrics.md."""
+    summary = run("fast", tmp_path)
+    for part in ("dev", "test"):
+        ent = summary["sets"]["pii"][part]["entity"]
+        for key in ("precision", "recall", "f1", "ci", "fp_entities", "fn_entities", "per_label"):
+            assert key in ent, (part, key)
