@@ -93,7 +93,9 @@ class PiiRedactor:
             re.compile(
                 r"(?i)(?<![a-z0-9])(?:"
                 + "|".join(re.escape(w) for w in pw_words)
-                + r")(?![a-z0-9])\s*(?:is\b|:|=)?\s*(\S+?)(?=[.,;?]?(?:\s|$))"
+                + r")(?![a-z0-9])\s*(?:is\b|:|=)"
+                + ("" if config.get("password_requires_marker") else "?")
+                + r"\s*(\S+?)(?=[.,;?]?(?:\s|$))"
             )
             if pw_words
             else None

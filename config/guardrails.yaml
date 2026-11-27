@@ -265,6 +265,8 @@ output:
     public_prompt_lines: ["PINs, passwords", "investment, tax or legal advice", "a fictional bank in Nepal"]
     keep_last: 4               # user's own PII echoed back keeps only its last 4 characters
     full_hide: [CARD, OTP, PASSWORD]   # own PII of these labels is never shown, even partially
+    password_requires_marker: true     # output only: "password is X" is a secret, "password reset" is not
+    public_digits_min: 6               # a number whose digits equal a number in the context is public
 
 # Invalid-response policy (SPEC §4), applied by remediation.py / pipeline.py.
 remediation:
