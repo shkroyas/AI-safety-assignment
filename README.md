@@ -142,7 +142,8 @@ make docs        # diagram, report tables, PDF
 
 The 47 end-to-end cases in `tests/cases.yaml` cover normal inputs, malicious inputs, sensitive
 information, sensitive topics, invalid outputs and unsupported claims; each records expected
-and actual behaviour and pass/fail. Results (full mode):
+and actual behaviour and pass/fail; the full per-case table is
+[Appendix A of the report](docs/report.md#appendix-a-end-to-end-cases). Results (full mode):
 
 <!-- tables:cases -->
 | category | cases | passed (full mode) |
@@ -184,7 +185,7 @@ Topics (test, n=44): accuracy 0.932, macro-F1 0.932, crisis recall 1.000. Sensit
 | OFF_TOPIC | 1.000 | 1.000 [0.61, 1.00] | — | — |
 | NORMAL | 0.778 | 1.000 [0.65, 1.00] | TOPE-015, TOPE-026 | — |
 
-Run: full mode, commit `6da4d4b`, test split (70%).
+Run: full mode, commit `b59cf67`, test split (70%).
 <!-- /tables:metrics -->
 
 ## Design decisions

@@ -96,13 +96,59 @@ def metrics_table() -> str:
     return "\n".join(out)
 
 
+def _cell(text: object) -> str:
+    return str(text).replace("|", "/").replace("\n", " ")
+
+
+def _trim(text: str, n: int) -> str:
+    return text if len(text) <= n else text[: n - 1] + "…"
+
+
+def _behaviour(d: dict) -> str:
+    stage = re.sub(r"^(?:input|output|rag)[._]", "", d.get("stage") or "")
+    parts = [stage, d.get("action"), d.get("outcome")]
+    return " / ".join(_cell(p) for p in parts if p)
+
+
+def cases_detail_table() -> str:
+    """Assignment §3: input, reference, expected, actual, pass/fail for every case."""
+    full = _load(RESULTS / "full" / "cases.json")
+    fast = {r["id"]: r for r in _load(RESULTS / "fast" / "cases.json")}
+    out = [
+        "| id | category | input | reference | expected: stage / action / outcome "
+        "| actual: stage / action / outcome | full | fast |",
+        "|---|---|---|---|---|---|---|---|",
+    ]
+    for r in full:
+        f = fast.get(r["id"], {})
+        fast_pass = "yes" if f.get("pass") else ("known" if f.get("known_failure") else "no")
+        ref = _cell(_trim(r["reference"], 70))
+        out.append(
+            f"| {r['id']} | {r['category']} | {_cell(_trim(r['input'], 70))} | {ref} "
+            f"| {_behaviour(r['expected'])} | {_behaviour(r['actual'])} "
+            f"| {'yes' if r['pass'] else 'no'} | {fast_pass} |"
+        )
+    out += [
+        "",
+        "full / fast: pass in full mode (real models) and fast mode (stubs); "
+        '"known" marks a fast-mode failure recorded in `tests/cases.yaml` (`known_failure`). '
+        "Replies and failure reasons per case are in `eval/results/full/cases.json`.",
+    ]
+    return "\n".join(out)
+
+
 def ablations_table() -> str:
     text = (RESULTS / "ablations" / "tables.md").read_text()
     body = text.split("\n", 1)[1].strip()  # drop the file's own H1
     return re.sub(r"^## ", "#### ", body, flags=re.M)
 
 
-RENDERERS = {"cases": cases_table, "metrics": metrics_table, "ablations": ablations_table}
+RENDERERS = {
+    "cases_detail": cases_detail_table,
+    "cases": cases_table,
+    "metrics": metrics_table,
+    "ablations": ablations_table,
+}
 BLOCK = re.compile(r"(<!-- tables:(\w+) -->\n)(.*?)(<!-- /tables:\2 -->)", re.S)
 
 

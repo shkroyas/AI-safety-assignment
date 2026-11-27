@@ -93,6 +93,7 @@ class CaseResult(BaseModel):
     passed: bool
     actual: dict[str, Any]
     reasons: list[str]
+    text: str = ""  # the final reply the customer would see
 
 
 def load_cases(path: str | Path) -> list[Case]:
@@ -159,7 +160,9 @@ def check(case: Case, result: PipelineResult) -> CaseResult:
         kept = {cid.split("#")[0] for cid in scan.details["kept"]} if scan else set()
         if not kept & set(case.reference_docs):
             reasons.append(f"reference_docs: none of {case.reference_docs} in kept {sorted(kept)}")
-    return CaseResult(id=case.id, passed=not reasons, actual=actual, reasons=reasons)
+    return CaseResult(
+        id=case.id, passed=not reasons, actual=actual, reasons=reasons, text=result.text
+    )
 
 
 def run_case(pipeline: Pipeline, case: Case) -> CaseResult:
