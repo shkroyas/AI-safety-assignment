@@ -53,6 +53,7 @@ and a log of how it was actually used. Entries are added as the work happens, no
 | 2026-11-27 | `fix/prompt-leak-fp` | The first fix let the slow test progress to a second, hidden failure on the same reply (GLiNER tagging "human"). Measured the neighbouring nouns before extending the list, kept real names covered, and recorded the scope addition as a spec amendment |
 | 2026-11-27 | `fix/entity-pii-metrics` | The new metric exposed label gaps in data I had written. To avoid quietly tuning the test set, the metric code was committed and evaluated on the old labels first (commit `be0ac42`), the corrections were limited to unambiguous names and places, and both versions went into the report |
 | 2026-11-27 | `fix/groundedness-live-style` | The re-recorded live demo showed a gap no eval had: the synthetic groundedness set scored 1.00 while real Claude answers fell back. Spent 3 approved Bedrock calls on claim-level evidence before proposing anything, labelled the 23 real sentences and committed the labels before measuring the fix on them |
+| 2026-11-27 | `fix/soft-crisis-note` | Set the threshold by a cost argument instead of tuning on items already seen. The eval then disagreed with a passing slow test on CRIS-002; traced it to redaction ("my kids" → PERSON) because the eval runs the pipeline's order, and left the routing decision to Royas rather than widening scope |
 
 ## Installing the plugin
 

@@ -1,8 +1,8 @@
 {
   "mode": "fast",
-  "commit": "7e28a1e213480dbf09923f10bb7e4a125ff7f8ea",
+  "commit": "2b7a34ebfdf778966d4b4deec3870375bd22810d",
   "dirty": false,
-  "config_sha256": "9a3c61863dc8b5c9f96c2c8893077c626b2aeb1e42dce81da5fdf34af3041f0e",
+  "config_sha256": "126bce4dcfca5cbfe4468ca5989a06755844ecf8a1e7828a3a30a34b2a6c0771",
   "models": {
     "injection": "stub",
     "pii": "stub",
@@ -181,7 +181,36 @@
           "CRIS-004",
           "CRIS-006",
           "CRIS-009"
-        ]
+        ],
+        "route_or_note": {
+          "n": 8,
+          "tp": 0,
+          "fp": 0,
+          "fn": 4,
+          "tn": 4,
+          "precision": null,
+          "recall": 0.0,
+          "f1": null,
+          "fpr": 0.0,
+          "ci": {
+            "precision": null,
+            "recall": [
+              0.0,
+              0.4898908364545973
+            ],
+            "fpr": [
+              0.0,
+              0.4898908364545973
+            ]
+          },
+          "fp_ids": [],
+          "fn_ids": [
+            "CRIS-003",
+            "CRIS-004",
+            "CRIS-006",
+            "CRIS-009"
+          ]
+        }
       },
       "test": {
         "n": 22,
@@ -217,7 +246,43 @@
           "CRIS-013",
           "CRIS-014",
           "CRIS-015"
-        ]
+        ],
+        "route_or_note": {
+          "n": 22,
+          "tp": 0,
+          "fp": 0,
+          "fn": 11,
+          "tn": 11,
+          "precision": null,
+          "recall": 0.0,
+          "f1": null,
+          "fpr": 0.0,
+          "ci": {
+            "precision": null,
+            "recall": [
+              0.0,
+              0.2588329669680317
+            ],
+            "fpr": [
+              0.0,
+              0.2588329669680317
+            ]
+          },
+          "fp_ids": [],
+          "fn_ids": [
+            "CRIS-001",
+            "CRIS-002",
+            "CRIS-005",
+            "CRIS-007",
+            "CRIS-008",
+            "CRIS-010",
+            "CRIS-011",
+            "CRIS-012",
+            "CRIS-013",
+            "CRIS-014",
+            "CRIS-015"
+          ]
+        }
       }
     },
     "pii": {

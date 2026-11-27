@@ -40,5 +40,5 @@
 | mode | p50 | p95 | hardware |
 |---|---|---|---|
 | fast | 0.9 | 1.4 | stubs, no models |
-| full-gpu | 46.7 | 74.3 | NVIDIA GeForce RTX 4050 Laptop GPU |
-| full-cpu | 213.4 | 368.5 | CPU only |
+| full-gpu | 56.4 | 87.5 | NVIDIA GeForce RTX 4050 Laptop GPU |
+| full-cpu | 232.6 | 425.8 | CPU only |
