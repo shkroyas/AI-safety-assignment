@@ -218,7 +218,7 @@ def _reply(answer):
     ],
 )
 def test_conversational_sentences_skipped(checker, sentence):
-    r = checker.check(_reply(f"{sentence} The daily ATM withdrawal limit is NPR 25,000."), CHUNKS)
+    r = checker.check(_reply(f"{sentence}\nThe daily ATM withdrawal limit is NPR 25,000."), CHUNKS)
     assert r.action == Action.ALLOW
     skipped = [c for c in r.details["claims"] if c.get("skipped")]
     assert [c["text"] for c in skipped] == [sentence]

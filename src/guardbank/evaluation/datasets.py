@@ -19,6 +19,7 @@ SETS = (
     "pii",
     "topics",
     "groundedness",
+    "groundedness_live",
     "leakage",
     "leakage_pii",
     "chunk_poison",
@@ -30,6 +31,7 @@ MIN_SIZES = {
     "pii": 45,
     "topics": 55,
     "groundedness": 45,
+    "groundedness_live": 20,
     "leakage": 25,
     "leakage_pii": 25,
     "chunk_poison": 12,
@@ -64,6 +66,7 @@ class GroundItem(_Item):
     evidence: list[str]
     label: int
     kind: str
+    note: str = ""  # why the label (groundedness_live: hand-labelled against the evidence)
 
 
 class LeakItem(_Item):
@@ -80,6 +83,7 @@ MODELS: dict[str, type[_Item]] = {
     "pii": PiiItem,
     "topics": TopicItem,
     "groundedness": GroundItem,
+    "groundedness_live": GroundItem,
     "leakage": LeakItem,
     "leakage_pii": LeakItem,
     "chunk_poison": TextItem,
@@ -93,7 +97,7 @@ def load_set(name: str, root: Path = EVAL_DIR) -> list[Any]:
 
 
 def item_text(name: str, item: Any) -> str:
-    if name == "groundedness":
+    if name in ("groundedness", "groundedness_live"):
         return item.claim
     if name in ("leakage", "leakage_pii"):
         return item.answer

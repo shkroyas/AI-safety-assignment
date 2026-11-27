@@ -246,6 +246,13 @@ output:
     tau_g: 0.6                 # claim supported when score >= tau_g (and no number missing); tune on dev
     number_check: true         # every number, %, amount and date in a claim must be in the cited chunks
     fallback_below: 0.5        # SPEC §4: support < 0.5 -> safe fallback; else regenerate
+    # Sentences with nothing to check are kept but not scored (fix-groundedness-live-style spec):
+    # apologies/empathy, lead-ins ending in ":", and the never-share reminder the system prompt requires.
+    non_claims:
+      - "^(?:i'?m|i am|we'?re|we are)\\s+(?:so\\s+)?sorry\\b"
+      - "^i understand\\b"
+      - ":\\s*$"
+      - "\\b(?:do not|don'?t|never)\\s+share\\s+your\\s+(?:pin|password|otp|cvv)"
     hhem:                      # HHEM-2.1-open, loaded without trust_remote_code (output/hhem.py)
       name: vectara/hallucination_evaluation_model
       revision: de9a5e6ba9ba49531a022dba17e35ffeb2a6fad8   # pinned: the vendored wrapper matches this commit
