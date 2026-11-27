@@ -48,7 +48,7 @@ def test_split_stratified(sets, name):
 
 
 def test_binary_sets_have_both_labels(sets):
-    for name in ("injection", "pii", "groundedness", "leakage"):
+    for name in ("injection", "injection_pii", "pii", "groundedness", "leakage"):
         assert {label_of(name, it) for it in sets[name]} == {0, 1}, name
 
 
@@ -80,3 +80,21 @@ def test_only_test_card_numbers(sets):
                 digits = re.sub(r"\D", "", m.group(0))
                 if _luhn(digits):
                     assert digits.startswith("4111"), it.id
+
+
+def test_injection_pii_items_contain_pii(sets, settings):
+    """Every item in the injection_pii set has PII the stub redactor finds (else it tests nothing)."""
+    from guardbank.input.normalizer import Normalizer
+    from guardbank.input.pii import PiiRedactor, PiiVault
+
+    norm, red = Normalizer.from_settings(settings), PiiRedactor.from_settings(settings)
+    missing = []
+    for it in sets["injection_pii"]:
+        n = norm.check(it.text).details
+        if not red.check(n["normalized"], PiiVault(), decoded=n["decoded"]).detected:
+            missing.append(it.id)
+    assert missing == []
+    kinds = {it.label: set() for it in sets["injection_pii"]}
+    for it in sets["injection_pii"]:
+        kinds[it.label].add(it.kind)
+    assert len(kinds[0]) >= 5 and len(kinds[1]) >= 3

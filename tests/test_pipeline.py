@@ -242,3 +242,24 @@ def test_audit_chain_intact_and_no_raw_input(make, audit_path):
     assert sum(len(r.stages) for r in results) == len(entries)
     last = [e for e in entries if e["stage"] == "remediation"]
     assert len(last) == 3 and all("input_sha256" in e for e in last)
+
+
+def test_injection_classifier_routed_by_pii(make, settings):
+    """PII in the input switches the injection classifier (docs/specs/fix-injection-pii-refusals.md)."""
+    from guardbank.input.injection import InjectionDetector
+
+    class Fixed:
+        def __init__(self, v):
+            self.v = v
+
+        def score(self, text):
+            return self.v
+
+    p, _ = make()
+    p.injection = InjectionDetector(
+        settings.input["injection"], classifier=Fixed(1.0), pii_classifier=Fixed(0.0)
+    )
+    with_pii = p.run("My OTP is 482913, how do I block my card?", Session())
+    assert with_pii.outcome == "answered"
+    assert stage(with_pii, "input_injection")[0].details["classifier"] == "with_pii"
+    assert p.run(ATM_Q, Session()).outcome == "blocked"

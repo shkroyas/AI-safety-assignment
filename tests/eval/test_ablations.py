@@ -47,13 +47,17 @@ def test_percentile():
 
 def test_injection_variants(settings):
     v = injection_variants(settings)
-    assert set(v) == {"regex", "classifier", "hybrid"}
+    assert set(v) == {"regex", "classifier", "hybrid", "hybrid+pii-routing"}
     assert v["regex"].input["injection"]["classifier"] == "stub"
     assert v["classifier"].input["injection"]["patterns"] == {}
     assert v["classifier"].input["injection"]["classifier"] == "deberta"
     assert v["hybrid"].input["injection"]["classifier"] == "deberta"
     assert v["hybrid"].input["injection"]["patterns"]
     assert settings.input["injection"]["classifier"] == "stub"  # base untouched
+    for name in ("regex", "classifier", "hybrid"):
+        assert "classifier_with_pii" not in v[name].input["injection"], name
+    routed = v["hybrid+pii-routing"].input["injection"]
+    assert routed["classifier"] == "deberta" and routed["classifier_with_pii"] == "prompt_guard"
 
 
 def test_groundedness_variants(settings):
@@ -90,3 +94,10 @@ def test_run_ablations_fast_writes_outputs(tmp_path):
         assert sw[key]["dev_best"] is not None and sw[key]["current"] is not None
         assert "test_at_current" in sw[key] and "test_at_dev_best" in sw[key]
     assert "fast" in json.loads((tmp_path / "latency.json").read_text())["modes"]
+
+
+def test_stubify_stubs_pii_classifier(settings):
+    from guardbank.evaluation.ablations import _stubify
+
+    v = injection_variants(settings)["hybrid+pii-routing"]
+    assert _stubify(v).input["injection"]["classifier_with_pii"] == "stub"
