@@ -38,7 +38,6 @@ def settings_for(base: Settings, mode: str) -> Settings:
     s = copy.deepcopy(base)
     if mode == "full":
         s.input["injection"]["classifier"] = "deberta"
-        s.input["injection"]["classifier_with_pii"] = "prompt_guard"
         s.input["pii"]["backend"] = "gliner"
         s.input["topics"]["classifier"] = "embed_logreg"
         s.output["groundedness"]["scorer"] = "hhem"
@@ -52,9 +51,6 @@ def settings_for(base: Settings, mode: str) -> Settings:
 def models_used(s: Settings) -> dict[str, str]:
     return {
         "injection": s.input["injection"]["classifier"],
-        "injection_with_pii": s.input["injection"].get(
-            "classifier_with_pii", s.input["injection"]["classifier"]
-        ),
         "pii": s.input["pii"]["backend"],
         "topics": s.input["topics"]["classifier"],
         "groundedness": s.output["groundedness"]["scorer"],
@@ -65,14 +61,15 @@ def models_used(s: Settings) -> dict[str, str]:
 
 
 def run_injection(items: list[Any], s: Settings) -> list[Prediction]:
-    """Same order as the pipeline: PII first, so the injection classifier is routed by it."""
+    """Same order as the pipeline: PII first, so the classifier also sees the redacted text."""
     norm, det = Normalizer.from_settings(s), InjectionDetector.from_settings(s)
     red = PiiRedactor.from_settings(s)
     out = []
     for it in items:
         n = norm.check(it.text).details
         pii = red.check(n["normalized"], PiiVault(), decoded=n["decoded"])
-        r = det.check(n["normalized"], decoded=n["decoded"], has_pii=pii.detected)
+        redacted = pii.details["redacted"] if pii.detected else None
+        r = det.check(n["normalized"], decoded=n["decoded"], redacted=redacted)
         out.append(
             Prediction(it.id, it.label, int(r.action == Action.BLOCK), r.score, it.kind, it.text)
         )

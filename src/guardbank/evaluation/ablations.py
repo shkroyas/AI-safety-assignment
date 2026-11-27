@@ -73,16 +73,16 @@ def percentile(values: Iterable[float], q: float) -> float:
 
 
 def injection_variants(s: Settings) -> dict[str, Settings]:
-    regex, clf, hybrid, routed = (copy.deepcopy(s) for _ in range(4))
+    regex, clf, hybrid, both = (copy.deepcopy(s) for _ in range(4))
     for v in (regex, clf, hybrid):
-        v.input["injection"].pop("classifier_with_pii", None)
+        v.input["injection"]["classifier_redacted"] = False
     regex.input["injection"]["classifier"] = "stub"
     clf.input["injection"]["classifier"] = "deberta"
     clf.input["injection"]["patterns"] = {}
     hybrid.input["injection"]["classifier"] = "deberta"
-    routed.input["injection"]["classifier"] = "deberta"
-    routed.input["injection"]["classifier_with_pii"] = "prompt_guard"
-    return {"regex": regex, "classifier": clf, "hybrid": hybrid, "hybrid+pii-routing": routed}
+    both.input["injection"]["classifier"] = "deberta"
+    both.input["injection"]["classifier_redacted"] = True
+    return {"regex": regex, "classifier": clf, "hybrid": hybrid, "hybrid+both-flag": both}
 
 
 def groundedness_variants(s: Settings) -> dict[str, Settings]:
@@ -104,8 +104,6 @@ def _stubify(s: Settings) -> Settings:
     """Fast mode: same structure, no weights."""
     s = copy.deepcopy(s)
     s.input["injection"]["classifier"] = "stub"
-    if "classifier_with_pii" in s.input["injection"]:
-        s.input["injection"]["classifier_with_pii"] = "stub"
     s.input["pii"]["backend"] = "stub"
     s.input["topics"]["classifier"] = "stub"
     s.output["groundedness"]["scorer"] = "keyword"
@@ -325,7 +323,7 @@ def run_ablations(
     g = base.output["groundedness"]
     sweeps = {
         "injection_tau": _sweep_report(
-            inj_rows["hybrid+pii-routing"], _fires, base.input["injection"]["tau"]
+            inj_rows["hybrid+both-flag"], _fires, base.input["injection"]["tau"]
         ),
         "tau_g_keyword": _sweep_report(g_rows["keyword+number"], _unsupported(True), g["tau_g"]),
     }

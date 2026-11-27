@@ -160,7 +160,11 @@ class _Run:
         redacted = pii.details["redacted"]
 
         inj = self.log(
-            p.injection.check(norm["normalized"], decoded=norm["decoded"], has_pii=pii.detected)
+            p.injection.check(
+                norm["normalized"],
+                decoded=norm["decoded"],
+                redacted=redacted if pii.detected else None,
+            )
         )
         if inj.action == Action.BLOCK:
             return self.finish("blocked", inj.details["refusal"], Action.BLOCK, "input_injection")
