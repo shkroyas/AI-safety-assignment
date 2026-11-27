@@ -56,6 +56,7 @@ def test_binary_sets_have_both_labels(sets):
         "groundedness",
         "leakage",
         "leakage_pii",
+        "groundedness_live",
     ):
         assert {label_of(name, it) for it in sets[name]} == {0, 1}, name
 
@@ -106,3 +107,9 @@ def test_injection_pii_items_contain_pii(sets, settings):
     for it in sets["injection_pii"]:
         kinds[it.label].add(it.kind)
     assert len(kinds[0]) >= 5 and len(kinds[1]) >= 3
+
+
+def test_groundedness_live_items_have_notes_and_evidence(sets):
+    """docs/specs/fix-groundedness-live-style.md: every label carries its reason."""
+    for it in sets["groundedness_live"]:
+        assert it.note and it.evidence, it.id
