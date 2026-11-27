@@ -37,6 +37,7 @@ code → PR with green CI → Royas merges → `/clear`. "Spec" = the SPEC.md se
 | — | `docs/per-case-table` | input, reference, expected, actual, pass per case; report Appendix A | 5. Test case format | merged #32 |
 | — | `fix/entity-pii-metrics` | entity-level PII P/R/F1; five label gaps corrected | 6. Evaluation | merged #33 |
 | — | `fix/groundedness-live-style` | non-claim sentences not scored; `groundedness_live` set from real Claude answers | 4. Output guardrails | merged #34 |
-| — | `fix/soft-crisis-note` | helpline note for P(CRISIS) ≥ 0.25 below the route threshold | 3. Input guardrails | this PR |
+| — | `fix/soft-crisis-note` | helpline note for P(CRISIS) ≥ 0.25 below the route threshold | 3. Input guardrails | merged #35 |
+| — | `fix/route-unredacted` | topic router reads unredacted text in-process (Royas' decision) | 2. Pipeline order | this PR |
 | — | `fix/*` | one per real failure found by the eval | 6. Evaluation | |
 | — | `chore/plugin` | package skills/agents/hooks as a plugin | 9. Claude Code development layer | merged #22 |
