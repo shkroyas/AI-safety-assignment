@@ -169,6 +169,10 @@ input:
     tau: 0.7                   # use the classifier label only when its probability >= tau
     class_tau:                 # per-class override (docs/specs/fix-crisis-recall.md)
       CRISIS: 0.5              # a missed crisis costs more than an extra helpline line
+    # Soft crisis note (fix-soft-crisis-note spec): P(CRISIS) >= this, but not routed as CRISIS -> one
+    # helpline sentence is added to the reply. Set by cost (half the route threshold), not tuned on seen items.
+    soft_crisis_tau: 0.25
+    crisis_note: "If things feel hard right now, you can talk to the {helpline_name} on {helpline_number}."
     helpline:
       name: National Suicide Prevention Helpline
       number: "1166"           # verified 2026-11-26; hours unconfirmed, so replies state none

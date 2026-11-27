@@ -187,7 +187,7 @@ Topics (test, n=44): accuracy 0.932, macro-F1 0.932, crisis recall 1.000. Sensit
 | OFF_TOPIC | 1.000 | 1.000 [0.61, 1.00] | — | — |
 | NORMAL | 0.778 | 1.000 [0.65, 1.00] | TOPE-015, TOPE-026 | — |
 
-Run: full mode, commit `7e28a1e`, test split (70%).
+Run: full mode, commit `2b7a34e`, test split (70%).
 <!-- /tables:metrics -->
 
 ## Design decisions
@@ -212,7 +212,7 @@ Run: full mode, commit `7e28a1e`, test split (70%).
 Injection over-blocks benign lookalikes ("Ignore my previous question…") and, in full mode,
 still refuses some messages containing card or account numbers (PII-04; 3 of 21 benign PII test
 items, down from 6); the topic classifier still misses some indirect crisis phrasing (3 of 11
-held-out paraphrases, after a lower CRISIS threshold fixed TOPE-007); output leakage misses
+held-out paraphrases are not routed; a soft helpline note reaches 2 of those 3); output leakage misses
 paraphrased prompt leaks (LEAK-009/010/012). Details, consequences and improvements are in the report's failure analysis.
 Verdict: **suitable only with restrictions** (human-supervised pilot), not for unsupervised use.
 

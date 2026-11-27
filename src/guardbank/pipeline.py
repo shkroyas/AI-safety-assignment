@@ -175,9 +175,12 @@ class _Run:
         if route in _FIXED_ROUTES:
             outcome = _FIXED_ROUTES[route]
             action = Action.BLOCK if route == "block" else Action.ROUTE
+            response = topic.details["response"]
+            if route == "redirect" and topic.details.get("crisis_note"):
+                response = f"{response} {topic.details['crisis_note']}"
             return self.finish(
                 outcome,
-                topic.details["response"],
+                response,
                 action,
                 f"topic_{topic.category.lower()}",
                 escalate=topic.details["escalate"],
@@ -254,5 +257,10 @@ class _Run:
 
     @staticmethod
     def extras(text: str, topic: GuardResult, pii: GuardResult) -> str:
-        parts = [text, topic.details.get("disclaimer"), pii.details.get("warning")]
+        parts = [
+            text,
+            topic.details.get("disclaimer"),
+            pii.details.get("warning"),
+            topic.details.get("crisis_note"),
+        ]
         return " ".join(x for x in parts if x)

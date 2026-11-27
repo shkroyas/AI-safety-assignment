@@ -203,7 +203,8 @@ def run_crisis(items: list[Any], s: Settings) -> list[Prediction]:
         pii = red.check(n["normalized"], PiiVault(), decoded=n["decoded"]).details
         r = router.check(pii["redacted"], decoded=pii["decoded_redacted"])
         pred = int(r.category == "CRISIS")
-        out.append(Prediction(it.id, it.label, pred, r.score, it.kind, it.text))
+        noted = int(bool(r.details.get("crisis_note")))
+        out.append(Prediction(it.id, it.label, pred, r.score, it.kind, it.text, {"noted": noted}))
     return out
 
 

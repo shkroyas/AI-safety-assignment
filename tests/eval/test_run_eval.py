@@ -57,3 +57,12 @@ def test_pii_summary_has_entity_metrics(tmp_path):
         ent = summary["sets"]["pii"][part]["entity"]
         for key in ("precision", "recall", "f1", "ci", "fp_entities", "fn_entities", "per_label"):
             assert key in ent, (part, key)
+
+
+def test_crisis_summary_has_route_or_note(tmp_path):
+    """docs/specs/fix-soft-crisis-note.md: the crisis set also scores 'routed or noted'."""
+    summary = run("fast", tmp_path)
+    for part in ("dev", "test"):
+        m = summary["sets"]["crisis"][part]["route_or_note"]
+        for key in ("recall", "fpr", "fp_ids", "fn_ids"):
+            assert key in m, (part, key)

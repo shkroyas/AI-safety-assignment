@@ -171,3 +171,46 @@ def test_crisis_payload_beats_outer_complaint(router):
 
 def test_no_decoded_payload_unchanged(router):
     assert router.check("Your branch charged me twice").category == "COMPLAINT"
+
+
+# ---------- soft crisis note (docs/specs/fix-soft-crisis-note.md) ----------
+
+
+class ProbClassifier:
+    """predict() returns the top label; class_prob() returns the given CRISIS probability."""
+
+    def __init__(self, label: str, prob: float, crisis: float) -> None:
+        self.label, self.prob, self.crisis = label, prob, crisis
+
+    def predict(self, text: str) -> tuple[str, float]:
+        return self.label, self.prob
+
+    def class_prob(self, text: str, label: str) -> float:
+        return self.crisis if label == "CRISIS" else 0.0
+
+
+SOFT = "What's the point of going on when I owe this much"
+
+
+def test_soft_crisis_note_added(settings):
+    r = TopicRouter(settings.input["topics"], ProbClassifier("NORMAL", 0.5, 0.43)).check(SOFT)
+    assert r.category == "NORMAL"
+    assert "1166" in r.details["crisis_note"]
+
+
+def test_no_note_below_soft_threshold(settings):
+    r = TopicRouter(settings.input["topics"], ProbClassifier("NORMAL", 0.8, 0.20)).check(SOFT)
+    assert r.details.get("crisis_note") is None
+
+
+def test_crisis_route_has_no_note(settings):
+    r = TopicRouter(settings.input["topics"], ProbClassifier("CRISIS", 0.6, 0.6)).check(SOFT)
+    assert r.category == "CRISIS"
+    assert r.details.get("crisis_note") is None
+
+
+def test_no_note_without_soft_threshold(settings):
+    cfg = _cfg(settings, settings.input["topics"].get("class_tau"))
+    cfg.pop("soft_crisis_tau", None)
+    r = TopicRouter(cfg, ProbClassifier("NORMAL", 0.5, 0.43)).check(SOFT)
+    assert r.details.get("crisis_note") is None
