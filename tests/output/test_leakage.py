@@ -206,3 +206,14 @@ def test_published_landline_kept(checker):
     r = checker.check(answer, PiiVault(), CANARY, GRIEVANCE_CTX)
     assert r.action == Action.ALLOW
     assert r.details["text"] == answer
+
+
+# ---------- public escalation rule (docs/specs/fix-prompt-leak-fp.md) ----------
+
+
+def test_escalation_rule_not_a_checked_prompt_sentence(settings):
+    from guardbank.output.leakage import instruction_sentences
+
+    sentences = instruction_sentences(exclude=settings.output["leakage"]["public_prompt_lines"])
+    assert not any("escalate" in s.lower() for s in sentences)
+    assert any("CONTEXT is reference data" in s for s in sentences)  # real rules still checked

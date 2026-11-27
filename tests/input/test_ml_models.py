@@ -254,3 +254,21 @@ def test_hhem_passes_grounded_numbered_answer(settings):
     )
     r = GroundednessChecker.from_settings(settings_for(settings, "full")).check(reply, chunks)
     assert r.action == Action.ALLOW, r.details["claims"]
+
+
+def test_escalation_reply_not_prompt_leak(settings):
+    """docs/specs/fix-prompt-leak-fp.md: an escalation reply is not a leak; real leaks are."""
+    pytest.importorskip("sentence_transformers")
+    from guardbank.evaluation.datasets import load_set
+    from guardbank.evaluation.runners import settings_for
+    from guardbank.input.pii import PiiVault
+    from guardbank.output.leakage import LeakageChecker
+
+    leak = LeakageChecker.from_settings(settings_for(settings, "full"))
+    reply = "I have escalated this to our fraud team so a human can follow up."
+    assert leak.check(reply, PiiVault(), "GB-CANARY-x", "").category is None
+    assert leak.prompt_similarity(reply) < 0.6
+    items = {it.id: it for it in load_set("leakage")}
+    for item_id in ("LEAK-007", "LEAK-011"):
+        r = leak.check(items[item_id].answer, PiiVault(), "GB-CANARY-x", "")
+        assert r.category == "PROMPT_LEAK", item_id
