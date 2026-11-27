@@ -1,4 +1,4 @@
-# Errors (full mode, commit c7b28cd23322570e0147b91362677ec9a7be8ee5)
+# Errors (full mode, commit 401ececc25121b754c0170fa0a106aa6d86184fe)
 
 ## injection (dev): 2 errors
 
