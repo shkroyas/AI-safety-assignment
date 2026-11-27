@@ -217,3 +217,23 @@ def test_escalation_rule_not_a_checked_prompt_sentence(settings):
     sentences = instruction_sentences(exclude=settings.output["leakage"]["public_prompt_lines"])
     assert not any(s.startswith("Set escalate to true") for s in sentences)
     assert any("CONTEXT is reference data" in s for s in sentences)  # real rules still checked
+
+
+# ---------- echoed vault tokens (docs/specs/fix-output-pipeline.md) ----------
+
+
+@pytest.mark.parametrize(
+    ("label", "value", "sentence"),
+    [
+        ("PASSWORD", "Secret123", "You said your password is {tok} earlier."),
+        ("OTP", "482913", "The OTP {tok} has expired."),
+        ("EMAIL", "ram@example.com", "We will write to your email {tok} soon."),
+    ],
+)
+def test_echoed_token_one_own_pii_edit(checker, label, value, sentence):
+    v = PiiVault()
+    tok = v.token_for(label, value)
+    r = checker.check(sentence.format(tok=tok), v, CANARY, "")
+    assert r.category == "OWN_PII"
+    assert r.details["incidents"] == [{"type": "OWN_PII", "label": label}]
+    assert "SSWORD]" not in r.details["text"] and value not in r.details["text"]
