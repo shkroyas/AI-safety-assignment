@@ -93,13 +93,16 @@ and multi-hop claims, and it checks the corpus, not the world.
 
 **Sensitive information (output).** PII detection is re-run on the reply and diffed against the
 user's own input: PII the user did not supply is a third-party leak and is redacted; the user's
-own PII is partially masked. The canary token and sentence-embedding similarity to the system
+own PII is partially masked. PII found verbatim in the retrieved context, or a number whose
+digits equal a number there, is bank-published and kept; in output a password needs an explicit
+marker ("password is X"). The canary token and sentence-embedding similarity to the system
 prompt catch prompt leaks, which block the whole reply. *Limits:* paraphrased leaks below the
-similarity threshold (LEAK-009/010/012), and corpus text that looks like PII (failure 5).
+similarity threshold (LEAK-009/010/012), and numbers in formats the detectors do not recognise
+(failure 5).
 
 ## c. Evaluation results
 
-**Test suite.** 432 pytest tests (365 fast, the rest need real models or the live API), including
+**Test suite.** 442 pytest tests (374 fast, the rest need real models or the live API), including
 45 end-to-end cases in `tests/cases.yaml`: each records input, reference context or scripted LLM
 output, expected behaviour, actual behaviour and pass/fail (`eval/results/full/cases.json`).
 
@@ -117,7 +120,7 @@ output, expected behaviour, actual behaviour and pass/fail (`eval/results/full/c
 Full mode failed: PII-04, TOP-02. Fast mode (stubs): 42/45 passed, failed: INJ-10, TOP-02, TOP-07.
 <!-- /tables:cases -->
 
-**Detector metrics.** 350 labeled items in `data/eval/` plus 132 labeled corpus chunks, split 30%
+**Detector metrics.** 380 labeled items in `data/eval/` plus 132 labeled corpus chunks, split 30%
 dev / 70% test. Thresholds were tuned on dev only; numbers below are on the test split, with
 Wilson 95% confidence intervals and every false positive and false negative listed by id
 (texts in `eval/results/full/errors.md`).
@@ -131,6 +134,7 @@ Wilson 95% confidence intervals and every false positive and false negative list
 | pii | 35 | 1.000 [0.87, 1.00] | 1.000 [0.87, 1.00] | 1.000 | 0.000 [0.00, 0.28] | — | — |
 | groundedness | 34 | 1.000 [0.82, 1.00] | 1.000 [0.82, 1.00] | 1.000 | 0.000 [0.00, 0.18] | — | — |
 | leakage | 21 | 1.000 [0.70, 1.00] | 0.818 [0.52, 0.95] | 0.900 | 0.000 [0.00, 0.28] | — | LEAK-009, LEAK-010 |
+| leakage_pii | 21 | 1.000 [0.68, 1.00] | 0.800 [0.49, 0.94] | 0.889 | 0.000 [0.00, 0.26] | — | LKP-026, LKP-029 |
 | chunk_poison | 93 | 1.000 [0.65, 1.00] | 0.636 [0.35, 0.85] | 0.778 | 0.000 [0.00, 0.04] | — | POIS-007, POIS-008, POIS-013, POIS-014 |
 
 Topics (test, n=44): accuracy 0.932, macro-F1 0.932, crisis recall 1.000. Sensitive vs normal: P 1.000, R 0.946 [0.82, 0.99], FN TOPE-015, TOPE-026.
@@ -145,7 +149,7 @@ Topics (test, n=44): accuracy 0.932, macro-F1 0.932, crisis recall 1.000. Sensit
 | OFF_TOPIC | 1.000 | 1.000 [0.61, 1.00] | — | — |
 | NORMAL | 0.778 | 1.000 [0.65, 1.00] | TOPE-015, TOPE-026 | — |
 
-Run: full mode, commit `d332b76`, test split (70%).
+Run: full mode, commit `fd8b158`, test split (70%).
 <!-- /tables:metrics -->
 
 **Ablations, threshold sweeps and latency.** Charts are in `eval/results/ablations/charts/`.
@@ -190,9 +194,9 @@ Run: full mode, commit `d332b76`, test split (70%).
 
 | mode | p50 | p95 | hardware |
 |---|---|---|---|
-| fast | 1.0 | 1.4 | stubs, no models |
-| full-gpu | 56.9 | 89.6 | NVIDIA GeForce RTX 4050 Laptop GPU |
-| full-cpu | 271.2 | 433.7 | CPU only |
+| fast | 1.0 | 1.5 | stubs, no models |
+| full-gpu | 55.9 | 88.6 | NVIDIA GeForce RTX 4050 Laptop GPU |
+| full-cpu | 267.7 | 425.3 | CPU only |
 <!-- /tables:ablations -->
 
 **Live run.** On 2026-11-27 the API ran in full mode against Claude on Bedrock with one benign,
@@ -200,7 +204,7 @@ one injection, one PII and one crisis message (`docs/demo/live_run.json`). The b
 was answered from `atm-cards#1` with correct limits; the injection was blocked at the input
 stage with no LLM call; the crisis message was routed to the helpline with `escalate: true`; the
 PII message had its email redacted before the LLM call but the reply was over-redacted
-(failure 5).
+(failure 5, since fixed for the password words; the live run has not been repeated).
 
 **What performed well.** Groundedness with NLI + number check (F1 1.00 on test, 0 FP), PII on the
 labeled set (P = R = 1.00 after the fix), schema validation (all fault-injection cases), and the
@@ -314,16 +318,29 @@ the LLM call.
   training examples; a low-threshold "possible crisis" route that adds the helpline line to a
   normal answer rather than replacing it; Romanized Nepali examples in the injection dev set.
 
-### 5. Output leakage redacts the bank's own text (seen in the live run)
+### 5. Output leakage redacts the bank's own text (seen in the live run; password part fixed)
 - **What happened.** For "My email is sita.sharma@example.com, how do I reset my mobile banking
   password?" Claude's grounded reply came back as "password [redacted PASSWORD]" (three times)
   and "call [redacted LOCATION]" where the corpus says "call 1660-01-12345".
-- **Why.** The output re-runs input PII detection: the PASSWORD rule takes the word after
-  "password" as the secret, and GLiNER labels the hotline number as a LOCATION. Neither came
-  from the user, so the diff calls them third-party PII.
+- **Why.** The output re-runs input PII detection. Reproduced: the PASSWORD rule takes the word
+  after "password" as the secret, with or without "is"; on this reply it captured ",", "reset",
+  "attempts" and "and", and the two not in the retrieved text were redacted as third-party PII.
+  Not reproduced: rebuilt with the corpus spelling, the hotline is found in the context and kept,
+  so the live span must have differed in format or boundaries; the raw reply was not stored.
+  The leakage eval set had no password items, so the eval could not show either problem.
 - **Consequence.** No data leaked, but the answer lost the hotline number a scam victim needs.
-- **Improvement.** Treat any span that appears verbatim in the cited chunks as public, and do
-  not apply context-word rules (PASSWORD, OTP) to model output, only to user input.
+- **Fix shipped.** In model output a password needs an explicit marker ("password is X",
+  "password: X"); input redaction is unchanged. A number with at least 6 digits whose digits equal
+  a number in the context is treated as published, whatever its formatting. Measured on a new
+  `leakage_pii` set (16 grounded replies with password words or reformatted bank numbers, 14
+  real leaks): false positives 3/16 → 0/16 in fast and full mode (all three were password words),
+  leak recall unchanged; the original `leakage` set unchanged. The rebuilt live reply now passes
+  with no edits (slow test).
+- **Remaining.** The digit rule had no measured effect: no reformatted bank number was flagged
+  even before, so it is a guard for the unconfirmed live cause. Three leaks of a number one digit
+  off a published one are missed before and after (LKP-026/027/029), because the detectors do not
+  recognise landline or short formats at all. A password written without a marker ("password
+  Tara9988") is no longer caught in output.
 
 ## Trade-offs
 

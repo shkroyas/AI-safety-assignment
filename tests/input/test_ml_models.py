@@ -187,3 +187,28 @@ def test_deberta_catches_role_override_regex_lets_through(settings, text):
     r = InjectionDetector.from_settings(settings_for(settings, "full")).check(text)
     assert r.details["matches"] == []
     assert r.action == Action.BLOCK
+
+
+def test_live_reply_not_overredacted(settings):
+    """docs/specs/fix-output-overredaction.md: the rebuilt live reply passes with no edits."""
+    pytest.importorskip("gliner")
+    import json
+    from pathlib import Path
+
+    from guardbank.evaluation.runners import settings_for
+    from guardbank.input.pii import PiiVault
+    from guardbank.output.leakage import LeakageChecker
+    from guardbank.rag.corpus import chunk_docs, load_corpus
+    from guardbank.types import Action
+
+    full = settings_for(settings, "full")
+    root = Path(__file__).resolve().parents[2]
+    run = json.loads((root / "docs/demo/live_run.json").read_text())["runs"][2]
+    raw = run["reply"]
+    for word in ("reset", "attempts", "reset"):
+        raw = raw.replace("[redacted PASSWORD]", word, 1)
+    raw = raw.replace("[redacted LOCATION]", "1660-01-12345")
+    chunks = {c.id: c.text for c in chunk_docs(load_corpus(full.resolve(full.corpus.path)))}
+    context = "\n".join(chunks[i] for i in ("mobile-banking#3", "fraud-and-scams#2"))
+    r = LeakageChecker.from_settings(full).check(raw, PiiVault(), "GB-CANARY-x", context)
+    assert r.action == Action.ALLOW, r.details["incidents"]

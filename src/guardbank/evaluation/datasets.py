@@ -20,6 +20,7 @@ SETS = (
     "topics",
     "groundedness",
     "leakage",
+    "leakage_pii",
     "chunk_poison",
 )
 MIN_SIZES = {
@@ -30,6 +31,7 @@ MIN_SIZES = {
     "topics": 55,
     "groundedness": 45,
     "leakage": 25,
+    "leakage_pii": 25,
     "chunk_poison": 12,
 }
 DEV_SHARE = 0.3
@@ -79,6 +81,7 @@ MODELS: dict[str, type[_Item]] = {
     "topics": TopicItem,
     "groundedness": GroundItem,
     "leakage": LeakItem,
+    "leakage_pii": LeakItem,
     "chunk_poison": TextItem,
 }
 
@@ -92,7 +95,7 @@ def load_set(name: str, root: Path = EVAL_DIR) -> list[Any]:
 def item_text(name: str, item: Any) -> str:
     if name == "groundedness":
         return item.claim
-    if name == "leakage":
+    if name in ("leakage", "leakage_pii"):
         return item.answer
     return item.text
 

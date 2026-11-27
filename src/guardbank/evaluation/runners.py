@@ -209,5 +209,6 @@ RUNNERS = {
     "topics": run_topics,
     "groundedness": run_groundedness,
     "leakage": run_leakage,
+    "leakage_pii": run_leakage,
     "chunk_poison": run_chunk_scan,
 }

@@ -22,6 +22,7 @@ from guardbank.types import Action, GuardResult, Span
 STAGE = "output_leakage"
 _TOKEN = re.compile(r"<([A-Z_]+)_\d+>")
 _MIN_WORDS = 4
+_NUMBER = re.compile(r"\d[\d\s\-\u2010-\u2013]*\d")  # digits with spaces or hyphens
 
 
 def instruction_sentences(
@@ -49,6 +50,9 @@ class LeakageChecker:
         self.tau_prompt: float = config["tau_prompt"][config["embedder"]]
         self.keep_last: int = config["keep_last"]
         self.full_hide: set[str] = set(config["full_hide"])
+        # A number in the answer is bank-published when its digits equal a number in the context,
+        # whatever the formatting (docs/specs/fix-output-overredaction.md). 0 = off.
+        self.public_digits_min: int = config.get("public_digits_min", 0)
         self.redactor = redactor
         self.embedder = embedder
         self.normalizer = normalizer
@@ -66,9 +70,14 @@ class LeakageChecker:
             raise ValueError(
                 f"unknown leakage embedder {kind!r}; allowed: hashing, sentence-transformers"
             )
+        # Output: a password needs an explicit marker ("password is X"); "password reset" is text.
+        pii_cfg = {
+            **settings.input["pii"],
+            "password_requires_marker": config.get("password_requires_marker", False),
+        }
         return cls(
             config,
-            PiiRedactor.from_settings(settings),
+            PiiRedactor(pii_cfg),
             embedder,
             Normalizer.from_settings(settings),
         )
@@ -85,6 +94,12 @@ class LeakageChecker:
         texts = [norm["normalized"], *norm["decoded"]]
         needles = (canary.lower(), self.prefix)
         return any(n in t.lower() for t in texts for n in needles)
+
+    def _public_number(self, value: str, context: str) -> bool:
+        digits = re.sub(r"\D", "", value)
+        if not self.public_digits_min or len(digits) < self.public_digits_min:
+            return False
+        return any(re.sub(r"\D", "", n) == digits for n in _NUMBER.findall(context))
 
     def _mask(self, label: str, value: str) -> str:
         if label in self.full_hide:
@@ -128,8 +143,8 @@ class LeakageChecker:
                 edits.append((m.start(), m.end(), self._mask(m[1], value), "OWN_PII", m[1]))
         for start, end, label in self.redactor.find(answer):
             value = answer[start:end]
-            if value in context:
-                continue  # bank-published data, e.g. the grievance email
+            if value in context or self._public_number(value, context):
+                continue  # bank-published data, e.g. the grievance email or the hotline
             if vault.has_value(value):
                 edits.append((start, end, self._mask(label, value), "OWN_PII", label))
             else:

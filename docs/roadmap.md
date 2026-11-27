@@ -27,6 +27,7 @@ code → PR with green CI → Royas merges → `/clear`. "Spec" = the SPEC.md se
 | — | `fix/gliner-generic-nouns` | drop generic-noun spans that hid a crisis message | 3. Input guardrails | merged #19 |
 | — | `fix/injection-pii-refusals` | PII messages: raw and redacted text must both be flagged; `injection_pii` set | 3. Input guardrails | merged #23 |
 | — | `fix/crisis-recall` | per-class CRISIS threshold 0.5; held-out `crisis` set | 3. Input guardrails | merged #24 |
-| — | `fix/injection-lookalikes` | narrow ROLE_OVERRIDE / PROMPT_EXTRACTION regex | 3. Input guardrails | this PR |
+| — | `fix/injection-lookalikes` | narrow ROLE_OVERRIDE / PROMPT_EXTRACTION regex | 3. Input guardrails | merged #25 |
+| — | `fix/output-overredaction` | output passwords need a marker; context-published numbers kept; `leakage_pii` set | 4. Output guardrails | this PR |
 | — | `fix/*` | one per real failure found by the eval | 6. Evaluation | |
 | — | `chore/plugin` | package skills/agents/hooks as a plugin | 9. Claude Code development layer | merged #22 |
