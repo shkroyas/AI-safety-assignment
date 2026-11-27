@@ -73,12 +73,16 @@ def percentile(values: Iterable[float], q: float) -> float:
 
 
 def injection_variants(s: Settings) -> dict[str, Settings]:
-    regex, clf, hybrid = (copy.deepcopy(s) for _ in range(3))
+    regex, clf, hybrid, both = (copy.deepcopy(s) for _ in range(4))
+    for v in (regex, clf, hybrid):
+        v.input["injection"]["classifier_redacted"] = False
     regex.input["injection"]["classifier"] = "stub"
     clf.input["injection"]["classifier"] = "deberta"
     clf.input["injection"]["patterns"] = {}
     hybrid.input["injection"]["classifier"] = "deberta"
-    return {"regex": regex, "classifier": clf, "hybrid": hybrid}
+    both.input["injection"]["classifier"] = "deberta"
+    both.input["injection"]["classifier_redacted"] = True
+    return {"regex": regex, "classifier": clf, "hybrid": hybrid, "hybrid+both-flag": both}
 
 
 def groundedness_variants(s: Settings) -> dict[str, Settings]:
@@ -123,8 +127,8 @@ def _metrics_by_part(rows: list[Row], predict, tau) -> dict[str, Any]:
     }
 
 
-def injection_rows(s: Settings) -> list[Row]:
-    preds = run_injection(load_set("injection"), s)
+def injection_rows(s: Settings, name: str = "injection") -> list[Row]:
+    preds = run_injection(load_set(name), s)
     return [(p.id, int(p.label), float(p.score), {}) for p in preds]
 
 
@@ -296,13 +300,15 @@ def run_ablations(
     shape = (lambda s: s) if mode == "full" else _stubify
     full = shape(settings_for(base, "full"))
 
-    abl: dict[str, Any] = {"injection": {}, "groundedness": {}}
+    abl: dict[str, Any] = {"injection": {}, "injection_pii": {}, "groundedness": {}}
     inj_rows: dict[str, list[Row]] = {}
     for name, v in injection_variants(full).items():
         v = shape(v)
+        tau = v.input["injection"]["tau"]
         inj_rows[name] = injection_rows(v)
-        abl["injection"][name] = _metrics_by_part(
-            inj_rows[name], _fires, v.input["injection"]["tau"]
+        abl["injection"][name] = _metrics_by_part(inj_rows[name], _fires, tau)
+        abl["injection_pii"][name] = _metrics_by_part(
+            injection_rows(v, "injection_pii"), _fires, tau
         )
     g_rows: dict[str, list[Row]] = {}
     for name, v in groundedness_variants(full).items():
@@ -316,7 +322,9 @@ def run_ablations(
 
     g = base.output["groundedness"]
     sweeps = {
-        "injection_tau": _sweep_report(inj_rows["hybrid"], _fires, base.input["injection"]["tau"]),
+        "injection_tau": _sweep_report(
+            inj_rows["hybrid+both-flag"], _fires, base.input["injection"]["tau"]
+        ),
         "tau_g_keyword": _sweep_report(g_rows["keyword+number"], _unsupported(True), g["tau_g"]),
     }
     if mode == "full":

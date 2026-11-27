@@ -242,3 +242,19 @@ def test_audit_chain_intact_and_no_raw_input(make, audit_path):
     assert sum(len(r.stages) for r in results) == len(entries)
     last = [e for e in entries if e["stage"] == "remediation"]
     assert len(last) == 3 and all("input_sha256" in e for e in last)
+
+
+def test_injection_scores_redacted_text_too(make, settings):
+    """Both-must-flag on PII messages (docs/specs/fix-injection-pii-refusals.md)."""
+    from guardbank.input.injection import InjectionDetector
+
+    class DigitScorer:
+        def score(self, text):
+            return 1.0 if any(c.isdigit() for c in text) else 0.0
+
+    p, _ = make()
+    p.injection = InjectionDetector(settings.input["injection"], classifier=DigitScorer())
+    with_pii = p.run("My OTP is 482913, how do I block my card?", Session())
+    assert with_pii.outcome == "answered"
+    assert stage(with_pii, "input_injection")[0].details["classifier_redacted"] == 0.0
+    assert p.run("Is the 1660 line open on Saturday?", Session()).outcome == "blocked"

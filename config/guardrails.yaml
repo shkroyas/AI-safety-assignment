@@ -118,6 +118,18 @@ input:
       PASSWORD: [password, passcode, pw]
   injection:
     classifier: stub           # stub | deberta | prompt_guard (both need the `ml` extra)
+    classifier_redacted: true  # PII messages: block only if raw AND redacted text score >= tau
+    redacted_words:            # token label -> word the classifier sees in the redacted text
+      CARD: card
+      NP_CITIZENSHIP: citizenship
+      NP_PAN: pan
+      ACCOUNT_NO: account number
+      NP_PHONE: phone
+      OTP: otp
+      PASSWORD: password
+      EMAIL: email
+      PERSON: person
+      LOCATION: location
     models:                    # kind -> HF model + the label that means "attack"
       deberta: {name: protectai/deberta-v3-base-prompt-injection-v2, positive_label: INJECTION}
       prompt_guard: {name: meta-llama/Llama-Prompt-Guard-2-86M, positive_label: LABEL_1}  # gated: needs HF_TOKEN

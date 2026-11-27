@@ -20,7 +20,7 @@ and to the `guardrail_report` returned by the API.
 | Guardrail | Detection | Action when flagged |
 |---|---|---|
 | PII (input) | Regex + Nepal recognizers (citizenship no., PAN, +977, account no. with context words), GLiNER for names/places | Redact to typed tokens (`<CARD_1>`); card/OTP/password adds a "never share" warning |
-| Prompt injection | Regex bank + DeBERTa classifier, block if score ≥ τ (0.8); same scan on retrieved chunks | Generic refusal + audit; poisoned chunk dropped silently |
+| Prompt injection | Regex bank + DeBERTa classifier, block if score ≥ τ (0.8); on PII messages the raw and redacted text must both score ≥ τ; same scan on retrieved chunks | Generic refusal + audit; poisoned chunk dropped silently |
 | Sensitive topic | Crisis keyword fast-path, then embedding + logistic regression | Routing table below |
 | Schema (output) | Pydantic `SupportReply`, citations must exist, escalate rule | Regenerate with error (≤2), then safe fallback |
 | Groundedness (output) | Claims vs cited chunks with HHEM-2.1-open + exact number/date match | Regenerate, then strip unsupported sentences, or fallback + escalate |
@@ -149,13 +149,13 @@ and actual behaviour and pass/fail. Results (full mode):
 |---|---|---|
 | normal_input | 8 | 8 |
 | malicious_input | 10 | 10 |
-| sensitive_info | 10 | 8 |
+| sensitive_info | 10 | 9 |
 | sensitive_topic | 7 | 6 |
 | invalid_output | 5 | 5 |
 | unsupported_claim | 5 | 5 |
-| **total** | **45** | **42** |
+| **total** | **45** | **43** |
 
-Full mode failed: PII-04, PII-05, TOP-02. Fast mode (stubs): 42/45 passed, failed: INJ-10, TOP-02, TOP-07.
+Full mode failed: PII-04, TOP-02. Fast mode (stubs): 42/45 passed, failed: INJ-10, TOP-02, TOP-07.
 <!-- /tables:cases -->
 
 Detector metrics on the held-out test split (70%; thresholds tuned on the 30% dev split):
@@ -164,6 +164,7 @@ Detector metrics on the held-out test split (70%; thresholds tuned on the 30% de
 | guardrail | n | P (95% CI) | R (95% CI) | F1 | FPR (95% CI) | FP ids | FN ids |
 |---|---|---|---|---|---|---|---|
 | injection | 49 | 0.800 [0.63, 0.90] | 0.960 [0.80, 0.99] | 0.873 | 0.250 [0.12, 0.45] | INJE-037, INJE-038, INJE-041, INJE-042, INJE-043, INJE-044 | INJE-009 |
+| injection_pii | 32 | 0.786 [0.52, 0.92] | 1.000 [0.74, 1.00] | 0.880 | 0.143 [0.05, 0.35] | INJP-013, INJP-015, INJP-028 | — |
 | pii | 35 | 1.000 [0.87, 1.00] | 1.000 [0.87, 1.00] | 1.000 | 0.000 [0.00, 0.28] | — | — |
 | groundedness | 34 | 1.000 [0.82, 1.00] | 1.000 [0.82, 1.00] | 1.000 | 0.000 [0.00, 0.18] | — | — |
 | leakage | 21 | 1.000 [0.70, 1.00] | 0.818 [0.52, 0.95] | 0.900 | 0.000 [0.00, 0.28] | — | LEAK-009, LEAK-010 |
@@ -181,7 +182,7 @@ Topics (test, n=44): accuracy 0.909, macro-F1 0.914, crisis recall 0.857. Sensit
 | OFF_TOPIC | 1.000 | 1.000 [0.61, 1.00] | — | — |
 | NORMAL | 0.700 | 1.000 [0.65, 1.00] | TOPE-007, TOPE-015, TOPE-026 | — |
 
-Run: full mode, commit `2520ac9`, test split (70%).
+Run: full mode, commit `a1119fe`, test split (70%).
 <!-- /tables:metrics -->
 
 ## Design decisions
@@ -192,6 +193,8 @@ Run: full mode, commit `2520ac9`, test split (70%).
   depend on retrieval or generation; the crisis keyword path cannot be outvoted by a model.
 - **Hybrid injection detection.** Regex is transparent and free, the classifier catches
   paraphrases; the hybrid has the best recall (0.96) and the worst false-positive rate (0.25).
+  On messages with PII the classifier must flag both the raw and the redacted text, because
+  DeBERTa reads card numbers and passwords as payloads.
 - **Numbers are checked exactly.** NLI handles paraphrase; an exact match on every number,
   amount and date catches the hallucinations that matter most in banking.
 - **One remediation policy.** Detectors only detect; `remediation.py` decides the reply.
@@ -201,7 +204,8 @@ Run: full mode, commit `2520ac9`, test split (70%).
 ## Known limitations
 
 Injection over-blocks benign lookalikes ("Ignore my previous question…") and, in full mode,
-messages containing card or account numbers; the topic classifier misses indirect crisis
+still refuses some messages containing card or account numbers (PII-04; 3 of 21 benign PII test
+items, down from 6); the topic classifier misses indirect crisis
 phrasing ("Nobody would miss me if I was gone"); output leakage can redact the bank's own
 hotline number. Details, consequences and improvements are in the report's failure analysis.
 Verdict: **suitable only with restrictions** (human-supervised pilot), not for unsupervised use.

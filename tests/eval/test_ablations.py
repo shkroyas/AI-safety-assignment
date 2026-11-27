@@ -47,13 +47,17 @@ def test_percentile():
 
 def test_injection_variants(settings):
     v = injection_variants(settings)
-    assert set(v) == {"regex", "classifier", "hybrid"}
+    assert set(v) == {"regex", "classifier", "hybrid", "hybrid+both-flag"}
     assert v["regex"].input["injection"]["classifier"] == "stub"
     assert v["classifier"].input["injection"]["patterns"] == {}
     assert v["classifier"].input["injection"]["classifier"] == "deberta"
     assert v["hybrid"].input["injection"]["classifier"] == "deberta"
     assert v["hybrid"].input["injection"]["patterns"]
     assert settings.input["injection"]["classifier"] == "stub"  # base untouched
+    for name in ("regex", "classifier", "hybrid"):
+        assert v[name].input["injection"]["classifier_redacted"] is False, name
+    both = v["hybrid+both-flag"].input["injection"]
+    assert both["classifier"] == "deberta" and both["classifier_redacted"] is True
 
 
 def test_groundedness_variants(settings):
@@ -81,7 +85,9 @@ def test_run_ablations_fast_writes_outputs(tmp_path):
     for f in ("ablations.json", "sweeps.json", "latency.json", "tables.md"):
         assert (tmp_path / f).exists(), f
     abl = json.loads((tmp_path / "ablations.json").read_text())
-    assert set(abl["injection"]) == {"regex", "classifier", "hybrid"}
+    variants = {"regex", "classifier", "hybrid", "hybrid+both-flag"}
+    assert set(abl["injection"]) == variants
+    assert set(abl["injection_pii"]) == variants
     assert set(abl["groundedness"]) == {"keyword", "keyword+number", "nli", "nli+number"}
     for part in ("dev", "test"):
         assert "f1" in abl["injection"]["regex"][part]

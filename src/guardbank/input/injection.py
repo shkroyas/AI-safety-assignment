@@ -14,6 +14,7 @@ from guardbank.input.detectors import ScoreDetector, build_injection_scorer
 from guardbank.types import Action, GuardResult, Span
 
 STAGE = "input_injection"
+_TOKEN = re.compile(r"<([A-Z_]+)_\d+>")
 CLASSIFIER = "CLASSIFIER"
 
 
@@ -29,6 +30,16 @@ class InjectionDetector:
             name: float(p["weight"]) for name, p in config["patterns"].items()
         }
         self.classifier = classifier or build_injection_scorer(config)
+        # Messages with PII: the classifier must flag both the raw and the redacted text
+        # (DeBERTa over-flags card/account numbers; docs/specs/fix-injection-pii-refusals.md).
+        self.classify_redacted: bool = config.get("classifier_redacted", False)
+        self.redacted_words: dict[str, str] = config.get("redacted_words", {})
+
+    def _words(self, redacted: str) -> str:
+        """`<CARD_1>` -> "card": typed tokens read as payloads to the classifier."""
+        return _TOKEN.sub(
+            lambda m: self.redacted_words.get(m.group(1), m.group(1).lower()), redacted
+        )
 
     @classmethod
     def from_settings(cls, settings: Any) -> InjectionDetector:
@@ -43,7 +54,9 @@ class InjectionDetector:
         ]
         return sorted(spans, key=lambda s: s.start)
 
-    def check(self, text: str, decoded: Iterable[str] = ()) -> GuardResult:
+    def check(
+        self, text: str, decoded: Iterable[str] = (), redacted: str | None = None
+    ) -> GuardResult:
         t0 = time.perf_counter()
         spans = self.scan(text)
         matched = {s.label for s in spans}
@@ -54,7 +67,11 @@ class InjectionDetector:
 
         regex_score = max((self.weights[n] for n in matches), default=0.0)
         top = max(matches, key=lambda n: self.weights[n]) if matches else None
-        clf_score = self.classifier.score(text)
+        clf_raw = self.classifier.score(text)
+        clf_red = None
+        if self.classify_redacted and redacted is not None and redacted != text:
+            clf_red = self.classifier.score(self._words(redacted))
+        clf_score = clf_raw if clf_red is None else min(clf_raw, clf_red)
         score = max(regex_score, clf_score)
         category = CLASSIFIER if clf_score > regex_score else top
 
@@ -71,6 +88,8 @@ class InjectionDetector:
                 "matches": matches,
                 "regex_score": regex_score,
                 "classifier_score": clf_score,
+                "classifier_raw": clf_raw,
+                "classifier_redacted": clf_red,
                 "refusal": self.refusal if detected else None,
             },
         )
