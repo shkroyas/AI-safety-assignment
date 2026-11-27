@@ -87,7 +87,7 @@ def run_pii(items: list[Any], s: Settings) -> list[Prediction]:
     for it in items:
         n = norm.check(it.text).details
         r = red.check(n["normalized"], PiiVault(), decoded=n["decoded"])
-        found = sorted({sp.label for sp in r.spans})
+        found = sorted(sp.label for sp in r.spans)  # a bag: two places count twice
         out.append(
             Prediction(
                 it.id,

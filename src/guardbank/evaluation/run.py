@@ -12,7 +12,7 @@ from guardbank.audit import AuditLog
 from guardbank.cases import load_cases, run_case
 from guardbank.config import DEFAULT_CONFIG, ROOT, load_settings
 from guardbank.evaluation.datasets import EVAL_DIR, SETS, load_set, split_ids
-from guardbank.evaluation.metrics import binary_metrics, multiclass_metrics
+from guardbank.evaluation.metrics import binary_metrics, entity_metrics, multiclass_metrics
 from guardbank.evaluation.runners import RUNNERS, Prediction, models_used, settings_for
 from guardbank.pipeline import Pipeline
 from guardbank.rag.llm import MockLLM
@@ -48,6 +48,7 @@ def _set_metrics(name: str, preds: list[Prediction], classes: list[str]) -> dict
             for label in p.extra["expected"]:
                 per_label.setdefault(label, []).append(int(label in p.extra["found"]))
         m["per_label_recall"] = {k: sum(v) / len(v) for k, v in sorted(per_label.items())}
+        m["entity"] = entity_metrics((p.id, p.extra["expected"], p.extra["found"]) for p in preds)
     return m
 
 
