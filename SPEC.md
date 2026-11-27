@@ -11,7 +11,7 @@ Actions: `allow | redact | block | route | drop_chunk | regenerate | fallback`.
 1. Normalizer (NFKC, strip zero-width, homoglyphs, decode obvious base64/hex and scan decoded text too).
 2. Input PII: redact to typed tokens (`<PHONE_1>`), kept in a per-session vault.
 3. Input injection: block if regex high-confidence OR classifier score >= tau.
-4. Topic router (crisis keyword fast-path first, then classifier), before retrieval.
+4. Topic router (crisis keyword fast-path first, then classifier), before retrieval. It reads the unredacted text inside the process (only its verdict is logged), so redaction cannot hide crisis words.
 5. Retriever (top-4); injection scan on every chunk; poisoned chunk dropped.
 6. LLM (Claude Opus 4.6 on Amazon Bedrock, model in config/env; `MockLLM` for tests/CI) returns JSON; canary token in system prompt.
 7. Output: schema, groundedness, sensitive-info checks, then `remediation.py` decides the final reply.

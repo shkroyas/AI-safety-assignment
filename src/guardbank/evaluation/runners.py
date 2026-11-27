@@ -191,17 +191,12 @@ def run_chunk_scan(items: list[Any], s: Settings) -> list[Prediction]:
 
 
 def run_crisis(items: list[Any], s: Settings) -> list[Prediction]:
-    """Crisis set run like the pipeline (normalize, redact, route); pred = routed to CRISIS."""
-    norm, red, router = (
-        Normalizer.from_settings(s),
-        PiiRedactor.from_settings(s),
-        TopicRouter.from_settings(s),
-    )
+    """Crisis set routed like the pipeline (normalized, unredacted); pred = routed to CRISIS."""
+    norm, router = Normalizer.from_settings(s), TopicRouter.from_settings(s)
     out = []
     for it in items:
         n = norm.check(it.text).details
-        pii = red.check(n["normalized"], PiiVault(), decoded=n["decoded"]).details
-        r = router.check(pii["redacted"], decoded=pii["decoded_redacted"])
+        r = router.check(n["normalized"], decoded=n["decoded"])  # as the pipeline routes
         pred = int(r.category == "CRISIS")
         noted = int(bool(r.details.get("crisis_note")))
         out.append(Prediction(it.id, it.label, pred, r.score, it.kind, it.text, {"noted": noted}))
