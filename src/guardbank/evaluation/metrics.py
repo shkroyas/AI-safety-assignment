@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+from collections import Counter
 from collections.abc import Iterable
 from typing import Any
 
@@ -81,4 +82,56 @@ def multiclass_metrics(rows: list[tuple[str, str, str]], classes: list[str]) -> 
         "macro_f1": sum(f1s) / len(f1s) if f1s else None,
         "per_class": per_class,
         "confusion": confusion,
+    }
+
+
+def entity_metrics(rows: Iterable[tuple[str, list[str], list[str]]]) -> dict[str, Any]:
+    """Entity-level PII scoring over label bags: rows are (id, expected labels, found labels).
+
+    A missed second entity is a false negative and an extra entity a false positive, which the
+    message-level metric hides (docs/specs/fix-entity-pii-metrics.md). Labels, not spans.
+    """
+    tp = fp = fn = 0
+    fp_entities: list[list[str]] = []
+    fn_entities: list[list[str]] = []
+    per: dict[str, Counter] = {}
+    for item_id, expected, found in rows:
+        want, got = Counter(expected), Counter(found)
+        hit = want & got
+        for label in set(want) | set(got):
+            c = per.setdefault(label, Counter())
+            c["tp"] += hit[label]
+            c["fp"] += got[label] - hit[label]
+            c["fn"] += want[label] - hit[label]
+        tp += sum(hit.values())
+        fp += sum((got - hit).values())
+        fn += sum((want - hit).values())
+        fp_entities += [[item_id, label] for label in sorted((got - hit).elements())]
+        fn_entities += [[item_id, label] for label in sorted((want - hit).elements())]
+    precision, recall = _ratio(tp, tp + fp), _ratio(tp, tp + fn)
+    if precision is None or recall is None:
+        f1 = None
+    else:
+        f1 = 0.0 if precision + recall == 0 else 2 * precision * recall / (precision + recall)
+    per_label = {
+        label: {
+            "tp": c["tp"],
+            "fp": c["fp"],
+            "fn": c["fn"],
+            "precision": _ratio(c["tp"], c["tp"] + c["fp"]),
+            "recall": _ratio(c["tp"], c["tp"] + c["fn"]),
+        }
+        for label, c in sorted(per.items())
+    }
+    return {
+        "tp": tp,
+        "fp": fp,
+        "fn": fn,
+        "precision": precision,
+        "recall": recall,
+        "f1": f1,
+        "ci": {"precision": wilson(tp, tp + fp), "recall": wilson(tp, tp + fn)},
+        "fp_entities": fp_entities,
+        "fn_entities": fn_entities,
+        "per_label": per_label,
     }

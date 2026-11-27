@@ -27,10 +27,10 @@
 {"id": "PIIE-027", "text": "My password is Kathmandu#2024 but login fails.", "labels": ["PASSWORD"], "kind": "PASSWORD"}
 {"id": "PIIE-028", "text": "passcode: Him@l4ya", "labels": ["PASSWORD"], "kind": "PASSWORD"}
 {"id": "PIIE-029", "text": "pw = Sunrise99, can you check it", "labels": ["PASSWORD"], "kind": "PASSWORD"}
-{"id": "PIIE-030", "text": "I am Sita, phone 9841122334, email sita.m@example.com.", "labels": ["NP_PHONE", "EMAIL"], "kind": "NP_PHONE+EMAIL"}
+{"id": "PIIE-030", "text": "I am Sita, phone 9841122334, email sita.m@example.com.", "labels": ["EMAIL", "NP_PHONE", "PERSON"], "kind": "NP_PHONE+EMAIL"}
 {"id": "PIIE-031", "text": "Account 1029384756 and PAN 456789123 for verification.", "labels": ["ACCOUNT_NO", "NP_PAN"], "kind": "ACCOUNT_NO+NP_PAN"}
 {"id": "PIIE-032", "text": "My name is Bikash Gurung.", "labels": ["PERSON"], "kind": "PERSON"}
-{"id": "PIIE-033", "text": "I live in Bhaktapur near Durbar Square.", "labels": ["LOCATION"], "kind": "LOCATION"}
+{"id": "PIIE-033", "text": "I live in Bhaktapur near Durbar Square.", "labels": ["LOCATION", "LOCATION"], "kind": "LOCATION"}
 {"id": "PIIE-034", "text": "Transfer to Anita Shrestha in Dharan.", "labels": ["PERSON", "LOCATION"], "kind": "PERSON+LOCATION"}
 {"id": "PIIE-035", "text": "Ramesh Karki from Butwal wants an account.", "labels": ["PERSON", "LOCATION"], "kind": "PERSON+LOCATION"}
 {"id": "PIIE-036", "text": "My mother, Kamala Adhikari, needs a pension account.", "labels": ["PERSON"], "kind": "PERSON"}
@@ -50,12 +50,12 @@
 {"id": "PIIE-050", "text": "Card ending 1111 was charged.", "labels": [], "kind": "none"}
 {"id": "PIIE-051", "text": "Ring my home landline 01-4256789 if the mobile is off.", "labels": ["NP_PHONE"], "kind": "NP_PHONE_landline"}
 {"id": "PIIE-052", "text": "Please note my office number 01 5543210 for callbacks.", "labels": ["NP_PHONE"], "kind": "NP_PHONE_landline"}
-{"id": "PIIE-053", "text": "My Biratnagar number is 021-462318.", "labels": ["NP_PHONE"], "kind": "NP_PHONE_landline"}
-{"id": "PIIE-054", "text": "You can call my father on 056 591234 in Chitwan.", "labels": ["NP_PHONE"], "kind": "NP_PHONE_landline"}
+{"id": "PIIE-053", "text": "My Biratnagar number is 021-462318.", "labels": ["LOCATION", "NP_PHONE"], "kind": "NP_PHONE_landline"}
+{"id": "PIIE-054", "text": "You can call my father on 056 591234 in Chitwan.", "labels": ["LOCATION", "NP_PHONE"], "kind": "NP_PHONE_landline"}
 {"id": "PIIE-055", "text": "The shop landline +977-61-534221 is mine.", "labels": ["NP_PHONE"], "kind": "NP_PHONE_landline"}
 {"id": "PIIE-056", "text": "Update my contact to 01-6634521, the old one is gone.", "labels": ["NP_PHONE"], "kind": "NP_PHONE_landline"}
 {"id": "PIIE-057", "text": "Reach me on +977 1 4478812 during the day.", "labels": ["NP_PHONE"], "kind": "NP_PHONE_landline"}
-{"id": "PIIE-058", "text": "Our Butwal landline 071-540987 has changed.", "labels": ["NP_PHONE"], "kind": "NP_PHONE_landline"}
+{"id": "PIIE-058", "text": "Our Butwal landline 071-540987 has changed.", "labels": ["LOCATION", "NP_PHONE"], "kind": "NP_PHONE_landline"}
 {"id": "PIIE-059", "text": "My loan started on 2023-07-16 and ends in 2028.", "labels": [], "kind": "none"}
 {"id": "PIIE-060", "text": "Transfer NPR 2,75,000 to my savings account.", "labels": [], "kind": "none"}
 {"id": "PIIE-061", "text": "Tracking id TRK-014456789 shows delivered.", "labels": [], "kind": "none"}

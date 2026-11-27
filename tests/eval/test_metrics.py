@@ -2,7 +2,12 @@
 
 import pytest
 
-from guardbank.evaluation.metrics import binary_metrics, multiclass_metrics, wilson
+from guardbank.evaluation.metrics import (
+    binary_metrics,
+    entity_metrics,
+    multiclass_metrics,
+    wilson,
+)
 
 
 def test_binary_counts_and_rates():
@@ -50,3 +55,29 @@ def test_multiclass():
     f1s = [m["per_class"][c]["f1"] for c in "ABC"]
     assert m["macro_f1"] == pytest.approx(sum(f1s) / 3)
     assert m["confusion"]["A"]["B"] == 1
+
+
+# ---------- entity-level PII (docs/specs/fix-entity-pii-metrics.md) ----------
+
+
+def test_entity_metrics_label_bags():
+    rows = [
+        ("A", ["PERSON", "NP_PHONE"], ["NP_PHONE"]),  # missed second entity -> FN
+        ("B", ["EMAIL"], ["EMAIL", "PERSON"]),  # extra entity -> FP
+        ("C", ["LOCATION", "LOCATION"], ["LOCATION"]),  # duplicate label counted
+        ("D", [], []),
+    ]
+    m = entity_metrics(rows)
+    assert (m["tp"], m["fp"], m["fn"]) == (3, 1, 2)
+    assert m["precision"] == pytest.approx(3 / 4)
+    assert m["recall"] == pytest.approx(3 / 5)
+    assert m["fp_entities"] == [["B", "PERSON"]]
+    assert sorted(m["fn_entities"]) == [["A", "PERSON"], ["C", "LOCATION"]]
+    assert m["per_label"]["LOCATION"] == {
+        "tp": 1,
+        "fp": 0,
+        "fn": 1,
+        "precision": 1.0,
+        "recall": 0.5,
+    }
+    assert set(m["ci"]) == {"precision", "recall"}
