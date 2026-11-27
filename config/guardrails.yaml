@@ -143,10 +143,13 @@ input:
         regex: '\b(?:ignore|disregard|forget)\s+(?:(?:all|the|your|any|of)\s+)*(?:previous|prior|above|earlier)\s+(?:instructions|rules|prompts?|directions)\b'
         weight: 1.0
       ROLE_OVERRIDE:
-        regex: '\byou\s+are\s+now\b|\bact\s+as\s+(?:dan\b|an?\s+(?:unrestricted|unfiltered|jailbroken)\b)|\b(?:developer|god|jailbreak)\s+mode\b'
+        # Narrowed in fix/injection-lookalikes: "you are now my preferred bank" and "what does developer
+        # mode do in the app" were refused. Each alternative matches a subset of the old pattern.
+        regex: '\byou\s+are\s+now\s+(?!my\b|our\b|the\s+best\b)|\bact\s+as\s+(?:dan\b|an?\s+(?:unrestricted|unfiltered|jailbroken)\b)|\b(?:enable|enter|activate|switch\s+(?:on|to)|turn\s+on|in|into)\s+(?:developer|god|jailbreak)\s+mode\b|\b(?:developer|god|jailbreak)\s+mode\s+(?:is\s+)?(?:enabled|activated|on)\b|\b(?:god|jailbreak)\s+mode\b'
         weight: 1.0
       PROMPT_EXTRACTION:
-        regex: '\b(?:reveal|print|repeat|show|output|display|tell\s+me)\s+(?:me\s+)?(?:your|the)\s+(?:system\s+prompt|instructions|internal\s+reference|hidden\s+prompt|initial\s+prompt)\b'
+        # "the instructions" is not an attack when they are instructions for something ("…for activating my card").
+        regex: '\b(?:reveal|print|repeat|show|output|display|tell\s+me)\s+(?:me\s+)?(?:your\s+(?:system\s+prompt|instructions|internal\s+reference|hidden\s+prompt|initial\s+prompt)|the\s+(?:system\s+prompt|internal\s+reference|hidden\s+prompt|initial\s+prompt)|the\s+instructions\b(?!\s+(?:for|on|to|about|of|printed|in|that\s+came)\b))'
         weight: 1.0
       FAKE_DELIMITER:
         regex: '<\s*/?\s*system\s*>|\[/?INST\]|<\|im_(?:start|end)\|>|^\s*#{2,}\s*system\s*:'

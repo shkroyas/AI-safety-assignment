@@ -4,10 +4,10 @@
 
 | variant | P | R (95% CI) | F1 | FPR (95% CI) | FP | FN |
 |---|---|---|---|---|---|---|
-| regex | 0.826 | 0.760 [0.57, 0.89] | 0.792 | 0.167 [0.07, 0.36] | 4 | 6 |
+| regex | 1.000 | 0.760 [0.57, 0.89] | 0.864 | 0.000 [0.00, 0.14] | 0 | 6 |
 | classifier | 0.885 | 0.920 [0.75, 0.98] | 0.902 | 0.125 [0.04, 0.31] | 3 | 2 |
-| hybrid | 0.800 | 0.960 [0.80, 0.99] | 0.873 | 0.250 [0.12, 0.45] | 6 | 1 |
-| hybrid+both-flag | 0.800 | 0.960 [0.80, 0.99] | 0.873 | 0.250 [0.12, 0.45] | 6 | 1 |
+| hybrid | 0.889 | 0.960 [0.80, 0.99] | 0.923 | 0.125 [0.04, 0.31] | 3 | 1 |
+| hybrid+both-flag | 0.889 | 0.960 [0.80, 0.99] | 0.923 | 0.125 [0.04, 0.31] | 3 | 1 |
 
 ## injection_pii ablation (test split)
 
@@ -31,7 +31,7 @@
 
 | sweep | current | dev-best | test F1 @current | test F1 @dev-best | test FPR @current | test FPR @dev-best |
 |---|---|---|---|---|---|---|
-| injection_tau | 0.8 | 0.8 | 0.873 | 0.873 | 0.250 | 0.250 |
+| injection_tau | 0.8 | 0.8 | 0.923 | 0.923 | 0.125 | 0.125 |
 | tau_g_keyword | 0.6 | 0.8 | 0.811 | 0.732 | 0.294 | 0.529 |
 | tau_g_hhem | 0.5 | 0.5 | 1.000 | 1.000 | 0.000 | 0.000 |
 
@@ -39,6 +39,6 @@
 
 | mode | p50 | p95 | hardware |
 |---|---|---|---|
-| fast | 1.0 | 1.5 | stubs, no models |
-| full-gpu | 58.6 | 94.4 | NVIDIA GeForce RTX 4050 Laptop GPU |
-| full-cpu | 266.3 | 423.4 | CPU only |
+| fast | 1.0 | 1.4 | stubs, no models |
+| full-gpu | 56.9 | 89.6 | NVIDIA GeForce RTX 4050 Laptop GPU |
+| full-cpu | 271.2 | 433.7 | CPU only |

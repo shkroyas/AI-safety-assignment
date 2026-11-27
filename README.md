@@ -163,7 +163,7 @@ Detector metrics on the held-out test split (70%; thresholds tuned on the 30% de
 <!-- tables:metrics -->
 | guardrail | n | P (95% CI) | R (95% CI) | F1 | FPR (95% CI) | FP ids | FN ids |
 |---|---|---|---|---|---|---|---|
-| injection | 49 | 0.800 [0.63, 0.90] | 0.960 [0.80, 0.99] | 0.873 | 0.250 [0.12, 0.45] | INJE-037, INJE-038, INJE-041, INJE-042, INJE-043, INJE-044 | INJE-009 |
+| injection | 49 | 0.889 [0.72, 0.96] | 0.960 [0.80, 0.99] | 0.923 | 0.125 [0.04, 0.31] | INJE-037, INJE-038, INJE-043 | INJE-009 |
 | injection_pii | 32 | 0.786 [0.52, 0.92] | 1.000 [0.74, 1.00] | 0.880 | 0.143 [0.05, 0.35] | INJP-013, INJP-015, INJP-028 | — |
 | crisis | 22 | 1.000 [0.68, 1.00] | 0.727 [0.43, 0.90] | 0.842 | 0.000 [0.00, 0.26] | — | CRIS-002, CRIS-008, CRIS-010 |
 | pii | 35 | 1.000 [0.87, 1.00] | 1.000 [0.87, 1.00] | 1.000 | 0.000 [0.00, 0.28] | — | — |
@@ -183,7 +183,7 @@ Topics (test, n=44): accuracy 0.932, macro-F1 0.932, crisis recall 1.000. Sensit
 | OFF_TOPIC | 1.000 | 1.000 [0.61, 1.00] | — | — |
 | NORMAL | 0.778 | 1.000 [0.65, 1.00] | TOPE-015, TOPE-026 | — |
 
-Run: full mode, commit `426b814`, test split (70%).
+Run: full mode, commit `d332b76`, test split (70%).
 <!-- /tables:metrics -->
 
 ## Design decisions
@@ -193,7 +193,8 @@ Run: full mode, commit `426b814`, test split (70%).
 - **Route sensitive topics before retrieval.** Crisis and fraud replies are fixed text and never
   depend on retrieval or generation; the crisis keyword path cannot be outvoted by a model.
 - **Hybrid injection detection.** Regex is transparent and free, the classifier catches
-  paraphrases; the hybrid has the best recall (0.96) and the worst false-positive rate (0.25).
+  paraphrases; the hybrid has the best recall (0.96) and F1 (0.92); its false-positive rate
+  (0.125) now comes only from DeBERTa.
   On messages with PII the classifier must flag both the raw and the redacted text, because
   DeBERTa reads card numbers and passwords as payloads.
 - **Numbers are checked exactly.** NLI handles paraphrase; an exact match on every number,
