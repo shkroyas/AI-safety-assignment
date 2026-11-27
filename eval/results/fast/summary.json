@@ -1,6 +1,6 @@
 {
   "mode": "fast",
-  "commit": "b59cf674d3f8d3247bc3483a8d1890f00ca413e8",
+  "commit": "dec28f3495eab072f97f7b3d350c624706ac1640",
   "dirty": false,
   "config_sha256": "bfec3b27916d53551f735fe8f9c08bbb9d80420e451d2c8fe61fb7db53b052fd",
   "models": {
@@ -260,6 +260,107 @@
           "OTP": 1.0,
           "PASSWORD": 1.0,
           "PERSON": 0.0
+        },
+        "entity": {
+          "tp": 12,
+          "fp": 0,
+          "fn": 2,
+          "precision": 1.0,
+          "recall": 0.8571428571428571,
+          "f1": 0.923076923076923,
+          "ci": {
+            "precision": [
+              0.7575059933447592,
+              1.0
+            ],
+            "recall": [
+              0.6005862050302965,
+              0.9599060787285351
+            ]
+          },
+          "fp_entities": [],
+          "fn_entities": [
+            [
+              "PIIE-035",
+              "LOCATION"
+            ],
+            [
+              "PIIE-035",
+              "PERSON"
+            ]
+          ],
+          "per_label": {
+            "ACCOUNT_NO": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "CARD": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "EMAIL": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "LOCATION": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 1,
+              "precision": null,
+              "recall": 0.0
+            },
+            "NP_CITIZENSHIP": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "NP_PAN": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "NP_PHONE": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "OTP": {
+              "tp": 3,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "PASSWORD": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "PERSON": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 1,
+              "precision": null,
+              "recall": 0.0
+            }
+          }
         }
       },
       "test": {
@@ -304,6 +405,139 @@
           "OTP": 1.0,
           "PASSWORD": 1.0,
           "PERSON": 0.0
+        },
+        "entity": {
+          "tp": 29,
+          "fp": 0,
+          "fn": 10,
+          "precision": 1.0,
+          "recall": 0.7435897435897436,
+          "f1": 0.8529411764705882,
+          "ci": {
+            "precision": [
+              0.8830302015002593,
+              1.0
+            ],
+            "recall": [
+              0.5891834407831603,
+              0.8543121945900741
+            ]
+          },
+          "fp_entities": [],
+          "fn_entities": [
+            [
+              "PIIE-030",
+              "PERSON"
+            ],
+            [
+              "PIIE-032",
+              "PERSON"
+            ],
+            [
+              "PIIE-033",
+              "LOCATION"
+            ],
+            [
+              "PIIE-033",
+              "LOCATION"
+            ],
+            [
+              "PIIE-034",
+              "LOCATION"
+            ],
+            [
+              "PIIE-034",
+              "PERSON"
+            ],
+            [
+              "PIIE-036",
+              "PERSON"
+            ],
+            [
+              "PIIE-053",
+              "LOCATION"
+            ],
+            [
+              "PIIE-054",
+              "LOCATION"
+            ],
+            [
+              "PIIE-058",
+              "LOCATION"
+            ]
+          ],
+          "per_label": {
+            "ACCOUNT_NO": {
+              "tp": 4,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "CARD": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "EMAIL": {
+              "tp": 3,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "LOCATION": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 6,
+              "precision": null,
+              "recall": 0.0
+            },
+            "NP_CITIZENSHIP": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "NP_PAN": {
+              "tp": 3,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "NP_PHONE": {
+              "tp": 12,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "OTP": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "PASSWORD": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "PERSON": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 4,
+              "precision": null,
+              "recall": 0.0
+            }
+          }
         }
       }
     },

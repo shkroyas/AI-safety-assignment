@@ -75,6 +75,15 @@ def metrics_table() -> str:
             f"| {t['recall']:.3f} {_ci(t['ci']['recall'])} | {t['f1']:.3f} "
             f"| {t['fpr']:.3f} {_ci(t['ci']['fpr'])} | {_ids(t['fp_ids'])} | {_ids(t['fn_ids'])} |"
         )
+        if name == "pii":  # entity level: every expected and found label, not just "any PII"
+            e = t["entity"]
+            ents = lambda xs: _ids([f"{i} {lab}" for i, lab in xs])  # noqa: E731
+            out.append(
+                f"| pii (entity level) | {e['tp'] + e['fn']} entities "
+                f"| {e['precision']:.3f} {_ci(e['ci']['precision'])} "
+                f"| {e['recall']:.3f} {_ci(e['ci']['recall'])} | {e['f1']:.3f} | – "
+                f"| {ents(e['fp_entities'])} | {ents(e['fn_entities'])} |"
+            )
     topics = s["sets"]["topics"]["test"]
     b = topics["binary"]
     out += [

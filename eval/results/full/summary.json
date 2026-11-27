@@ -1,6 +1,6 @@
 {
   "mode": "full",
-  "commit": "b59cf674d3f8d3247bc3483a8d1890f00ca413e8",
+  "commit": "dec28f3495eab072f97f7b3d350c624706ac1640",
   "dirty": false,
   "config_sha256": "bfec3b27916d53551f735fe8f9c08bbb9d80420e451d2c8fe61fb7db53b052fd",
   "models": {
@@ -246,6 +246,103 @@
           "OTP": 1.0,
           "PASSWORD": 1.0,
           "PERSON": 1.0
+        },
+        "entity": {
+          "tp": 14,
+          "fp": 1,
+          "fn": 0,
+          "precision": 0.9333333333333333,
+          "recall": 1.0,
+          "f1": 0.9655172413793104,
+          "ci": {
+            "precision": [
+              0.7018347012621998,
+              0.9881331045067315
+            ],
+            "recall": [
+              0.7846891972623643,
+              1.0
+            ]
+          },
+          "fp_entities": [
+            [
+              "PIIE-043",
+              "LOCATION"
+            ]
+          ],
+          "fn_entities": [],
+          "per_label": {
+            "ACCOUNT_NO": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "CARD": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "EMAIL": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "LOCATION": {
+              "tp": 1,
+              "fp": 1,
+              "fn": 0,
+              "precision": 0.5,
+              "recall": 1.0
+            },
+            "NP_CITIZENSHIP": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "NP_PAN": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "NP_PHONE": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "OTP": {
+              "tp": 3,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "PASSWORD": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "PERSON": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            }
+          }
         }
       },
       "test": {
@@ -285,6 +382,103 @@
           "OTP": 1.0,
           "PASSWORD": 1.0,
           "PERSON": 1.0
+        },
+        "entity": {
+          "tp": 39,
+          "fp": 1,
+          "fn": 0,
+          "precision": 0.975,
+          "recall": 1.0,
+          "f1": 0.9873417721518987,
+          "ci": {
+            "precision": [
+              0.8711863103652591,
+              0.9955731684973186
+            ],
+            "recall": [
+              0.9103331462924287,
+              1.0
+            ]
+          },
+          "fp_entities": [
+            [
+              "PIIE-013",
+              "PERSON"
+            ]
+          ],
+          "fn_entities": [],
+          "per_label": {
+            "ACCOUNT_NO": {
+              "tp": 4,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "CARD": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "EMAIL": {
+              "tp": 3,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "LOCATION": {
+              "tp": 6,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "NP_CITIZENSHIP": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "NP_PAN": {
+              "tp": 3,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "NP_PHONE": {
+              "tp": 12,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "OTP": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "PASSWORD": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "PERSON": {
+              "tp": 4,
+              "fp": 1,
+              "fn": 0,
+              "precision": 0.8,
+              "recall": 1.0
+            }
+          }
         }
       }
     },

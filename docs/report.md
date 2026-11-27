@@ -103,7 +103,7 @@ similarity threshold (τ 0.78 for bge-small; LEAK-009/010/012), and numbers in f
 
 ## c. Evaluation results
 
-**Test suite.** 484 pytest tests (411 fast, the rest need real models or the live API), including
+**Test suite.** 488 pytest tests (415 fast, the rest need real models or the live API), including
 47 end-to-end cases in `tests/cases.yaml`: each records input, reference context or scripted LLM
 output, expected behaviour, actual behaviour and pass/fail (`eval/results/full/cases.json`).
 
@@ -133,6 +133,7 @@ Wilson 95% confidence intervals and every false positive and false negative list
 | injection_pii | 32 | 0.786 [0.52, 0.92] | 1.000 [0.74, 1.00] | 0.880 | 0.143 [0.05, 0.35] | INJP-013, INJP-015, INJP-028 | — |
 | crisis | 22 | 1.000 [0.68, 1.00] | 0.727 [0.43, 0.90] | 0.842 | 0.000 [0.00, 0.26] | — | CRIS-002, CRIS-008, CRIS-010 |
 | pii | 45 | 1.000 [0.89, 1.00] | 1.000 [0.89, 1.00] | 1.000 | 0.000 [0.00, 0.22] | — | — |
+| pii (entity level) | 39 entities | 0.975 [0.87, 1.00] | 1.000 [0.91, 1.00] | 0.987 | – | PIIE-013 PERSON | — |
 | groundedness | 34 | 1.000 [0.82, 1.00] | 1.000 [0.82, 1.00] | 1.000 | 0.000 [0.00, 0.18] | — | — |
 | leakage | 21 | 1.000 [0.70, 1.00] | 0.818 [0.52, 0.95] | 0.900 | 0.000 [0.00, 0.28] | — | LEAK-009, LEAK-010 |
 | leakage_pii | 23 | 1.000 [0.68, 1.00] | 1.000 [0.68, 1.00] | 1.000 | 0.000 [0.00, 0.20] | — | — |
@@ -150,7 +151,7 @@ Topics (test, n=44): accuracy 0.932, macro-F1 0.932, crisis recall 1.000. Sensit
 | OFF_TOPIC | 1.000 | 1.000 [0.61, 1.00] | — | — |
 | NORMAL | 0.778 | 1.000 [0.65, 1.00] | TOPE-015, TOPE-026 | — |
 
-Run: full mode, commit `b59cf67`, test split (70%).
+Run: full mode, commit `dec28f3`, test split (70%).
 <!-- /tables:metrics -->
 
 **Ablations, threshold sweeps and latency.** Charts are in `eval/results/ablations/charts/`.
@@ -208,7 +209,7 @@ PII message had its email redacted before the LLM call but the reply was over-re
 (failure 5, since fixed for the password words; the live run has not been repeated).
 
 **What performed well.** Groundedness with NLI + number check (F1 1.00 on test, 0 FP), PII on the
-labeled set (P = R = 1.00 after the fix), schema validation (all fault-injection cases), and the
+labeled set (message level P = R = 1.00; entity level P 0.975, R 1.00 in full mode), schema validation (all fault-injection cases), and the
 crisis fast-path for explicit wording. **What failed.** Injection still over-blocks some benign
 lookalikes (test FPR 0.125, all from DeBERTa); the topic classifier misses 2 of 37 sensitive messages (fraud intent, scam
 victim) and 3 of 11 indirect crisis paraphrases in the held-out `crisis` set; leakage misses paraphrased prompt leaks; and in full mode DeBERTa still refuses
@@ -422,6 +423,23 @@ the LLM call.
   from p50 57.5 → 46.7 ms on GPU and 275 → 213 ms on CPU, since GLiNER and the embedder no longer
   run twice.
 
+### 10. The PII metric hid extra and missed entities (found by external review, fixed)
+- **What happened.** The external review (P1-1) pointed out that the PII metric was message level
+  (any PII vs none), so a missed second entity or an extra false one inside a message that has PII
+  was invisible. Scored at entity level over label bags, on the labels as they were (commit
+  `be0ac42`): full mode test P 0.850, R 1.000 (6 extra entities); fast mode test P 1.000, R 0.853.
+- **What the extras were.** One detector error: "my employer" tagged as a person (PIIE-013). Five
+  gaps in my own labels: a name ("I am Sita", PIIE-030), a second place ("near Durbar Square",
+  PIIE-033), and the cities in three landline items added in #27 (PIIE-053/054/058). One by policy:
+  "Lalitpur" in a branch question (PIIE-043) is labeled no PII on purpose and stays a false positive.
+- **Fix shipped.** The PII set now reports entity-level P/R/F1 with Wilson intervals, per-label
+  counts and every false or missed entity by (id, label), beside the message-level numbers. The
+  five label gaps were corrected; only unambiguous names and places were added. Because they were
+  found by looking at detector output, both versions are stated: after correction, full mode test
+  P 0.975 (only PIIE-013), R 1.000; fast mode test R 0.744, since names and places are found only
+  by GLiNER.
+- **Remaining.** Label bags, not spans: the right label on the wrong words still counts as correct.
+
 ## Trade-offs
 
 **Stricter control that costs usability: the hybrid injection rule.** Blocking on
@@ -449,7 +467,7 @@ but it caught only 7 of the 15 attacks that carry PII, so it was not shipped.
 |---|---|---|---|
 | Direct prompt injection, paraphrased or non-English | LLM01 Prompt Injection | Measure 2.7 (security), Manage 2.2 | Medium: recall 0.96 on English test set; Romanized Nepali and role-play misses (failure 4) |
 | Indirect injection via poisoned documents | LLM01, LLM04 Data and Model Poisoning | Map 4.1, Manage 3.1 | Medium: chunk scan recall 0.64 on poisoned chunks, classifier left as stub because DeBERTa flagged 7/117 clean chunks |
-| PII sent to the model provider or echoed to others | LLM02 Sensitive Information Disclosure | Measure 2.10 (privacy) | Low–medium: P = R = 1.00 on the set, but untested on Devanagari digits and multi-turn PII |
+| PII sent to the model provider or echoed to others | LLM02 Sensitive Information Disclosure | Measure 2.10 (privacy) | Low–medium: entity-level P 0.975, R 1.00 on the set (full mode; fast mode misses names and places, R 0.74), untested on Devanagari digits and multi-turn PII |
 | System-prompt leak | LLM07 System Prompt Leakage | Measure 2.7 | Low–medium: canary blocks verbatim leaks; paraphrased leaks missed (leakage recall 0.82) |
 | Wrong fee, limit or rate stated as policy | LLM09 Misinformation | Measure 2.5 (validity), Manage 2.3 | Low on the set (groundedness F1 1.00); 512-token window and corpus-only truth remain |
 | Malformed or unhandled output | LLM05 Improper Output Handling | Measure 2.5 | Low: schema + retries + fallback; every path tested |
